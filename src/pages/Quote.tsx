@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,12 +76,27 @@ export default function Quote() {
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const printRef = useRef<HTMLDivElement>(null);
+  const sessionIdRef = useRef(crypto.randomUUID());
+
+  // Track events silently
+  const trackEvent = useCallback((event_type: string, extra?: { step_number?: number; template_id?: string; metadata?: Record<string, unknown> }) => {
+    const row: Record<string, unknown> = {
+      event_type,
+      session_id: sessionIdRef.current,
+      metadata: extra?.metadata ?? {},
+    };
+    if (extra?.step_number != null) row.step_number = extra.step_number;
+    if (extra?.template_id) row.template_id = extra.template_id;
+    supabase.from('quote_events').insert(row as never).then(() => {});
+  }, []);
 
   useEffect(() => {
     supabase.from('quote_templates').select('*').eq('is_active', true).then(({ data }) => {
       if (data) setTemplates(data as QuoteTemplate[]);
     });
-  }, []);
+    // Track initial step
+    trackEvent('step_reached', { step_number: 1 });
+  }, [trackEvent]);
 
   // Service helpers
   const addService = () => setServices([...services, emptyService()]);
@@ -109,6 +124,7 @@ export default function Quote() {
     ));
   };
   const addTemplateAsMaterial = (serviceId: string, t: QuoteTemplate) => {
+    trackEvent('template_used', { template_id: t.id, metadata: { template_name: t.name, service_id: serviceId } });
     setServices(services.map((s) =>
       s.id === serviceId
         ? {
@@ -139,12 +155,20 @@ export default function Quote() {
   const allItemsCount = services.length + services.reduce((sum, s) => sum + s.materials.length, 0);
 
   const handleDownloadPDF = async () => {
+    const servicesSummary = services.map(s => ({
+      name: s.name,
+      labor: serviceLaborTotal(s),
+      materials: s.materials.map(m => ({ name: m.name, total: m.quantity * m.unitPrice })),
+      total: serviceTotal(s),
+    }));
     await supabase.from('quote_logs').insert({
       company_name: company.name,
       client_name: client.name,
       total_amount: total,
       items_count: allItemsCount,
+      services_summary: servicesSummary as never,
     });
+    trackEvent('download', { step_number: 4, metadata: { total, services_count: services.length } });
 
     const printContent = printRef.current;
     if (!printContent) return;
@@ -240,7 +264,7 @@ export default function Quote() {
               </div>
               <div><Label>Morada</Label><Input value={company.address} onChange={(e) => setCompany({ ...company, address: e.target.value })} /></div>
               <div className="flex justify-end">
-                <Button onClick={() => setStep(2)} className="gap-2">Seguinte <ArrowRight className="h-4 w-4" /></Button>
+                <Button onClick={() => { setStep(2); trackEvent('step_reached', { step_number: 2 }); }} className="gap-2">Seguinte <ArrowRight className="h-4 w-4" /></Button>
               </div>
             </CardContent>
           </Card>
@@ -259,7 +283,7 @@ export default function Quote() {
               </div>
               <div className="flex justify-between">
                 <Button variant="outline" onClick={() => setStep(1)} className="gap-2"><ArrowLeft className="h-4 w-4" /> Anterior</Button>
-                <Button onClick={() => setStep(3)} className="gap-2">Seguinte <ArrowRight className="h-4 w-4" /></Button>
+                <Button onClick={() => { setStep(3); trackEvent('step_reached', { step_number: 3 }); }} className="gap-2">Seguinte <ArrowRight className="h-4 w-4" /></Button>
               </div>
             </CardContent>
           </Card>
@@ -364,7 +388,7 @@ export default function Quote() {
 
                 <div className="flex justify-between">
                   <Button variant="outline" onClick={() => setStep(2)} className="gap-2"><ArrowLeft className="h-4 w-4" /> Anterior</Button>
-                  <Button onClick={() => setStep(4)} className="gap-2">Ver Preview <ArrowRight className="h-4 w-4" /></Button>
+                  <Button onClick={() => { setStep(4); trackEvent('step_reached', { step_number: 4 }); }} className="gap-2">Ver Preview <ArrowRight className="h-4 w-4" /></Button>
                 </div>
               </CardContent>
             </Card>

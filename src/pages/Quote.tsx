@@ -76,6 +76,9 @@ export default function Quote() {
   const [notes, setNotes] = useState('');
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [sendEmail, setSendEmail] = useState('');
+  const [consentChecked, setConsentChecked] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef(crypto.randomUUID());
 

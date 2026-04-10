@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Plus, Trash2, ArrowLeft, ArrowRight, Download, Building2, Wrench, Package } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, ArrowRight, Download, Building2, Wrench, Package, Mail, ShieldCheck } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface MaterialItem {
   id: string;

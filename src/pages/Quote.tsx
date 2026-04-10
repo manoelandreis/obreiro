@@ -429,7 +429,7 @@ export default function Quote() {
 
                 <div className="flex justify-between">
                   <Button variant="outline" onClick={() => setStep(2)} className="gap-2"><ArrowLeft className="h-4 w-4" /> Anterior</Button>
-                  <Button onClick={() => { setStep(4); trackEvent('step_reached', { step_number: 4 }); }} className="gap-2">Ver Preview <ArrowRight className="h-4 w-4" /></Button>
+                  <Button onClick={() => { setStep(4); trackEvent('step_reached', { step_number: 4 }); if (client.email && !sendEmail) setSendEmail(client.email); }} className="gap-2">Ver Preview <ArrowRight className="h-4 w-4" /></Button>
                 </div>
               </CardContent>
             </Card>

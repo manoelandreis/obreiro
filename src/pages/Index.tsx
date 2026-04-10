@@ -95,7 +95,7 @@ export default function Index() {
           <p className="text-muted-foreground mb-8">
             {hero?.body || 'Ferramenta gratuita para builders e construtores.'}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex-col gap-4 justify-center flex sm:flex-col">
             <Link to="/quote">
               <Button size="lg" className="gap-2 text-base">
                 Criar Orçamento Grátis <ArrowRight className="h-4 w-4" />

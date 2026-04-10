@@ -564,6 +564,8 @@ export default function Quote() {
                     Os dados do orçamento não são guardados — processamento 100% local no seu navegador.
                   </div>
                 </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>

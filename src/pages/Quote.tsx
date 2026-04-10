@@ -220,11 +220,48 @@ export default function Quote() {
     setTimeout(() => { printWindow.print(); }, 500);
   };
 
-  const handleWaitlistNudge = async () => {
-    if (!waitlistEmail) return;
-    await supabase.from('waitlist_leads').insert({ email: waitlistEmail, source: 'quote_tool' });
-    toast.success('Obrigado! Ficou na lista de espera.');
-    setWaitlistEmail('');
+  const handleSendByEmail = async () => {
+    if (!sendEmail) {
+      toast.error('Por favor insira o seu email.');
+      return;
+    }
+    setIsSendingEmail(true);
+    try {
+      // Save lead if consent given
+      if (consentChecked) {
+        await supabase.from('waitlist_leads').insert({ email: sendEmail, name: client.name || null, source: 'quote_email' });
+      }
+      trackEvent('email_sent', { step_number: 4, metadata: { total, consent: consentChecked } });
+
+      // Send email via transactional email
+      const { error } = await supabase.functions.invoke('send-transactional-email', {
+        body: {
+          templateName: 'quote-delivery',
+          recipientEmail: sendEmail,
+          idempotencyKey: `quote-${sessionIdRef.current}`,
+          templateData: {
+            companyName: company.name || 'A Sua Empresa',
+            clientName: client.name,
+            total: fmt(total),
+            subtotal: fmt(subtotal),
+            iva: fmt(iva),
+            services: services.map((s, i) => ({
+              name: s.name || `Serviço ${i + 1}`,
+              laborTotal: fmt(serviceLaborTotal(s)),
+              materialsTotal: fmt(serviceMaterialsTotal(s)),
+              total: fmt(serviceTotal(s)),
+            })),
+          },
+        },
+      });
+
+      if (error) throw error;
+      toast.success('Orçamento enviado para o seu email!');
+    } catch {
+      toast.error('Não foi possível enviar o email. Faça download do PDF em vez disso.');
+    } finally {
+      setIsSendingEmail(false);
+    }
   };
 
   const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });

@@ -92,9 +92,6 @@ export default function Index() {
           <p className="text-xl text-muted-foreground mb-4">
             {hero?.subtitle || 'Crie orçamentos profissionais em minutos.'}
           </p>
-          <p className="text-muted-foreground mb-8">
-            {hero?.body || 'Ferramenta gratuita para builders e construtores.'}
-          </p>
           <div className="flex-col gap-4 justify-center flex sm:flex-col">
             <Link to="/quote">
               <Button size="lg" className="gap-2 text-base">

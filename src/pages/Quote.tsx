@@ -9,20 +9,21 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Plus, Trash2, ArrowLeft, ArrowRight, Download, Building2, Wrench, Package } from 'lucide-react';
 
-interface ServiceItem {
-  id: string;
-  name: string;
-  description: string;
-  pricePerHour: number;
-  hours: number;
-}
-
 interface MaterialItem {
   id: string;
   name: string;
   quantity: number;
   unit: string;
   unitPrice: number;
+}
+
+interface ServiceItem {
+  id: string;
+  name: string;
+  description: string;
+  pricePerHour: number;
+  hours: number;
+  materials: MaterialItem[];
 }
 
 interface CompanyInfo {
@@ -49,14 +50,6 @@ interface QuoteTemplate {
   category: string | null;
 }
 
-const emptyService = (): ServiceItem => ({
-  id: crypto.randomUUID(),
-  name: '',
-  description: '',
-  pricePerHour: 0,
-  hours: 1,
-});
-
 const emptyMaterial = (): MaterialItem => ({
   id: crypto.randomUUID(),
   name: '',
@@ -65,12 +58,20 @@ const emptyMaterial = (): MaterialItem => ({
   unitPrice: 0,
 });
 
+const emptyService = (): ServiceItem => ({
+  id: crypto.randomUUID(),
+  name: '',
+  description: '',
+  pricePerHour: 0,
+  hours: 1,
+  materials: [],
+});
+
 export default function Quote() {
   const [step, setStep] = useState(1);
   const [company, setCompany] = useState<CompanyInfo>({ name: '', email: '', phone: '', address: '', nif: '' });
   const [client, setClient] = useState<ClientInfo>({ name: '', email: '', phone: '', address: '' });
   const [services, setServices] = useState<ServiceItem[]>([emptyService()]);
-  const [materials, setMaterials] = useState<MaterialItem[]>([emptyMaterial()]);
   const [notes, setNotes] = useState('');
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [waitlistEmail, setWaitlistEmail] = useState('');
@@ -85,39 +86,64 @@ export default function Quote() {
   // Service helpers
   const addService = () => setServices([...services, emptyService()]);
   const removeService = (id: string) => setServices(services.filter((s) => s.id !== id));
-  const updateService = (id: string, field: keyof ServiceItem, value: string | number) => {
+  const updateService = (id: string, field: keyof Omit<ServiceItem, 'id' | 'materials'>, value: string | number) => {
     setServices(services.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
   };
 
-  // Material helpers
-  const addMaterial = () => setMaterials([...materials, emptyMaterial()]);
-  const removeMaterial = (id: string) => setMaterials(materials.filter((m) => m.id !== id));
-  const updateMaterial = (id: string, field: keyof MaterialItem, value: string | number) => {
-    setMaterials(materials.map((m) => (m.id === id ? { ...m, [field]: value } : m)));
+  // Material helpers (scoped to a service)
+  const addMaterial = (serviceId: string) => {
+    setServices(services.map((s) =>
+      s.id === serviceId ? { ...s, materials: [...s.materials, emptyMaterial()] } : s
+    ));
+  };
+  const removeMaterial = (serviceId: string, materialId: string) => {
+    setServices(services.map((s) =>
+      s.id === serviceId ? { ...s, materials: s.materials.filter((m) => m.id !== materialId) } : s
+    ));
+  };
+  const updateMaterial = (serviceId: string, materialId: string, field: keyof MaterialItem, value: string | number) => {
+    setServices(services.map((s) =>
+      s.id === serviceId
+        ? { ...s, materials: s.materials.map((m) => (m.id === materialId ? { ...m, [field]: value } : m)) }
+        : s
+    ));
+  };
+  const addTemplateAsMaterial = (serviceId: string, t: QuoteTemplate) => {
+    setServices(services.map((s) =>
+      s.id === serviceId
+        ? {
+            ...s,
+            materials: [...s.materials, {
+              id: crypto.randomUUID(),
+              name: t.name,
+              quantity: 1,
+              unit: t.unit || 'un',
+              unitPrice: Number(t.default_price) || 0,
+            }],
+          }
+        : s
+    ));
   };
 
-  const addTemplateAsMaterial = (t: QuoteTemplate) => {
-    setMaterials([...materials, {
-      id: crypto.randomUUID(),
-      name: t.name,
-      quantity: 1,
-      unit: t.unit || 'un',
-      unitPrice: Number(t.default_price) || 0,
-    }]);
-  };
+  // Totals
+  const serviceLaborTotal = (svc: ServiceItem) => svc.pricePerHour * svc.hours;
+  const serviceMaterialsTotal = (svc: ServiceItem) => svc.materials.reduce((sum, m) => sum + m.quantity * m.unitPrice, 0);
+  const serviceTotal = (svc: ServiceItem) => serviceLaborTotal(svc) + serviceMaterialsTotal(svc);
 
-  const subtotalServices = services.reduce((sum, s) => sum + s.pricePerHour * s.hours, 0);
-  const subtotalMaterials = materials.reduce((sum, m) => sum + m.quantity * m.unitPrice, 0);
+  const subtotalServices = services.reduce((sum, s) => sum + serviceLaborTotal(s), 0);
+  const subtotalMaterials = services.reduce((sum, s) => sum + serviceMaterialsTotal(s), 0);
   const subtotal = subtotalServices + subtotalMaterials;
   const iva = subtotal * 0.23;
   const total = subtotal + iva;
+
+  const allItemsCount = services.length + services.reduce((sum, s) => sum + s.materials.length, 0);
 
   const handleDownloadPDF = async () => {
     await supabase.from('quote_logs').insert({
       company_name: company.name,
       client_name: client.name,
       total_amount: total,
-      items_count: services.length + materials.length,
+      items_count: allItemsCount,
     });
 
     const printContent = printRef.current;
@@ -142,9 +168,14 @@ export default function Quote() {
             .info-block h3 { font-size: 14px; color: #6b7280; text-transform: uppercase; margin-bottom: 8px; }
             .info-block p { font-size: 14px; line-height: 1.6; }
             .section-title { font-size: 16px; font-weight: 600; color: #1e293b; margin: 24px 0 12px; }
-            table { width: 100%; border-collapse: collapse; margin: 0 0 20px; }
-            th { background: #f1f5f9; text-align: left; padding: 10px 12px; font-size: 12px; text-transform: uppercase; color: #475569; border-bottom: 2px solid #e2e8f0; }
-            td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+            .service-block { margin-bottom: 24px; }
+            .service-header { font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+            .service-desc { font-size: 13px; color: #475569; margin-bottom: 8px; }
+            .service-labor { font-size: 13px; color: #475569; margin-bottom: 8px; }
+            table { width: 100%; border-collapse: collapse; margin: 0 0 8px; }
+            th { background: #f1f5f9; text-align: left; padding: 8px 10px; font-size: 11px; text-transform: uppercase; color: #475569; border-bottom: 2px solid #e2e8f0; }
+            td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; }
+            .service-subtotal { text-align: right; font-size: 13px; color: #475569; margin-bottom: 4px; }
             .totals { text-align: right; margin-top: 20px; }
             .totals .total { font-size: 18px; font-weight: 700; color: #3b82f6; border-top: 2px solid #3b82f6; padding-top: 8px; margin-top: 8px; }
             .notes { margin-top: 30px; padding: 16px; background: #f8fafc; border-radius: 8px; font-size: 13px; color: #475569; }
@@ -234,85 +265,89 @@ export default function Quote() {
           </Card>
         )}
 
-        {/* Step 3: Services + Materials */}
+        {/* Step 3: Services with nested Materials */}
         {step === 3 && (
           <div className="space-y-6">
-            {/* Services */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Wrench className="h-5 w-5" /> Serviços
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {services.map((svc, idx) => (
-                  <div key={svc.id} className="border rounded-lg p-4 space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-muted-foreground">Serviço {idx + 1}</span>
-                      {services.length > 1 && (
-                        <Button variant="ghost" size="icon" onClick={() => removeService(svc.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                      )}
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-3">
-                      <div><Label>Serviço</Label><Input value={svc.name} onChange={(e) => updateService(svc.id, 'name', e.target.value)} placeholder="Ex: Pintura Interior" /></div>
-                      <div><Label>Descrição</Label><Input value={svc.description} onChange={(e) => updateService(svc.id, 'description', e.target.value)} /></div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div><Label>Preço por Hora (€)</Label><Input type="number" min={0} step={0.01} value={svc.pricePerHour} onChange={(e) => updateService(svc.id, 'pricePerHour', Number(e.target.value))} /></div>
-                      <div><Label>Horas Aproximadas</Label><Input type="number" min={0.5} step={0.5} value={svc.hours} onChange={(e) => updateService(svc.id, 'hours', Number(e.target.value))} /></div>
-                    </div>
-                    <div className="text-right text-sm text-muted-foreground">
-                      Subtotal: <span className="font-medium text-foreground">{fmt(svc.pricePerHour * svc.hours)}</span>
-                    </div>
+            {services.map((svc, idx) => (
+              <Card key={svc.id}>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Wrench className="h-5 w-5" /> Serviço {idx + 1}
+                    </span>
+                    {services.length > 1 && (
+                      <Button variant="ghost" size="icon" onClick={() => removeService(svc.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Service fields */}
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div><Label>Serviço</Label><Input value={svc.name} onChange={(e) => updateService(svc.id, 'name', e.target.value)} placeholder="Ex: Pintura Interior" /></div>
+                    <div><Label>Descrição</Label><Input value={svc.description} onChange={(e) => updateService(svc.id, 'description', e.target.value)} /></div>
                   </div>
-                ))}
-                <Button variant="outline" onClick={addService} className="gap-2 w-full"><Plus className="h-4 w-4" /> Adicionar Serviço</Button>
-              </CardContent>
-            </Card>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div><Label>Preço por Hora (€)</Label><Input type="number" min={0} step={0.01} value={svc.pricePerHour} onChange={(e) => updateService(svc.id, 'pricePerHour', Number(e.target.value))} /></div>
+                    <div><Label>Horas Aproximadas</Label><Input type="number" min={0.5} step={0.5} value={svc.hours} onChange={(e) => updateService(svc.id, 'hours', Number(e.target.value))} /></div>
+                  </div>
+                  <div className="text-right text-sm text-muted-foreground">
+                    Mão de obra: <span className="font-medium text-foreground">{fmt(serviceLaborTotal(svc))}</span>
+                  </div>
 
-            {/* Materials */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5" /> Materiais
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {templates.length > 0 && (
-                  <div className="mb-4">
-                    <Label className="text-muted-foreground text-xs mb-2 block">Adicionar a partir de template:</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {templates.map((t) => (
-                        <Button key={t.id} variant="outline" size="sm" onClick={() => addTemplateAsMaterial(t)}>
-                          + {t.name}
-                        </Button>
-                      ))}
+                  {/* Materials for this service */}
+                  <div className="border-t pt-4 mt-2">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Package className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">Materiais para este serviço</span>
                     </div>
-                  </div>
-                )}
 
-                {materials.map((mat, idx) => (
-                  <div key={mat.id} className="border rounded-lg p-4 space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-muted-foreground">Material {idx + 1}</span>
-                      {materials.length > 1 && (
-                        <Button variant="ghost" size="icon" onClick={() => removeMaterial(mat.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                      )}
-                    </div>
-                    <div><Label>Material</Label><Input value={mat.name} onChange={(e) => updateMaterial(mat.id, 'name', e.target.value)} placeholder="Ex: Tinta Interior" /></div>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div><Label>Qtd</Label><Input type="number" min={1} value={mat.quantity} onChange={(e) => updateMaterial(mat.id, 'quantity', Number(e.target.value))} /></div>
-                      <div><Label>Unidade</Label><Input value={mat.unit} onChange={(e) => updateMaterial(mat.id, 'unit', e.target.value)} /></div>
-                      <div><Label>Preço Unit. (€)</Label><Input type="number" min={0} step={0.01} value={mat.unitPrice} onChange={(e) => updateMaterial(mat.id, 'unitPrice', Number(e.target.value))} /></div>
-                    </div>
-                    <div className="text-right text-sm text-muted-foreground">
-                      Subtotal: <span className="font-medium text-foreground">{fmt(mat.quantity * mat.unitPrice)}</span>
-                    </div>
+                    {templates.length > 0 && (
+                      <div className="mb-3">
+                        <Label className="text-muted-foreground text-xs mb-2 block">Adicionar template:</Label>
+                        <div className="flex flex-wrap gap-2">
+                          {templates.map((t) => (
+                            <Button key={t.id} variant="outline" size="sm" onClick={() => addTemplateAsMaterial(svc.id, t)}>
+                              + {t.name}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {svc.materials.map((mat, mIdx) => (
+                      <div key={mat.id} className="border rounded-lg p-3 space-y-3 mb-3 bg-muted/30">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-medium text-muted-foreground">Material {mIdx + 1}</span>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeMaterial(svc.id, mat.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                        </div>
+                        <div><Label className="text-xs">Material</Label><Input value={mat.name} onChange={(e) => updateMaterial(svc.id, mat.id, 'name', e.target.value)} placeholder="Ex: Tinta Interior" /></div>
+                        <div className="grid grid-cols-3 gap-3">
+                          <div><Label className="text-xs">Qtd</Label><Input type="number" min={1} value={mat.quantity} onChange={(e) => updateMaterial(svc.id, mat.id, 'quantity', Number(e.target.value))} /></div>
+                          <div><Label className="text-xs">Unidade</Label><Input value={mat.unit} onChange={(e) => updateMaterial(svc.id, mat.id, 'unit', e.target.value)} /></div>
+                          <div><Label className="text-xs">Preço Unit. (€)</Label><Input type="number" min={0} step={0.01} value={mat.unitPrice} onChange={(e) => updateMaterial(svc.id, mat.id, 'unitPrice', Number(e.target.value))} /></div>
+                        </div>
+                        <div className="text-right text-xs text-muted-foreground">
+                          Subtotal: <span className="font-medium text-foreground">{fmt(mat.quantity * mat.unitPrice)}</span>
+                        </div>
+                      </div>
+                    ))}
+                    <Button variant="outline" size="sm" onClick={() => addMaterial(svc.id)} className="gap-1 w-full">
+                      <Plus className="h-3 w-3" /> Adicionar Material
+                    </Button>
                   </div>
-                ))}
-                <Button variant="outline" onClick={addMaterial} className="gap-2 w-full"><Plus className="h-4 w-4" /> Adicionar Material</Button>
-              </CardContent>
-            </Card>
+
+                  {/* Service total */}
+                  <div className="border-t pt-3 text-right text-sm">
+                    {svc.materials.length > 0 && (
+                      <p className="text-muted-foreground">Materiais: <span className="font-medium text-foreground">{fmt(serviceMaterialsTotal(svc))}</span></p>
+                    )}
+                    <p className="font-semibold text-foreground">Total Serviço {idx + 1}: {fmt(serviceTotal(svc))}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+
+            <Button variant="outline" onClick={addService} className="gap-2 w-full"><Plus className="h-4 w-4" /> Adicionar Serviço</Button>
 
             {/* Notes + Totals */}
             <Card>
@@ -320,7 +355,7 @@ export default function Quote() {
                 <div><Label>Notas / Termos e Condições</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ex: Pagamento a 30 dias..." rows={3} /></div>
 
                 <div className="border-t pt-4 space-y-1 text-right">
-                  <p className="text-sm text-muted-foreground">Serviços: {fmt(subtotalServices)}</p>
+                  <p className="text-sm text-muted-foreground">Mão de Obra: {fmt(subtotalServices)}</p>
                   <p className="text-sm text-muted-foreground">Materiais: {fmt(subtotalMaterials)}</p>
                   <p className="text-sm text-muted-foreground">Subtotal: {fmt(subtotal)}</p>
                   <p className="text-sm text-muted-foreground">IVA (23%): {fmt(iva)}</p>
@@ -364,54 +399,48 @@ export default function Quote() {
                     {client.address && <p style={{ fontSize: 13, color: '#475569' }}>{client.address}</p>}
                   </div>
 
-                  {/* Services table */}
-                  <p style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: '24px 0 12px' }}>Serviços</p>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 20 }}>
-                    <thead>
-                      <tr>
-                        {['Serviço', 'Descrição', '€/Hora', 'Horas', 'Total'].map((h, i) => (
-                          <th key={i} style={{ background: '#f1f5f9', textAlign: i >= 2 ? 'right' : 'left', padding: '10px 12px', fontSize: 12, textTransform: 'uppercase', color: '#475569', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {services.map((svc) => (
-                        <tr key={svc.id}>
-                          <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', fontSize: 14 }}>{svc.name}</td>
-                          <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', fontSize: 14, color: '#475569' }}>{svc.description}</td>
-                          <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', fontSize: 14, textAlign: 'right' }}>{fmt(svc.pricePerHour)}</td>
-                          <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', fontSize: 14, textAlign: 'right' }}>{svc.hours}</td>
-                          <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', fontSize: 14, textAlign: 'right', fontWeight: 600 }}>{fmt(svc.pricePerHour * svc.hours)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  {/* Per-service blocks */}
+                  {services.map((svc, idx) => (
+                    <div key={svc.id} style={{ marginBottom: 28 }}>
+                      <p style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', marginBottom: 4 }}>
+                        {idx + 1}. {svc.name || `Serviço ${idx + 1}`}
+                      </p>
+                      {svc.description && <p style={{ fontSize: 13, color: '#475569', marginBottom: 8 }}>{svc.description}</p>}
+                      <p style={{ fontSize: 13, color: '#475569', marginBottom: 8 }}>
+                        Mão de obra: {fmt(svc.pricePerHour)}/hora × {svc.hours}h = <strong>{fmt(serviceLaborTotal(svc))}</strong>
+                      </p>
 
-                  {/* Materials table */}
-                  <p style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: '24px 0 12px' }}>Materiais</p>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 20 }}>
-                    <thead>
-                      <tr>
-                        {['Material', 'Qtd', 'Unidade', 'Preço Unit.', 'Total'].map((h, i) => (
-                          <th key={i} style={{ background: '#f1f5f9', textAlign: i >= 1 ? (i === 2 ? 'center' : 'right') : 'left', padding: '10px 12px', fontSize: 12, textTransform: 'uppercase', color: '#475569', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {materials.map((mat) => (
-                        <tr key={mat.id}>
-                          <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', fontSize: 14 }}>{mat.name}</td>
-                          <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', fontSize: 14, textAlign: 'right' }}>{mat.quantity}</td>
-                          <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', fontSize: 14, textAlign: 'center' }}>{mat.unit}</td>
-                          <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', fontSize: 14, textAlign: 'right' }}>{fmt(mat.unitPrice)}</td>
-                          <td style={{ padding: '10px 12px', borderBottom: '1px solid #e2e8f0', fontSize: 14, textAlign: 'right', fontWeight: 600 }}>{fmt(mat.quantity * mat.unitPrice)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      {svc.materials.length > 0 && (
+                        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 8 }}>
+                          <thead>
+                            <tr>
+                              {['Material', 'Qtd', 'Unidade', 'Preço Unit.', 'Total'].map((h, i) => (
+                                <th key={i} style={{ background: '#f1f5f9', textAlign: i >= 1 ? (i === 2 ? 'center' : 'right') : 'left', padding: '8px 10px', fontSize: 11, textTransform: 'uppercase', color: '#475569', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {svc.materials.map((mat) => (
+                              <tr key={mat.id}>
+                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13 }}>{mat.name}</td>
+                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13, textAlign: 'right' }}>{mat.quantity}</td>
+                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13, textAlign: 'center' }}>{mat.unit}</td>
+                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13, textAlign: 'right' }}>{fmt(mat.unitPrice)}</td>
+                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13, textAlign: 'right', fontWeight: 600 }}>{fmt(mat.quantity * mat.unitPrice)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+
+                      <div style={{ textAlign: 'right', fontSize: 14, fontWeight: 600, color: '#1e293b' }}>
+                        Total Serviço: {fmt(serviceTotal(svc))}
+                      </div>
+                    </div>
+                  ))}
 
                   <div style={{ textAlign: 'right', marginTop: 16 }}>
-                    <p style={{ fontSize: 14, color: '#475569' }}>Serviços: {fmt(subtotalServices)}</p>
+                    <p style={{ fontSize: 14, color: '#475569' }}>Mão de Obra: {fmt(subtotalServices)}</p>
                     <p style={{ fontSize: 14, color: '#475569' }}>Materiais: {fmt(subtotalMaterials)}</p>
                     <p style={{ fontSize: 14, color: '#475569' }}>Subtotal: {fmt(subtotal)}</p>
                     <p style={{ fontSize: 14, color: '#475569' }}>IVA (23%): {fmt(iva)}</p>

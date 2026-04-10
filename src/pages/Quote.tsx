@@ -80,13 +80,14 @@ export default function Quote() {
 
   // Track events silently
   const trackEvent = useCallback((event_type: string, extra?: { step_number?: number; template_id?: string; metadata?: Record<string, unknown> }) => {
-    supabase.from('quote_events').insert({
+    const row: Record<string, unknown> = {
       event_type,
       session_id: sessionIdRef.current,
-      step_number: extra?.step_number ?? null,
-      template_id: extra?.template_id ?? null,
       metadata: extra?.metadata ?? {},
-    }).then(() => {});
+    };
+    if (extra?.step_number != null) row.step_number = extra.step_number;
+    if (extra?.template_id) row.template_id = extra.template_id;
+    supabase.from('quote_events').insert(row as never).then(() => {});
   }, []);
 
   useEffect(() => {

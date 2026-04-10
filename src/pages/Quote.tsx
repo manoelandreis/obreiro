@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Plus, Trash2, ArrowLeft, ArrowRight, Download, Building2, Wrench, Package } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, ArrowRight, Download, Building2, Wrench, Package, Mail, ShieldCheck } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface MaterialItem {
   id: string;
@@ -75,6 +76,9 @@ export default function Quote() {
   const [notes, setNotes] = useState('');
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [sendEmail, setSendEmail] = useState('');
+  const [consentChecked, setConsentChecked] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef(crypto.randomUUID());
 
@@ -216,11 +220,48 @@ export default function Quote() {
     setTimeout(() => { printWindow.print(); }, 500);
   };
 
-  const handleWaitlistNudge = async () => {
-    if (!waitlistEmail) return;
-    await supabase.from('waitlist_leads').insert({ email: waitlistEmail, source: 'quote_tool' });
-    toast.success('Obrigado! Ficou na lista de espera.');
-    setWaitlistEmail('');
+  const handleSendByEmail = async () => {
+    if (!sendEmail) {
+      toast.error('Por favor insira o seu email.');
+      return;
+    }
+    setIsSendingEmail(true);
+    try {
+      // Save lead if consent given
+      if (consentChecked) {
+        await supabase.from('waitlist_leads').insert({ email: sendEmail, name: client.name || null, source: 'quote_email' });
+      }
+      trackEvent('email_sent', { step_number: 4, metadata: { total, consent: consentChecked } });
+
+      // Send email via transactional email
+      const { error } = await supabase.functions.invoke('send-transactional-email', {
+        body: {
+          templateName: 'quote-delivery',
+          recipientEmail: sendEmail,
+          idempotencyKey: `quote-${sessionIdRef.current}`,
+          templateData: {
+            companyName: company.name || 'A Sua Empresa',
+            clientName: client.name,
+            total: fmt(total),
+            subtotal: fmt(subtotal),
+            iva: fmt(iva),
+            services: services.map((s, i) => ({
+              name: s.name || `Serviço ${i + 1}`,
+              laborTotal: fmt(serviceLaborTotal(s)),
+              materialsTotal: fmt(serviceMaterialsTotal(s)),
+              total: fmt(serviceTotal(s)),
+            })),
+          },
+        },
+      });
+
+      if (error) throw error;
+      toast.success('Orçamento enviado para o seu email!');
+    } catch {
+      toast.error('Não foi possível enviar o email. Faça download do PDF em vez disso.');
+    } finally {
+      setIsSendingEmail(false);
+    }
   };
 
   const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
@@ -388,7 +429,7 @@ export default function Quote() {
 
                 <div className="flex justify-between">
                   <Button variant="outline" onClick={() => setStep(2)} className="gap-2"><ArrowLeft className="h-4 w-4" /> Anterior</Button>
-                  <Button onClick={() => { setStep(4); trackEvent('step_reached', { step_number: 4 }); }} className="gap-2">Ver Preview <ArrowRight className="h-4 w-4" /></Button>
+                  <Button onClick={() => { setStep(4); trackEvent('step_reached', { step_number: 4 }); if (client.email && !sendEmail) setSendEmail(client.email); }} className="gap-2">Ver Preview <ArrowRight className="h-4 w-4" /></Button>
                 </div>
               </CardContent>
             </Card>
@@ -478,21 +519,50 @@ export default function Quote() {
                   )}
                 </div>
 
-                <div className="flex justify-between mt-6 border-t pt-4">
-                  <Button variant="outline" onClick={() => setStep(3)} className="gap-2"><ArrowLeft className="h-4 w-4" /> Editar</Button>
-                  <Button onClick={handleDownloadPDF} className="gap-2"><Download className="h-4 w-4" /> Download PDF</Button>
-                </div>
-              </CardContent>
-            </Card>
+                <div className="mt-6 border-t pt-6 space-y-6">
+                  {/* Primary: Send by email */}
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-5 space-y-4">
+                    <div className="flex items-center gap-2 text-primary font-heading font-semibold">
+                      <Mail className="h-5 w-5" />
+                      Receber orçamento por email
+                    </div>
+                    <Input
+                      type="email"
+                      placeholder="O seu email"
+                      value={sendEmail}
+                      onChange={(e) => setSendEmail(e.target.value)}
+                    />
+                    <div className="flex items-start gap-2">
+                      <Checkbox
+                        id="consent"
+                        checked={consentChecked}
+                        onCheckedChange={(v) => setConsentChecked(v === true)}
+                      />
+                      <label htmlFor="consent" className="text-xs text-muted-foreground leading-tight cursor-pointer">
+                        Aceito receber comunicações da HandyFlow sobre novidades e funcionalidades. Pode cancelar a qualquer momento.
+                      </label>
+                    </div>
+                    <Button onClick={handleSendByEmail} disabled={isSendingEmail} className="w-full gap-2">
+                      <Mail className="h-4 w-4" />
+                      {isSendingEmail ? 'A enviar...' : 'Enviar Orçamento por Email'}
+                    </Button>
+                  </div>
 
-            {/* Waitlist nudge */}
-            <Card className="border-primary/20 bg-primary/5">
-              <CardContent className="pt-6 text-center">
-                <p className="font-heading font-semibold text-lg mb-2">Gostou? O melhor ainda está por vir!</p>
-                <p className="text-sm text-muted-foreground mb-4">Deixe o seu email para saber quando lançarmos o app completo com gestão de clientes, projetos e muito mais.</p>
-                <div className="flex gap-2 max-w-md mx-auto">
-                  <Input type="email" placeholder="O seu email" value={waitlistEmail} onChange={(e) => setWaitlistEmail(e.target.value)} />
-                  <Button onClick={handleWaitlistNudge}>Juntar-me</Button>
+                  {/* Secondary: Download */}
+                  <div className="flex items-center justify-between">
+                    <Button variant="outline" onClick={() => setStep(3)} className="gap-2">
+                      <ArrowLeft className="h-4 w-4" /> Editar
+                    </Button>
+                    <Button variant="ghost" onClick={handleDownloadPDF} className="gap-2 text-muted-foreground">
+                      <Download className="h-4 w-4" /> Ou faça download direto do PDF
+                    </Button>
+                  </div>
+
+                  {/* Privacy note */}
+                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                    <ShieldCheck className="h-4 w-4" />
+                    Os dados do orçamento não são guardados — processamento 100% local no seu navegador.
+                  </div>
                 </div>
               </CardContent>
             </Card>

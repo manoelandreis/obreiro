@@ -74,6 +74,44 @@ export type Database = {
         }
         Relationships: []
       }
+      quote_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          session_id: string
+          step_number: number | null
+          template_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          session_id: string
+          step_number?: number | null
+          template_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string
+          step_number?: number | null
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_events_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "quote_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_logs: {
         Row: {
           client_name: string | null
@@ -81,6 +119,7 @@ export type Database = {
           created_at: string
           id: string
           items_count: number | null
+          services_summary: Json | null
           total_amount: number | null
         }
         Insert: {
@@ -89,6 +128,7 @@ export type Database = {
           created_at?: string
           id?: string
           items_count?: number | null
+          services_summary?: Json | null
           total_amount?: number | null
         }
         Update: {
@@ -97,6 +137,7 @@ export type Database = {
           created_at?: string
           id?: string
           items_count?: number | null
+          services_summary?: Json | null
           total_amount?: number | null
         }
         Relationships: []

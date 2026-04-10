@@ -1,66 +1,33 @@
 
 
-# Plano: Landing Page + Quote Generator + Backoffice (Projeto Único)
+# Atualizar Step 3 do Quote: Serviços + Materiais
 
-Tudo no mesmo projeto. Rotas públicas (`/`, `/quote`) sem login. Rotas admin (`/admin/*`) protegidas por autenticação. Mesma base de dados Supabase.
+## O que muda
 
-## Estrutura de Rotas
+O step 3 do orçamento passa a ter **dois tipos de itens separados**:
 
-```text
-/                → Landing page (pública)
-/quote           → Quote generator (público)
-/admin           → Login do backoffice
-/admin/leads     → Gerir emails/waitlist
-/admin/content   → Editar textos da landing
-/admin/templates → Gerir templates de orçamentos
-/admin/analytics → Ver métricas
-/app/*           → App completo (redirect → / por agora)
-```
+### Serviços (trabalho a realizar)
+- Nome do serviço (ex: "Pintura Interior")
+- Descrição
+- Preço por Hora (€)
+- Horas Aproximadas
+- Subtotal = preço/hora × horas
 
-## Base de Dados (Lovable Cloud)
+### Materiais (o que se compra para o serviço)
+- Nome do material (ex: "Tinta Interior")
+- Quantidade
+- Unidade (un, kg, L, m², etc.)
+- Preço Unitário (€)
+- Subtotal = qtd × preço unitário
 
-| Tabela | Acesso público | Acesso admin |
-|--------|---------------|-------------|
-| `waitlist_leads` | Insert | Select, Export |
-| `landing_content` | Select | Update |
-| `quote_templates` | Select | CRUD |
-| `quote_logs` | Insert | Select |
-| `profiles` | — | Próprio user |
+## Alterações técnicas
 
-RLS em todas as tabelas. Admin identificado por role na tabela `user_roles`.
+1. **Novos tipos** — Substituir `QuoteItem` por `ServiceItem` e `MaterialItem`, cada um com os seus campos
+2. **Step 3 UI** — Duas secções separadas com "Adicionar Serviço" e "Adicionar Material", cada uma com o formulário adequado
+3. **Totais** — Subtotal serviços + subtotal materiais = subtotal geral → IVA → total
+4. **Step 4 Preview** — Tabela de serviços (colunas: Serviço, Descrição, €/Hora, Horas, Total) + tabela de materiais (colunas: Material, Qtd, Unidade, Preço Unit., Total)
+5. **PDF** — Atualizar o HTML do print para refletir as duas tabelas
+6. **Templates** — Os templates existentes podem ser atribuídos como materiais (mantêm qtd/unidade/preço) ou como serviços (preço/hora + horas)
 
-## Implementação
-
-### 1. Lovable Cloud + Auth + Schema
-- Ativar Cloud, criar tabelas e RLS
-- Auth apenas para backoffice (email/senha)
-- Tabela `user_roles` para identificar admin
-
-### 2. Landing Page
-- Hero, features, about section, waitlist form
-- Textos carregados de `landing_content` (editáveis no backoffice)
-
-### 3. Quote Generator (`/quote`)
-- Multi-step: dados empresa → dados cliente → linhas do orçamento → preview
-- Templates pré-carregados de `quote_templates`
-- PDF gerado client-side
-- Nudge opcional para waitlist no final
-
-### 4. Backoffice (`/admin/*`)
-- Protegido por login + role admin
-- Leads: lista + export CSV
-- Content: editar textos da landing
-- Templates: CRUD de serviços/preços
-- Analytics: contadores e gráficos simples (Recharts)
-
-### 5. App Futuro (`/app/*`)
-- Rotas existem mas redirecionam para `/`
-- Desbloquear quando quiser lançar
-
-## Porquê tudo junto
-
-- Uma só base de dados, sem duplicação
-- Backoffice acede directamente às mesmas tabelas que a landing page usa
-- Menos complexidade para manter
-- Separação feita por rotas protegidas, não por projetos
+Nenhuma alteração à base de dados é necessária — os dados do orçamento são client-side e o `quote_logs` guarda apenas o resumo.
 

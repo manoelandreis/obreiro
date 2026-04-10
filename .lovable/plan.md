@@ -1,33 +1,62 @@
 
 
-# Atualizar Step 3 do Quote: Serviços + Materiais
+# Analytics Avançados + Explicação de Conceitos
 
-## O que muda
+## Conceitos atuais
 
-O step 3 do orçamento passa a ter **dois tipos de itens separados**:
+**Leads** = pessoas que se inscreveram na waitlist (tabela `waitlist_leads`). São visitantes interessados que deixaram o email.
 
-### Serviços (trabalho a realizar)
-- Nome do serviço (ex: "Pintura Interior")
-- Descrição
-- Preço por Hora (€)
-- Horas Aproximadas
-- Subtotal = preço/hora × horas
+**Orçamentos** = cada vez que alguém gera e faz download de um orçamento (tabela `quote_logs`). Guarda nome da empresa, cliente, valor total e quantidade de itens.
 
-### Materiais (o que se compra para o serviço)
-- Nome do material (ex: "Tinta Interior")
-- Quantidade
-- Unidade (un, kg, L, m², etc.)
-- Preço Unitário (€)
-- Subtotal = qtd × preço unitário
+**Conversão** = percentagem de leads que geraram orçamento. Atualmente é um cálculo simples: `orçamentos / leads × 100`. Na prática, não há ligação direta entre um lead e um orçamento (são tabelas independentes), então é uma métrica aproximada.
 
-## Alterações técnicas
+## O que precisa mudar para ter analytics mais ricos
 
-1. **Novos tipos** — Substituir `QuoteItem` por `ServiceItem` e `MaterialItem`, cada um com os seus campos
-2. **Step 3 UI** — Duas secções separadas com "Adicionar Serviço" e "Adicionar Material", cada uma com o formulário adequado
-3. **Totais** — Subtotal serviços + subtotal materiais = subtotal geral → IVA → total
-4. **Step 4 Preview** — Tabela de serviços (colunas: Serviço, Descrição, €/Hora, Horas, Total) + tabela de materiais (colunas: Material, Qtd, Unidade, Preço Unit., Total)
-5. **PDF** — Atualizar o HTML do print para refletir as duas tabelas
-6. **Templates** — Os templates existentes podem ser atribuídos como materiais (mantêm qtd/unidade/preço) ou como serviços (preço/hora + horas)
+Atualmente, `quote_logs` guarda apenas o resumo final (nome, valor, qtd itens). Não há dados sobre:
+- Em que step o utilizador parou (abandono)
+- Quantas vezes fez download
+- Que templates/serviços foram usados
 
-Nenhuma alteração à base de dados é necessária — os dados do orçamento são client-side e o `quote_logs` guarda apenas o resumo.
+Para isso, precisamos de **mais dados na base de dados**.
+
+## Plano
+
+### 1. Nova tabela `quote_events` (tracking de comportamento)
+
+Registar eventos do fluxo do orçamento:
+- `step_reached` — quando o user avança para cada step (1→2→3→4)
+- `download` — cada vez que faz download
+- `template_used` — quando adiciona um template da lista
+
+Colunas: `id`, `event_type`, `step_number`, `template_id`, `session_id` (UUID gerado no browser para agrupar a sessão), `metadata` (JSONB para dados extra), `created_at`
+
+### 2. Instrumentar o Quote.tsx
+
+- Gerar um `sessionId` ao montar o componente
+- Inserir evento `step_reached` cada vez que o step muda
+- Inserir evento `template_used` quando seleciona template
+- Inserir evento `download` no handleDownloadPDF (além do quote_log existente)
+
+### 3. Expandir `quote_logs` com campo `services_summary`
+
+Adicionar coluna JSONB `services_summary` ao `quote_logs` para guardar os nomes dos serviços e materiais usados (sem alterar as colunas existentes).
+
+### 4. Dashboard de Analytics melhorado
+
+Novos cards e gráficos:
+- **Funil de Steps**: Quantos users chegaram ao Step 1 → 2 → 3 → 4 (gráfico de funil)
+- **Taxa de Abandono**: Em que step as pessoas param
+- **Downloads totais** vs orçamentos únicos
+- **Templates mais usados**: ranking dos templates/serviços mais populares
+- **Valor médio** dos orçamentos
+
+### 5. RLS
+
+- `quote_events`: INSERT público (qualquer visitante), SELECT só admin
+
+## Resumo de ficheiros alterados
+
+- **Migration**: criar `quote_events`, adicionar `services_summary` a `quote_logs`
+- **Quote.tsx**: adicionar tracking de eventos (step changes, template selection, download)
+- **AdminAnalytics.tsx**: novos cards, gráfico de funil, ranking de templates
 

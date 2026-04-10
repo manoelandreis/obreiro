@@ -1,62 +1,50 @@
 
 
-# Analytics Avançados + Explicação de Conceitos
+# Email-First Download + Consent de Comunicação
 
-## Conceitos atuais
+## Contexto
 
-**Leads** = pessoas que se inscreveram na waitlist (tabela `waitlist_leads`). São visitantes interessados que deixaram o email.
-
-**Orçamentos** = cada vez que alguém gera e faz download de um orçamento (tabela `quote_logs`). Guarda nome da empresa, cliente, valor total e quantidade de itens.
-
-**Conversão** = percentagem de leads que geraram orçamento. Atualmente é um cálculo simples: `orçamentos / leads × 100`. Na prática, não há ligação direta entre um lead e um orçamento (são tabelas independentes), então é uma métrica aproximada.
-
-## O que precisa mudar para ter analytics mais ricos
-
-Atualmente, `quote_logs` guarda apenas o resumo final (nome, valor, qtd itens). Não há dados sobre:
-- Em que step o utilizador parou (abandono)
-- Quantas vezes fez download
-- Que templates/serviços foram usados
-
-Para isso, precisamos de **mais dados na base de dados**.
+Atualmente o Step 4 tem apenas um botão "Download PDF" e um nudge para waitlist em baixo. A ideia é inverter a prioridade: captar o email primeiro como ação principal, manter o download direto como secundário, e adicionar consentimento de comunicação.
 
 ## Plano
 
-### 1. Nova tabela `quote_events` (tracking de comportamento)
+### 1. Redesign do Step 4 - Área de Ações
 
-Registar eventos do fluxo do orçamento:
-- `step_reached` — quando o user avança para cada step (1→2→3→4)
-- `download` — cada vez que faz download
-- `template_used` — quando adiciona um template da lista
+Substituir o bloco atual de botões por uma nova secção com duas opções claras:
 
-Colunas: `id`, `event_type`, `step_number`, `template_id`, `session_id` (UUID gerado no browser para agrupar a sessão), `metadata` (JSONB para dados extra), `created_at`
+**Ação Primária** — "Enviar para o meu email"
+- Campo de email (pré-preenchido com o email do cliente se já foi inserido no Step 2)
+- Checkbox de consentimento: "Aceito receber comunicações da HandyFlow sobre novidades e funcionalidades"
+- Botão principal grande: "Enviar Orçamento por Email"
+- Ao submeter: guarda o email na tabela `waitlist_leads` (se consentiu) + envia o PDF por email + mostra toast de sucesso
 
-### 2. Instrumentar o Quote.tsx
+**Ação Secundária** — "Download PDF"
+- Botão mais discreto (variant outline/ghost) abaixo: "Ou faça download direto do PDF"
+- Funciona como hoje, sem pedir email
 
-- Gerar um `sessionId` ao montar o componente
-- Inserir evento `step_reached` cada vez que o step muda
-- Inserir evento `template_used` quando seleciona template
-- Inserir evento `download` no handleDownloadPDF (além do quote_log existente)
+Remover o bloco de "waitlist nudge" no final (já não é necessário porque estamos a captar o lead na ação principal).
 
-### 3. Expandir `quote_logs` com campo `services_summary`
+### 2. Envio de Email
 
-Adicionar coluna JSONB `services_summary` ao `quote_logs` para guardar os nomes dos serviços e materiais usados (sem alterar as colunas existentes).
+Para enviar o orçamento por email precisamos de configurar o sistema de email (app emails). O fluxo será:
+- Criar um template de email "quote-delivery" com o orçamento em HTML
+- Usar a infraestrutura de email do Lovable Cloud para enviar
+- O email conterá o orçamento formatado (mesmo HTML que já usamos no print)
 
-### 4. Dashboard de Analytics melhorado
+**Nota:** Isto requer que o domínio de email esteja configurado. Se ainda não estiver, faremos o setup primeiro.
 
-Novos cards e gráficos:
-- **Funil de Steps**: Quantos users chegaram ao Step 1 → 2 → 3 → 4 (gráfico de funil)
-- **Taxa de Abandono**: Em que step as pessoas param
-- **Downloads totais** vs orçamentos únicos
-- **Templates mais usados**: ranking dos templates/serviços mais populares
-- **Valor médio** dos orçamentos
+### 3. Base de Dados
 
-### 5. RLS
+- Usar a tabela `waitlist_leads` existente para guardar os emails captados (com `source: 'quote_email'` para distinguir)
+- Adicionar tracking event `email_sent` na tabela `quote_events`
 
-- `quote_events`: INSERT público (qualquer visitante), SELECT só admin
+### 4. Disclaimer de Consentimento
 
-## Resumo de ficheiros alterados
+Checkbox obrigatória antes de submeter o email com texto claro sobre comunicações futuras. O email só é guardado como lead se o checkbox estiver marcado.
 
-- **Migration**: criar `quote_events`, adicionar `services_summary` a `quote_logs`
-- **Quote.tsx**: adicionar tracking de eventos (step changes, template selection, download)
-- **AdminAnalytics.tsx**: novos cards, gráfico de funil, ranking de templates
+### Ficheiros alterados
+
+- **Quote.tsx** — Redesign do Step 4 com email-first flow, checkbox de consentimento, botão primário/secundário
+- **Template de email** — Criar template transactional para envio do orçamento
+- **Edge function setup** — Configurar infraestrutura de email se necessário
 

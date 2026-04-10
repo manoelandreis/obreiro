@@ -124,6 +124,7 @@ export default function Quote() {
     ));
   };
   const addTemplateAsMaterial = (serviceId: string, t: QuoteTemplate) => {
+    trackEvent('template_used', { template_id: t.id, metadata: { template_name: t.name, service_id: serviceId } });
     setServices(services.map((s) =>
       s.id === serviceId
         ? {
@@ -154,12 +155,20 @@ export default function Quote() {
   const allItemsCount = services.length + services.reduce((sum, s) => sum + s.materials.length, 0);
 
   const handleDownloadPDF = async () => {
+    const servicesSummary = services.map(s => ({
+      name: s.name,
+      labor: serviceLaborTotal(s),
+      materials: s.materials.map(m => ({ name: m.name, total: m.quantity * m.unitPrice })),
+      total: serviceTotal(s),
+    }));
     await supabase.from('quote_logs').insert({
       company_name: company.name,
       client_name: client.name,
       total_amount: total,
       items_count: allItemsCount,
+      services_summary: servicesSummary as never,
     });
+    trackEvent('download', { step_number: 4, metadata: { total, services_count: services.length } });
 
     const printContent = printRef.current;
     if (!printContent) return;
@@ -255,7 +264,7 @@ export default function Quote() {
               </div>
               <div><Label>Morada</Label><Input value={company.address} onChange={(e) => setCompany({ ...company, address: e.target.value })} /></div>
               <div className="flex justify-end">
-                <Button onClick={() => setStep(2)} className="gap-2">Seguinte <ArrowRight className="h-4 w-4" /></Button>
+                <Button onClick={() => { setStep(2); trackEvent('step_reached', { step_number: 2 }); }} className="gap-2">Seguinte <ArrowRight className="h-4 w-4" /></Button>
               </div>
             </CardContent>
           </Card>

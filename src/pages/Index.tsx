@@ -130,6 +130,71 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Quote Preview */}
+      <section className="py-20">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="text-center mb-12">
+            <h2 className="font-heading text-3xl font-bold text-foreground mb-3">
+              Veja como fica o seu orçamento
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Profissional, detalhado e pronto para enviar ao cliente.
+            </p>
+          </div>
+          <div className="rounded-xl border shadow-2xl overflow-hidden mx-auto max-w-3xl">
+            <img
+              src={quoteMockup}
+              alt="Exemplo de orçamento gerado pela HandyFlow"
+              className="w-full h-auto"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Privacy & Security */}
+      <section className="py-20 bg-secondary/30">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="text-center mb-10">
+            <h2 className="font-heading text-3xl font-bold text-foreground mb-3">
+              Os seus dados estão seguros
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              A sua privacidade é a nossa prioridade.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center space-y-3">
+              <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                <Trash2 className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="font-heading font-semibold text-lg">Nada é guardado</h3>
+              <p className="text-muted-foreground text-sm">
+                Os dados do seu orçamento não são armazenados. Depois de fechar a página, desaparecem.
+              </p>
+            </div>
+            <div className="text-center space-y-3">
+              <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                <ShieldCheck className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="font-heading font-semibold text-lg">100% Privado</h3>
+              <p className="text-muted-foreground text-sm">
+                Ninguém tem acesso aos dados que introduz. Tudo é processado localmente no seu browser.
+              </p>
+            </div>
+            <div className="text-center space-y-3">
+              <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                <Eye className="h-7 w-7 text-primary" />
+              </div>
+              <h3 className="font-heading font-semibold text-lg">Sem rastreamento</h3>
+              <p className="text-muted-foreground text-sm">
+                Não rastreamos os seus orçamentos nem partilhamos informações com terceiros.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* About */}
       <section className="py-20">
         <div className="container mx-auto px-4 max-w-3xl text-center">

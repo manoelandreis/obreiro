@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { FileText, BarChart3, Users, ClipboardList, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { FileText, BarChart3, Users, ClipboardList, ArrowRight, CheckCircle2, ShieldCheck, Eye, Trash2 } from 'lucide-react';
+import quoteMockup from '@/assets/quote-preview.png';
 
 interface ContentSection {
   section_key: string;

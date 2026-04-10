@@ -76,12 +76,26 @@ export default function Quote() {
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const printRef = useRef<HTMLDivElement>(null);
+  const sessionIdRef = useRef(crypto.randomUUID());
+
+  // Track events silently
+  const trackEvent = useCallback((event_type: string, extra?: { step_number?: number; template_id?: string; metadata?: Record<string, unknown> }) => {
+    supabase.from('quote_events').insert({
+      event_type,
+      session_id: sessionIdRef.current,
+      step_number: extra?.step_number ?? null,
+      template_id: extra?.template_id ?? null,
+      metadata: extra?.metadata ?? {},
+    }).then(() => {});
+  }, []);
 
   useEffect(() => {
     supabase.from('quote_templates').select('*').eq('is_active', true).then(({ data }) => {
       if (data) setTemplates(data as QuoteTemplate[]);
     });
-  }, []);
+    // Track initial step
+    trackEvent('step_reached', { step_number: 1 });
+  }, [trackEvent]);
 
   // Service helpers
   const addService = () => setServices([...services, emptyService()]);

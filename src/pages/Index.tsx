@@ -223,6 +223,9 @@ export default function Index() {
         </div>
       </section>
 
+      {/* App Coming Soon */}
+      <AppComingSoonSection />
+
       {/* About */}
       <section className="py-20 bg-secondary/30">
         <div className="container mx-auto px-4 max-w-3xl text-center">

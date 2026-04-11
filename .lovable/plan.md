@@ -1,93 +1,46 @@
 
 
-# README.md — Documentação Detalhada do Produto
+# Nova Secção "App Em Breve" — Estilo Expandable (Cohere-like)
 
-## O que vou escrever
+## O que vou construir
 
-Um README completo focado no lado do cliente (sem CMS/admin), com detalhe suficiente para pesquisa de concorrentes.
+Uma nova secção na landing page entre "Features" e "About", com o formato visual da imagem de referência (Cohere): um layout split-screen com uma imagem/mockup à esquerda e uma lista de funcionalidades expandíveis à direita. Cada item expande para mostrar bullets com checkmarks. O conteudo vem do README-2.md anexado.
 
-## Estrutura do documento
+## Layout
 
-### 1. Visão Geral
-- O que é o HandyFlow: ferramenta gratuita de criação de orçamentos para profissionais de construção e serviços em Portugal
-- Problema que resolve: substituir folhas Excel, Word ou papel por um fluxo digital profissional
+```text
+┌──────────────────────────────────────────────────┐
+│  "A App que está a caminho."  (título centrado)  │
+├────────────────────┬─────────────────────────────┤
+│                    │  ─── Dashboard Inteligente   │
+│   Mockup/Image     │  ✓ Métricas em Tempo Real   │
+│   (placeholder)    │  ✓ Gráfico de Atividade     │
+│                    │  ✓ Acesso Rápido             │
+│                    │  ─── Gestão de Clientes      │
+│                    │  ─── Controlo de Trabalhos   │
+│                    │  ─── Gestão de Tarefas       │
+│                    │  ─── Segurança de Elite      │
+└────────────────────┴─────────────────────────────┘
+```
 
-### 2. Público-Alvo
-- Construtores independentes, canalizadores, eletricistas, pintores, carpinteiros
-- Pequenas empresas de construção civil (1-10 pessoas)
-- Handymen e prestadores de serviços domésticos
-- Mercado primário: Portugal (interface em PT, IVA 23%, formato NIF)
+## Funcionalidades expandíveis (do README-2.md)
 
-### 3. Páginas da Aplicação
-- **Landing Page** (`/`) — apresentação do produto, features, privacy strip, waitlist
-- **Gerador de Orçamentos** (`/quote`) — ferramenta principal com 4 passos
+1. **Dashboard Inteligente** — Métricas em Tempo Real, Gráfico de Atividade, Acesso Rápido
+2. **Gestão de Clientes (RGPD Ready)** — Ficha de Cliente, Consentimento RGPD, Direito ao Esquecimento
+3. **Controlo de Trabalhos e Orçamentos** — Estados de Fluxo, Histórico, Preview de Documentos
+4. **Gestão de Tarefas Detalhada** — Atividades, Produtos/Materiais, Progresso Visual
+5. **Segurança de Elite** — Lock Screen, Auto-Lock, Logs de Segurança, Bloqueio de Força Bruta
 
-### 4. Core Features (detalhado)
+## Detalhes técnicos
 
-**4.1 Fluxo de 4 Passos Guiado**
-- Step 1: Dados da empresa (nome, NIF, email, telefone, morada)
-- Step 2: Dados do cliente (nome, email, telefone, morada)
-- Step 3: Serviços e materiais (modelo aninhado)
-- Step 4: Preview + entrega (email-first com download secundário)
-
-**4.2 Modelo de Dados Aninhado (Serviço → Materiais)**
-- Cada serviço tem: nome, descrição, preço/hora, horas estimadas
-- Cada serviço pode ter N materiais associados: nome, quantidade, unidade, preço unitário
-- Subtotais automáticos por serviço (mão de obra + materiais)
-- Possibilidade de adicionar múltiplos serviços por orçamento
-
-**4.3 Cálculo Automático de Preços**
-- Mão de obra: preço/hora × horas
-- Materiais: quantidade × preço unitário
-- Subtotais separados (mão de obra vs materiais)
-- IVA automático a 23%
-- Total final calculado em tempo real
-
-**4.4 Sistema de Templates**
-- Catálogo de materiais/serviços pré-definidos
-- Templates com nome, unidade, preço default, categoria
-- Adicionar template como material com 1 clique
-- Geridos via admin (activar/desactivar)
-
-**4.5 Preview Profissional do Orçamento**
-- Layout formatado com header da empresa + dados do cliente
-- Tabela de materiais por serviço com colunas (Material, Qtd, Unidade, Preço Unit., Total)
-- Resumo financeiro detalhado
-- Campo de notas/termos e condições
-- Branding "Gerado com HandyFlow"
-
-**4.6 Entrega Email-First (Lead Capture)**
-- Ação primária: enviar orçamento por email (campo pré-preenchido do Step 2)
-- Checkbox de consentimento de comunicação (RGPD)
-- Lead guardado na BD só com consentimento
-- Ação secundária: download direto do PDF (print-to-PDF via browser)
-
-**4.7 Privacidade e Segurança**
-- Processamento 100% no browser (client-side)
-- Dados do orçamento não são persistidos no servidor
-- Sem rastreamento de terceiros
-- Dados desaparecem ao fechar a página
-
-### 5. Landing Page Features
-- Hero com CTA + security pill
-- Product snapshots (2 mockups lado a lado)
-- Privacy strip (3 pilares: nada guardado, 100% privado, sem rastreamento)
-- Feature cards (4 cards em grid)
-- Secção "Sobre"
-- Formulário de waitlist com email + nome
-
-### 6. Proposta de Valor vs Concorrentes
-- Gratuito (sem planos pagos por enquanto)
-- Sem registo necessário
-- Focado no mercado PT (língua, IVA, NIF)
-- Privacy-first (sem dados guardados)
-- Fluxo simples vs ERPs complexos (Primavera, PHC, etc.)
-
-### 7. Stack Técnico (breve)
-- React SPA, Tailwind CSS, TypeScript
-- Sem backend storage de dados de orçamento
-- Analytics de uso anónimos apenas
+- Usar `Collapsible` do shadcn/ui para o efeito expandir/colapsar
+- Cada item tem uma linha colorida no topo (como na imagem de referência — cores diferentes por item)
+- Checkmarks com ícone `CheckCircle2` do Lucide
+- Imagem à esquerda: placeholder com fundo bege/warm como na imagem de referência
+- Apenas o primeiro item começa expandido
+- Secção inserida entre "Features" e "About" no `Index.tsx`
 
 ## Ficheiros alterados
-- `README.md` — reescrita completa
+
+- **src/pages/Index.tsx** — Adicionar a nova secção "App Em Breve" com os 5 itens expandíveis
 

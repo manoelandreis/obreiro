@@ -475,7 +475,7 @@ export default function Quote() {
 
                   {/* Per-service blocks */}
                   {services.map((svc, idx) => (
-                    <div key={svc.id} style={{ marginBottom: 28 }}>
+                    <div key={svc.id} className="service-block" style={{ marginBottom: 28, pageBreakInside: 'avoid' }}>
                       <p style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', marginBottom: 4 }}>
                         {idx + 1}. {svc.name || `Serviço ${idx + 1}`}
                       </p>
@@ -489,18 +489,18 @@ export default function Quote() {
                           <thead>
                             <tr>
                               {['Material', 'Qtd', 'Unidade', 'Preço Unit.', 'Total'].map((h, i) => (
-                                <th key={i} style={{ background: '#f1f5f9', textAlign: i >= 1 ? (i === 2 ? 'center' : 'right') : 'left', padding: '8px 10px', fontSize: 11, textTransform: 'uppercase', color: '#475569', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                                <th key={i} style={{ background: '#f1f5f9', textAlign: i >= 1 ? (i === 2 ? 'center' : 'right') : 'left', padding: '6px 8px', fontSize: 11, textTransform: 'uppercase', color: '#475569', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
                               ))}
                             </tr>
                           </thead>
                           <tbody>
                             {svc.materials.map((mat) => (
                               <tr key={mat.id}>
-                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13 }}>{mat.name}</td>
-                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13, textAlign: 'right' }}>{mat.quantity}</td>
-                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13, textAlign: 'center' }}>{mat.unit}</td>
-                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13, textAlign: 'right' }}>{fmt(mat.unitPrice)}</td>
-                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13, textAlign: 'right', fontWeight: 600 }}>{fmt(mat.quantity * mat.unitPrice)}</td>
+                                <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12 }}>{mat.name}</td>
+                                <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12, textAlign: 'right' }}>{mat.quantity}</td>
+                                <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12, textAlign: 'center' }}>{mat.unit}</td>
+                                <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12, textAlign: 'right' }}>{fmt(mat.unitPrice)}</td>
+                                <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12, textAlign: 'right', fontWeight: 600 }}>{fmt(mat.quantity * mat.unitPrice)}</td>
                               </tr>
                             ))}
                           </tbody>

@@ -3,13 +3,10 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { FileText, BarChart3, Users, ClipboardList, ArrowRight, ShieldCheck, Eye, Trash2 } from 'lucide-react';
 import AppComingSoonSection from '@/components/AppComingSoonSection';
-import mockupTemplate from '@/assets/mockup-template.jpg';
-import mockupTool from '@/assets/mockup-tool.jpg';
 import mockupTemplate from '@/assets/mockup-template.jpg';
 import mockupTool from '@/assets/mockup-tool.jpg';
 

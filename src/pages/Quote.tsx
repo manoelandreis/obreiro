@@ -188,26 +188,35 @@ export default function Quote() {
         <head>
           <title>Orçamento - ${company.name || 'HandyFlow'}</title>
           <style>
+            @page {
+              size: A4;
+              margin: 20mm 15mm 25mm 15mm;
+            }
             * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; padding: 40px; }
-            .header { display: flex; justify-content: space-between; margin-bottom: 40px; border-bottom: 3px solid #3b82f6; padding-bottom: 20px; }
-            .company-name { font-size: 24px; font-weight: 700; color: #3b82f6; }
-            .info-block { margin-bottom: 20px; }
-            .info-block h3 { font-size: 14px; color: #6b7280; text-transform: uppercase; margin-bottom: 8px; }
-            .info-block p { font-size: 14px; line-height: 1.6; }
-            .section-title { font-size: 16px; font-weight: 600; color: #1e293b; margin: 24px 0 12px; }
-            .service-block { margin-bottom: 24px; }
-            .service-header { font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
-            .service-desc { font-size: 13px; color: #475569; margin-bottom: 8px; }
-            .service-labor { font-size: 13px; color: #475569; margin-bottom: 8px; }
-            table { width: 100%; border-collapse: collapse; margin: 0 0 8px; }
-            th { background: #f1f5f9; text-align: left; padding: 8px 10px; font-size: 11px; text-transform: uppercase; color: #475569; border-bottom: 2px solid #e2e8f0; }
-            td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; }
-            .service-subtotal { text-align: right; font-size: 13px; color: #475569; margin-bottom: 4px; }
-            .totals { text-align: right; margin-top: 20px; }
-            .totals .total { font-size: 18px; font-weight: 700; color: #3b82f6; border-top: 2px solid #3b82f6; padding-top: 8px; margin-top: 8px; }
-            .notes { margin-top: 30px; padding: 16px; background: #f8fafc; border-radius: 8px; font-size: 13px; color: #475569; }
-            .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #9ca3af; }
+            body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; }
+            .header { display: flex; justify-content: space-between; margin-bottom: 30px; border-bottom: 3px solid #3b82f6; padding-bottom: 16px; }
+            .company-name { font-size: 22px; font-weight: 700; color: #3b82f6; }
+            .info-block { margin-bottom: 16px; }
+            .info-block h3 { font-size: 12px; color: #6b7280; text-transform: uppercase; margin-bottom: 6px; }
+            .info-block p { font-size: 13px; line-height: 1.5; }
+            .section-title { font-size: 15px; font-weight: 600; color: #1e293b; margin: 20px 0 10px; }
+            .service-block { margin-bottom: 20px; page-break-inside: avoid; break-inside: avoid; }
+            .service-header { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+            .service-desc { font-size: 12px; color: #475569; margin-bottom: 6px; }
+            .service-labor { font-size: 12px; color: #475569; margin-bottom: 6px; }
+            table { width: 100%; border-collapse: collapse; margin: 0 0 8px; page-break-inside: avoid; break-inside: avoid; }
+            thead { display: table-header-group; }
+            th { background: #f1f5f9; text-align: left; padding: 6px 8px; font-size: 10px; text-transform: uppercase; color: #475569; border-bottom: 2px solid #e2e8f0; }
+            td { padding: 6px 8px; border-bottom: 1px solid #e2e8f0; font-size: 12px; }
+            tr { page-break-inside: avoid; break-inside: avoid; }
+            .service-subtotal { text-align: right; font-size: 12px; color: #475569; margin-bottom: 4px; }
+            .totals { text-align: right; margin-top: 16px; page-break-inside: avoid; break-inside: avoid; }
+            .totals .total { font-size: 16px; font-weight: 700; color: #3b82f6; border-top: 2px solid #3b82f6; padding-top: 6px; margin-top: 6px; }
+            .notes { margin-top: 20px; padding: 12px; background: #f8fafc; border-radius: 6px; font-size: 12px; color: #475569; page-break-inside: avoid; break-inside: avoid; }
+            .footer { margin-top: 30px; text-align: center; font-size: 11px; color: #9ca3af; position: running(footer); }
+            @media print {
+              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
           </style>
         </head>
         <body>
@@ -466,7 +475,7 @@ export default function Quote() {
 
                   {/* Per-service blocks */}
                   {services.map((svc, idx) => (
-                    <div key={svc.id} style={{ marginBottom: 28 }}>
+                    <div key={svc.id} className="service-block" style={{ marginBottom: 28, pageBreakInside: 'avoid' }}>
                       <p style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', marginBottom: 4 }}>
                         {idx + 1}. {svc.name || `Serviço ${idx + 1}`}
                       </p>
@@ -480,18 +489,18 @@ export default function Quote() {
                           <thead>
                             <tr>
                               {['Material', 'Qtd', 'Unidade', 'Preço Unit.', 'Total'].map((h, i) => (
-                                <th key={i} style={{ background: '#f1f5f9', textAlign: i >= 1 ? (i === 2 ? 'center' : 'right') : 'left', padding: '8px 10px', fontSize: 11, textTransform: 'uppercase', color: '#475569', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                                <th key={i} style={{ background: '#f1f5f9', textAlign: i >= 1 ? (i === 2 ? 'center' : 'right') : 'left', padding: '6px 8px', fontSize: 11, textTransform: 'uppercase', color: '#475569', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
                               ))}
                             </tr>
                           </thead>
                           <tbody>
                             {svc.materials.map((mat) => (
                               <tr key={mat.id}>
-                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13 }}>{mat.name}</td>
-                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13, textAlign: 'right' }}>{mat.quantity}</td>
-                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13, textAlign: 'center' }}>{mat.unit}</td>
-                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13, textAlign: 'right' }}>{fmt(mat.unitPrice)}</td>
-                                <td style={{ padding: '8px 10px', borderBottom: '1px solid #e2e8f0', fontSize: 13, textAlign: 'right', fontWeight: 600 }}>{fmt(mat.quantity * mat.unitPrice)}</td>
+                                <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12 }}>{mat.name}</td>
+                                <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12, textAlign: 'right' }}>{mat.quantity}</td>
+                                <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12, textAlign: 'center' }}>{mat.unit}</td>
+                                <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12, textAlign: 'right' }}>{fmt(mat.unitPrice)}</td>
+                                <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12, textAlign: 'right', fontWeight: 600 }}>{fmt(mat.quantity * mat.unitPrice)}</td>
                               </tr>
                             ))}
                           </tbody>

@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import AppComingSoonSection from '@/components/AppComingSoonSection';
 import {
   FileText, BarChart3, Users, ClipboardList, ArrowRight, ShieldCheck, Eye, Trash2,
   Plus, Download, Building2, Wrench, Package, Mail, ChevronDown, ChevronUp,
@@ -556,6 +557,9 @@ export default function IndexV2() {
           </div>
         </div>
       </section>
+
+      {/* App Coming Soon */}
+      <AppComingSoonSection />
 
       {/* About */}
       <section className="py-20 bg-secondary/30">

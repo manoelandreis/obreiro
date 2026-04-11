@@ -13,6 +13,7 @@ import AdminContent from "./pages/admin/AdminContent";
 import AdminTemplates from "./pages/admin/AdminTemplates";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import NotFound from "./pages/NotFound";
+import IndexV2 from "./pages/IndexV2";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
           <Routes>
             {/* Public */}
             <Route path="/" element={<Index />} />
+            <Route path="/v2" element={<IndexV2 />} />
             <Route path="/quote" element={<Quote />} />
 
             {/* Admin */}

@@ -98,6 +98,11 @@ export default function Index() {
                 Criar Orçamento Grátis <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
+            <Link to="/v2">
+              <Button size="lg" variant="secondary" className="gap-2 text-base">
+                Alternativa 2
+              </Button>
+            </Link>
             <a href="#waitlist">
               <Button size="lg" variant="outline" className="text-base">
                 Juntar-me à Waitlist

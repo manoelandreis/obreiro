@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { FileText, BarChart3, Users, ClipboardList, ArrowRight, ShieldCheck, Eye, Trash2 } from 'lucide-react';
+import AppComingSoonSection from '@/components/AppComingSoonSection';
 import mockupTemplate from '@/assets/mockup-template.jpg';
 import mockupTool from '@/assets/mockup-tool.jpg';
 
@@ -220,6 +221,9 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      {/* App Coming Soon */}
+      <AppComingSoonSection />
 
       {/* About */}
       <section className="py-20 bg-secondary/30">

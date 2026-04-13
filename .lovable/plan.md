@@ -1,46 +1,33 @@
 
 
-# Nova Secção "App Em Breve" — Estilo Expandable (Cohere-like)
+# Admin Content — Sincronizar com a Landing Page
 
-## O que vou construir
+## Problema atual
 
-Uma nova secção na landing page entre "Features" e "About", com o formato visual da imagem de referência (Cohere): um layout split-screen com uma imagem/mockup à esquerda e uma lista de funcionalidades expandíveis à direita. Cada item expande para mostrar bullets com checkmarks. O conteudo vem do README-2.md anexado.
+O CMS admin mostra cartões genéricos (título/subtítulo/corpo) para 4 secções (hero, features, about, cta), mas a landing page tem mais secções (privacy strip, product snapshots, app coming soon) e cada secção usa campos diferentes. Não há contexto visual sobre onde cada secção aparece.
 
-## Layout
+## O que vou fazer
 
-```text
-┌──────────────────────────────────────────────────┐
-│  "A App que está a caminho."  (título centrado)  │
-├────────────────────┬─────────────────────────────┤
-│                    │  ─── Dashboard Inteligente   │
-│   Mockup/Image     │  ✓ Métricas em Tempo Real   │
-│   (placeholder)    │  ✓ Gráfico de Atividade     │
-│                    │  ✓ Acesso Rápido             │
-│                    │  ─── Gestão de Clientes      │
-│                    │  ─── Controlo de Trabalhos   │
-│                    │  ─── Gestão de Tarefas       │
-│                    │  ─── Segurança de Elite      │
-└────────────────────┴─────────────────────────────┘
-```
+Redesenhar o `AdminContent.tsx` para espelhar a estrutura real da landing page:
 
-## Funcionalidades expandíveis (do README-2.md)
-
-1. **Dashboard Inteligente** — Métricas em Tempo Real, Gráfico de Atividade, Acesso Rápido
-2. **Gestão de Clientes (RGPD Ready)** — Ficha de Cliente, Consentimento RGPD, Direito ao Esquecimento
-3. **Controlo de Trabalhos e Orçamentos** — Estados de Fluxo, Histórico, Preview de Documentos
-4. **Gestão de Tarefas Detalhada** — Atividades, Produtos/Materiais, Progresso Visual
-5. **Segurança de Elite** — Lock Screen, Auto-Lock, Logs de Segurança, Bloqueio de Força Bruta
+1. **Mapa visual das secções** — Mostrar uma barra lateral ou lista ordenada com todas as secções da landing page (incluindo as não editáveis), para o admin ver o contexto completo
+2. **Campos específicos por secção** — Cada secção só mostra os campos que realmente usa na landing page:
+   - **Hero**: título, subtítulo (sem corpo)
+   - **Features**: título, subtítulo (sem corpo)
+   - **About**: título, subtítulo, corpo
+   - **CTA**: título, subtítulo (sem corpo)
+3. **Preview inline** — Mostrar uma miniatura/descrição de como a secção aparece na página (ex: "Secção principal com título grande e botões de ação")
+4. **Secções não editáveis** — Mostrar como cards desabilitados com etiqueta "Fixo no código" para: Navbar, Product Snapshots, Privacy Strip, App Em Breve, Footer
+5. **Ordem visual** — Ordenar os cards exatamente como aparecem na página de cima para baixo
 
 ## Detalhes técnicos
 
-- Usar `Collapsible` do shadcn/ui para o efeito expandir/colapsar
-- Cada item tem uma linha colorida no topo (como na imagem de referência — cores diferentes por item)
-- Checkmarks com ícone `CheckCircle2` do Lucide
-- Imagem à esquerda: placeholder com fundo bege/warm como na imagem de referência
-- Apenas o primeiro item começa expandido
-- Secção inserida entre "Features" e "About" no `Index.tsx`
+- Definir um array `LANDING_SECTIONS` com metadata de cada secção (key, label, descrição, campos editáveis, editável sim/não)
+- Mapear esse array com os dados do `landing_content` da base de dados
+- Secções editáveis mostram inputs; secções fixas mostram apenas info
+- Adicionar ícones e cores por secção para fácil identificação
 
 ## Ficheiros alterados
 
-- **src/pages/Index.tsx** — Adicionar a nova secção "App Em Breve" com os 5 itens expandíveis
+- `src/pages/admin/AdminContent.tsx` — Reescrita completa
 

@@ -14,9 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Fira Sans", "Inter", "sans-serif"],
-        heading: ["DM Serif Display", "serif"],
-        display: ["DM Serif Display", "serif"],
+        sans: ["Inter", "sans-serif"],
+        heading: ["Space Grotesk", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=DM+Serif+Display&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,30 +6,26 @@
 
 @layer base {
   :root {
-    --background: 0 0% 96%;
-    --foreground: 213 47% 11%;
+    --background: 210 20% 98%;
+    --foreground: 220 30% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 213 47% 11%;
+    --card-foreground: 220 30% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 213 47% 11%;
+    --popover-foreground: 220 30% 12%;
 
-    /* Navy Blue #1B3A5C - Trust */
-    --primary: 211 55% 23%;
-    --primary-foreground: 0 0% 100%;
-    --primary-deep: 211 56% 15%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 14% 96%;
-    --secondary-foreground: 213 47% 11%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 220 30% 12%;
 
-    --muted: 210 14% 93%;
-    --muted-foreground: 0 0% 33%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    /* Burnt Orange #E8730A - CTAs */
-    --accent: 25 91% 47%;
+    --accent: 38 92% 50%;
     --accent-foreground: 0 0% 100%;
-    --accent-soft: 30 100% 95%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
@@ -91,8 +87,8 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Poppins', system-ui, sans-serif;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
   }
 }

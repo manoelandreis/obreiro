@@ -14,9 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Fira Sans", "Inter", "sans-serif"],
-        heading: ["DM Serif Display", "serif"],
-        display: ["DM Serif Display", "serif"],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        heading: ["Poppins", "Inter", "sans-serif"],
+        display: ["Poppins", "Inter", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",

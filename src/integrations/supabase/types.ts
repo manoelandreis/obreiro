@@ -279,7 +279,11 @@ export type Database = {
       }
       app_user_settings: {
         Row: {
+          company_address: string | null
+          company_email: string | null
           company_name: string | null
+          company_nif: string | null
+          company_phone: string | null
           created_at: string
           full_name: string | null
           pin_enabled: boolean
@@ -288,7 +292,11 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          company_address?: string | null
+          company_email?: string | null
           company_name?: string | null
+          company_nif?: string | null
+          company_phone?: string | null
           created_at?: string
           full_name?: string | null
           pin_enabled?: boolean
@@ -297,7 +305,11 @@ export type Database = {
           user_id: string
         }
         Update: {
+          company_address?: string | null
+          company_email?: string | null
           company_name?: string | null
+          company_nif?: string | null
+          company_phone?: string | null
           created_at?: string
           full_name?: string | null
           pin_enabled?: boolean

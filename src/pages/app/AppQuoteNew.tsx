@@ -47,17 +47,30 @@ export default function AppQuoteNew() {
   const [notes, setNotes] = useState('');
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [saving, setSaving] = useState(false);
-  const [expanded, setExpanded] = useState({ company: true, client: true, services: true, notes: false });
+  const [expanded, setExpanded] = useState({ client: true, services: true, notes: false });
+  const [companyConfigured, setCompanyConfigured] = useState(true);
 
   useEffect(() => {
     if (!user) return;
     void (async () => {
       const [{ data: settings }, { data: cs }, { data: tpl }] = await Promise.all([
-        supabase.from('app_user_settings').select('full_name, company_name').eq('user_id', user.id).maybeSingle(),
+        supabase.from('app_user_settings').select('full_name, company_name, company_nif, company_email, company_phone, company_address').eq('user_id', user.id).maybeSingle(),
         supabase.from('app_clients').select('id, name, email, phone, address').order('name'),
         supabase.from('quote_templates').select('id, name, unit, default_price').eq('is_active', true),
       ]);
-      if (settings) setCompany((c) => ({ ...c, name: settings.company_name || settings.full_name || '' }));
+      if (settings) {
+        const s = settings as any;
+        setCompany({
+          name: s.company_name || s.full_name || '',
+          nif: s.company_nif || '',
+          email: s.company_email || '',
+          phone: s.company_phone || '',
+          address: s.company_address || '',
+        });
+        setCompanyConfigured(!!(s.company_name || s.company_nif || s.company_email));
+      } else {
+        setCompanyConfigured(false);
+      }
       if (cs) setClients(cs);
       if (tpl) setTemplates(tpl as QuoteTemplate[]);
     })();
@@ -161,26 +174,20 @@ export default function AppQuoteNew() {
         </CardContent>
       </Card>
 
-      {/* Company */}
-      <Card>
-        <button onClick={() => toggle('company')} className="w-full">
-          <CardHeader className="flex flex-row items-center justify-between cursor-pointer">
-            <CardTitle className="flex items-center gap-2 text-base"><Building2 className="h-5 w-5" /> A Sua Empresa</CardTitle>
-            {expanded.company ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </CardHeader>
-        </button>
-        {expanded.company && (
-          <CardContent className="space-y-4 pt-0">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div><Label>Nome</Label><Input value={company.name} onChange={(e) => setCompany({ ...company, name: e.target.value })} /></div>
-              <div><Label>NIF</Label><Input value={company.nif} onChange={(e) => setCompany({ ...company, nif: e.target.value })} /></div>
-              <div><Label>Email</Label><Input value={company.email} onChange={(e) => setCompany({ ...company, email: e.target.value })} /></div>
-              <div><Label>Telefone</Label><Input value={company.phone} onChange={(e) => setCompany({ ...company, phone: e.target.value })} /></div>
+      {!companyConfigured && (
+        <Card className="border-amber-200 bg-amber-50/50">
+          <CardContent className="pt-6 flex items-start gap-3">
+            <Building2 className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+            <div className="flex-1">
+              <div className="font-semibold text-amber-900">Dados da empresa em falta</div>
+              <p className="text-sm text-amber-800 mt-1">
+                Configure os dados da sua empresa em <strong>Definições</strong> para aparecerem automaticamente nos orçamentos.
+              </p>
             </div>
-            <div><Label>Morada</Label><Input value={company.address} onChange={(e) => setCompany({ ...company, address: e.target.value })} /></div>
+            <Button variant="outline" size="sm" onClick={() => navigate('/app/settings')}>Ir para Definições</Button>
           </CardContent>
-        )}
-      </Card>
+        </Card>
+      )}
 
       {/* Client */}
       <Card>

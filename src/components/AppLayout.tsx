@@ -126,7 +126,7 @@ export default function AppLayout() {
 
       {/* PIN lock overlay */}
       <Dialog open={locked} onOpenChange={() => {}}>
-        <DialogContent hideClose className="max-w-sm" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+        <DialogContent className="max-w-sm" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Lock className="h-5 w-5" /> App trancada

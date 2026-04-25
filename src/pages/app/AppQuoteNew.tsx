@@ -1,0 +1,366 @@
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useAppAuth } from '@/hooks/useAppAuth';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
+import {
+  Building2, Users, Wrench, Package, Plus, Trash2, ArrowLeft, FileText, Save, ChevronDown, ChevronUp,
+} from 'lucide-react';
+
+interface MaterialItem { id: string; name: string; quantity: number; unit: string; unitPrice: number; }
+interface ServiceItem { id: string; name: string; description: string; pricePerHour: number; hours: number; materials: MaterialItem[]; }
+interface ClientRow { id: string; name: string; email: string | null; phone: string | null; address: string | null; }
+interface QuoteTemplate { id: string; name: string; unit: string | null; default_price: number | null; }
+
+const emptyMaterial = (): MaterialItem => ({ id: crypto.randomUUID(), name: '', quantity: 1, unit: 'un', unitPrice: 0 });
+const emptyService = (): ServiceItem => ({ id: crypto.randomUUID(), name: '', description: '', pricePerHour: 0, hours: 1, materials: [] });
+const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
+
+export default function AppQuoteNew() {
+  const { user } = useAppAuth();
+  const navigate = useNavigate();
+
+  // Company snapshot (from settings)
+  const [company, setCompany] = useState({ name: '', email: '', phone: '', address: '', nif: '' });
+
+  // Clients
+  const [clients, setClients] = useState<ClientRow[]>([]);
+  const [selectedClientId, setSelectedClientId] = useState<string>('');
+  const [openNewClient, setOpenNewClient] = useState(false);
+  const [newClient, setNewClient] = useState({ name: '', email: '', phone: '', address: '', rgpd: false });
+
+  // Quote
+  const [title, setTitle] = useState('Orçamento');
+  const [services, setServices] = useState<ServiceItem[]>([emptyService()]);
+  const [notes, setNotes] = useState('');
+  const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [expanded, setExpanded] = useState({ company: true, client: true, services: true, notes: false });
+
+  useEffect(() => {
+    if (!user) return;
+    void (async () => {
+      const [{ data: settings }, { data: cs }, { data: tpl }] = await Promise.all([
+        supabase.from('app_user_settings').select('full_name, company_name').eq('user_id', user.id).maybeSingle(),
+        supabase.from('app_clients').select('id, name, email, phone, address').order('name'),
+        supabase.from('quote_templates').select('id, name, unit, default_price').eq('is_active', true),
+      ]);
+      if (settings) setCompany((c) => ({ ...c, name: settings.company_name || settings.full_name || '' }));
+      if (cs) setClients(cs);
+      if (tpl) setTemplates(tpl as QuoteTemplate[]);
+    })();
+  }, [user]);
+
+  const selectedClient = clients.find((c) => c.id === selectedClientId);
+
+  const handleCreateClient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    if (!newClient.rgpd) return toast.error('É necessário consentimento RGPD.');
+    const { data, error } = await supabase.from('app_clients').insert({
+      user_id: user.id,
+      name: newClient.name.trim(),
+      email: newClient.email.trim() || null,
+      phone: newClient.phone.trim() || null,
+      address: newClient.address.trim() || null,
+      rgpd_consent: true,
+      rgpd_consent_at: new Date().toISOString(),
+    }).select().single();
+    if (error || !data) return toast.error('Erro a criar cliente.');
+    setClients([...clients, data]);
+    setSelectedClientId(data.id);
+    setOpenNewClient(false);
+    setNewClient({ name: '', email: '', phone: '', address: '', rgpd: false });
+    toast.success('Cliente criado.');
+  };
+
+  // Service helpers
+  const addService = () => setServices([...services, emptyService()]);
+  const removeService = (id: string) => setServices(services.filter((s) => s.id !== id));
+  const updateService = (id: string, field: keyof Omit<ServiceItem, 'id' | 'materials'>, value: string | number) =>
+    setServices(services.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
+  const addMaterial = (sid: string) =>
+    setServices(services.map((s) => s.id === sid ? { ...s, materials: [...s.materials, emptyMaterial()] } : s));
+  const removeMaterial = (sid: string, mid: string) =>
+    setServices(services.map((s) => s.id === sid ? { ...s, materials: s.materials.filter((m) => m.id !== mid) } : s));
+  const updateMaterial = (sid: string, mid: string, field: keyof MaterialItem, value: string | number) =>
+    setServices(services.map((s) => s.id === sid
+      ? { ...s, materials: s.materials.map((m) => (m.id === mid ? { ...m, [field]: value } : m)) }
+      : s));
+  const addTemplateAsMaterial = (sid: string, t: QuoteTemplate) =>
+    setServices(services.map((s) => s.id === sid
+      ? { ...s, materials: [...s.materials, { id: crypto.randomUUID(), name: t.name, quantity: 1, unit: t.unit || 'un', unitPrice: Number(t.default_price) || 0 }] }
+      : s));
+
+  // Totals
+  const serviceLabor = (s: ServiceItem) => s.pricePerHour * s.hours;
+  const serviceMats = (s: ServiceItem) => s.materials.reduce((a, m) => a + m.quantity * m.unitPrice, 0);
+  const serviceTotal = (s: ServiceItem) => serviceLabor(s) + serviceMats(s);
+  const subtotal = services.reduce((a, s) => a + serviceTotal(s), 0);
+  const iva = subtotal * 0.23;
+  const total = subtotal + iva;
+
+  const toggle = (k: keyof typeof expanded) => setExpanded((p) => ({ ...p, [k]: !p[k] }));
+
+  const handleSave = async () => {
+    if (!user) return;
+    if (!selectedClientId) return toast.error('Selecione ou crie um cliente.');
+    if (services.every((s) => !s.name.trim())) return toast.error('Adicione pelo menos um serviço.');
+    setSaving(true);
+    const { error } = await supabase.from('app_quotes').insert({
+      user_id: user.id,
+      client_id: selectedClientId,
+      title: title.trim() || 'Orçamento',
+      company_snapshot: company as any,
+      client_snapshot: selectedClient as any,
+      services: services as any,
+      notes: notes.trim() || null,
+      subtotal,
+      iva,
+      total,
+    });
+    setSaving(false);
+    if (error) return toast.error('Erro a guardar orçamento.');
+    toast.success('Orçamento guardado.');
+    navigate('/app/quotes');
+  };
+
+  return (
+    <div className="space-y-6 max-w-5xl mx-auto">
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/app/quotes')}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="font-heading text-3xl font-bold">Novo Orçamento</h1>
+            <p className="text-muted-foreground">Preencha os dados do cliente, serviços e materiais.</p>
+          </div>
+        </div>
+        <Button className="gap-2" disabled={saving} onClick={handleSave}>
+          <Save className="h-4 w-4" /> {saving ? 'A guardar...' : 'Guardar Orçamento'}
+        </Button>
+      </div>
+
+      <Card>
+        <CardHeader><CardTitle className="text-base">Título</CardTitle></CardHeader>
+        <CardContent>
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex: Orçamento Pintura Sala" />
+        </CardContent>
+      </Card>
+
+      {/* Company */}
+      <Card>
+        <button onClick={() => toggle('company')} className="w-full">
+          <CardHeader className="flex flex-row items-center justify-between cursor-pointer">
+            <CardTitle className="flex items-center gap-2 text-base"><Building2 className="h-5 w-5" /> A Sua Empresa</CardTitle>
+            {expanded.company ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </CardHeader>
+        </button>
+        {expanded.company && (
+          <CardContent className="space-y-4 pt-0">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div><Label>Nome</Label><Input value={company.name} onChange={(e) => setCompany({ ...company, name: e.target.value })} /></div>
+              <div><Label>NIF</Label><Input value={company.nif} onChange={(e) => setCompany({ ...company, nif: e.target.value })} /></div>
+              <div><Label>Email</Label><Input value={company.email} onChange={(e) => setCompany({ ...company, email: e.target.value })} /></div>
+              <div><Label>Telefone</Label><Input value={company.phone} onChange={(e) => setCompany({ ...company, phone: e.target.value })} /></div>
+            </div>
+            <div><Label>Morada</Label><Input value={company.address} onChange={(e) => setCompany({ ...company, address: e.target.value })} /></div>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Client */}
+      <Card>
+        <button onClick={() => toggle('client')} className="w-full">
+          <CardHeader className="flex flex-row items-center justify-between cursor-pointer">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Users className="h-5 w-5" /> Cliente
+              {selectedClient && <span className="ml-2 text-sm font-normal text-muted-foreground">— {selectedClient.name}</span>}
+            </CardTitle>
+            {expanded.client ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </CardHeader>
+        </button>
+        {expanded.client && (
+          <CardContent className="space-y-4 pt-0">
+            <div className="flex gap-3 items-end flex-wrap">
+              <div className="flex-1 min-w-[240px]">
+                <Label>Selecionar cliente existente</Label>
+                <Select value={selectedClientId} onValueChange={setSelectedClientId}>
+                  <SelectTrigger><SelectValue placeholder="Escolher cliente..." /></SelectTrigger>
+                  <SelectContent>
+                    {clients.length === 0 && <div className="p-2 text-sm text-muted-foreground">Nenhum cliente ainda.</div>}
+                    {clients.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button variant="outline" className="gap-2" onClick={() => setOpenNewClient(true)}>
+                <Plus className="h-4 w-4" /> Novo Cliente
+              </Button>
+            </div>
+
+            {selectedClient && (
+              <div className="grid md:grid-cols-2 gap-3 p-3 rounded-lg bg-muted/40 text-sm">
+                <div><span className="text-muted-foreground">Email:</span> {selectedClient.email || '—'}</div>
+                <div><span className="text-muted-foreground">Telefone:</span> {selectedClient.phone || '—'}</div>
+                <div className="md:col-span-2"><span className="text-muted-foreground">Morada:</span> {selectedClient.address || '—'}</div>
+              </div>
+            )}
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Services */}
+      <Card>
+        <button onClick={() => toggle('services')} className="w-full">
+          <CardHeader className="flex flex-row items-center justify-between cursor-pointer">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Wrench className="h-5 w-5" /> Serviços e Materiais
+              {subtotal > 0 && <span className="ml-2 text-sm font-normal text-muted-foreground">({fmt(subtotal)})</span>}
+            </CardTitle>
+            {expanded.services ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </CardHeader>
+        </button>
+        {expanded.services && (
+          <CardContent className="space-y-6 pt-0">
+            {services.map((svc, idx) => (
+              <div key={svc.id} className="border rounded-lg p-4 space-y-4 bg-muted/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 font-semibold"><Wrench className="h-4 w-4" /> Serviço {idx + 1}</div>
+                  {services.length > 1 && (
+                    <Button variant="ghost" size="icon" onClick={() => removeService(svc.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  )}
+                </div>
+                <div className="grid md:grid-cols-2 gap-3">
+                  <div><Label>Serviço</Label><Input value={svc.name} placeholder="Ex: Pintura Interior" onChange={(e) => updateService(svc.id, 'name', e.target.value)} /></div>
+                  <div><Label>Descrição</Label><Input value={svc.description} onChange={(e) => updateService(svc.id, 'description', e.target.value)} /></div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><Label>Preço por Hora (€)</Label><Input type="number" min={0} step={0.01} value={svc.pricePerHour} onChange={(e) => updateService(svc.id, 'pricePerHour', Number(e.target.value))} /></div>
+                  <div><Label>Horas Aproximadas</Label><Input type="number" min={0.5} step={0.5} value={svc.hours} onChange={(e) => updateService(svc.id, 'hours', Number(e.target.value))} /></div>
+                </div>
+                <div className="text-right text-sm text-muted-foreground">
+                  Mão de obra: <span className="font-medium text-foreground">{fmt(serviceLabor(svc))}</span>
+                </div>
+
+                <div className="border-t pt-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Package className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Materiais</span>
+                  </div>
+
+                  {templates.length > 0 && (
+                    <div className="mb-3">
+                      <Label className="text-muted-foreground text-xs mb-2 block">Adicionar template:</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {templates.map((t) => (
+                          <Button key={t.id} variant="outline" size="sm" onClick={() => addTemplateAsMaterial(svc.id, t)}>
+                            + {t.name}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {svc.materials.map((mat) => (
+                    <div key={mat.id} className="grid grid-cols-12 gap-2 items-end mb-2">
+                      <div className="col-span-12 md:col-span-4"><Label className="text-xs">Material</Label><Input value={mat.name} onChange={(e) => updateMaterial(svc.id, mat.id, 'name', e.target.value)} /></div>
+                      <div className="col-span-3 md:col-span-2"><Label className="text-xs">Qtd.</Label><Input type="number" min={0} step={0.01} value={mat.quantity} onChange={(e) => updateMaterial(svc.id, mat.id, 'quantity', Number(e.target.value))} /></div>
+                      <div className="col-span-3 md:col-span-2"><Label className="text-xs">Un.</Label><Input value={mat.unit} onChange={(e) => updateMaterial(svc.id, mat.id, 'unit', e.target.value)} /></div>
+                      <div className="col-span-4 md:col-span-3"><Label className="text-xs">Preço Un. (€)</Label><Input type="number" min={0} step={0.01} value={mat.unitPrice} onChange={(e) => updateMaterial(svc.id, mat.id, 'unitPrice', Number(e.target.value))} /></div>
+                      <div className="col-span-2 md:col-span-1 flex justify-end">
+                        <Button variant="ghost" size="icon" onClick={() => removeMaterial(svc.id, mat.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+
+                  <Button variant="outline" size="sm" onClick={() => addMaterial(svc.id)} className="gap-2 mt-2">
+                    <Plus className="h-4 w-4" /> Adicionar Material
+                  </Button>
+                </div>
+
+                <div className="text-right text-sm font-semibold">
+                  Total Serviço {idx + 1}: <span className="text-primary">{fmt(serviceTotal(svc))}</span>
+                </div>
+              </div>
+            ))}
+            <Button variant="outline" onClick={addService} className="w-full gap-2">
+              <Plus className="h-4 w-4" /> Adicionar Serviço
+            </Button>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Notes */}
+      <Card>
+        <button onClick={() => toggle('notes')} className="w-full">
+          <CardHeader className="flex flex-row items-center justify-between cursor-pointer">
+            <CardTitle className="flex items-center gap-2 text-base"><FileText className="h-5 w-5" /> Notas / Termos e Condições</CardTitle>
+            {expanded.notes ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </CardHeader>
+        </button>
+        {expanded.notes && (
+          <CardContent className="pt-0">
+            <Textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Condições de pagamento, prazos, garantia..." />
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Totals */}
+      <Card>
+        <CardContent className="pt-6 space-y-2 text-right">
+          <div className="text-sm text-muted-foreground">Subtotal: <span className="font-medium text-foreground">{fmt(subtotal)}</span></div>
+          <div className="text-sm text-muted-foreground">IVA (23%): <span className="font-medium text-foreground">{fmt(iva)}</span></div>
+          <div className="text-2xl font-bold text-primary border-t pt-2">Total: {fmt(total)}</div>
+          <div className="pt-3">
+            <Button size="lg" className="gap-2" disabled={saving} onClick={handleSave}>
+              <Save className="h-4 w-4" /> {saving ? 'A guardar...' : 'Guardar Orçamento'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* New client dialog */}
+      <Dialog open={openNewClient} onOpenChange={setOpenNewClient}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl">Novo Cliente</DialogTitle>
+            <DialogDescription>Adicione um cliente ao seu CRM.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleCreateClient} className="space-y-4">
+            <div><Label>Nome *</Label><Input required value={newClient.name} onChange={(e) => setNewClient({ ...newClient, name: e.target.value })} /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Email</Label><Input type="email" value={newClient.email} onChange={(e) => setNewClient({ ...newClient, email: e.target.value })} /></div>
+              <div><Label>Telefone</Label><Input value={newClient.phone} onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })} /></div>
+            </div>
+            <div><Label>Morada</Label><Input value={newClient.address} onChange={(e) => setNewClient({ ...newClient, address: e.target.value })} /></div>
+            <label className="flex items-start gap-2 text-sm">
+              <Checkbox checked={newClient.rgpd} onCheckedChange={(v) => setNewClient({ ...newClient, rgpd: !!v })} className="mt-0.5" />
+              <span className="text-muted-foreground">Confirmo que tenho consentimento RGPD do cliente para guardar estes dados.</span>
+            </label>
+            <DialogFooter>
+              <Button type="button" variant="ghost" onClick={() => setOpenNewClient(false)}>Cancelar</Button>
+              <Button type="submit">Criar Cliente</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

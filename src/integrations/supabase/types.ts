@@ -211,6 +211,72 @@ export type Database = {
           },
         ]
       }
+      app_quotes: {
+        Row: {
+          client_id: string | null
+          client_snapshot: Json
+          company_snapshot: Json
+          created_at: string
+          id: string
+          iva: number
+          job_id: string | null
+          notes: string | null
+          services: Json
+          subtotal: number
+          title: string
+          total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_id?: string | null
+          client_snapshot?: Json
+          company_snapshot?: Json
+          created_at?: string
+          id?: string
+          iva?: number
+          job_id?: string | null
+          notes?: string | null
+          services?: Json
+          subtotal?: number
+          title?: string
+          total?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string | null
+          client_snapshot?: Json
+          company_snapshot?: Json
+          created_at?: string
+          id?: string
+          iva?: number
+          job_id?: string | null
+          notes?: string | null
+          services?: Json
+          subtotal?: number
+          title?: string
+          total?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_quotes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "app_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "app_quotes_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "app_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_user_settings: {
         Row: {
           company_name: string | null

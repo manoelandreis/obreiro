@@ -8,10 +8,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import AppComingSoonSection from '@/components/AppComingSoonSection';
 import {
   FileText, BarChart3, Users, ClipboardList, ArrowRight, ShieldCheck, Eye, Trash2,
   Plus, Download, Building2, Wrench, Package, Mail, ChevronDown, ChevronUp,
+  Zap, Lock, Sparkles, Check,
 } from 'lucide-react';
 import mockupTemplate from '@/assets/mockup-template.jpg';
 import mockupTool from '@/assets/mockup-tool.jpg';
@@ -27,14 +27,26 @@ interface ContentSection { section_key: string; title: string | null; subtitle: 
 const emptyMaterial = (): MaterialItem => ({ id: crypto.randomUUID(), name: '', quantity: 1, unit: 'un', unitPrice: 0 });
 const emptyService = (): ServiceItem => ({ id: crypto.randomUUID(), name: '', description: '', pricePerHour: 0, hours: 1, materials: [] });
 
-const features = [
-  { icon: FileText, title: 'Orçamentos Profissionais', desc: 'Crie orçamentos detalhados e com aspeto profissional em minutos.' },
-  { icon: ClipboardList, title: 'Templates Reutilizáveis', desc: 'Use templates pré-definidos para os seus serviços mais comuns.' },
-  { icon: BarChart3, title: 'Gestão Organizada', desc: 'Acompanhe todos os seus projetos e clientes num só lugar.' },
-  { icon: Users, title: 'Impressione Clientes', desc: 'Transmita profissionalismo desde o primeiro contacto.' },
-];
-
 const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
+
+// ── Logo mark ──
+const LogoMark = ({ size = 32 }: { size?: number }) => (
+  <div
+    className="flex items-center justify-center rounded-[10px] bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white font-heading font-bold shadow-accent-glow"
+    style={{ width: size, height: size, fontSize: size * 0.5 }}
+  >
+    H
+  </div>
+);
+
+const WordMark = () => (
+  <div className="flex items-center gap-2.5">
+    <LogoMark size={32} />
+    <span className="font-heading font-bold text-lg tracking-tight text-foreground">
+      Handy<span className="text-accent font-normal">Flow</span>
+    </span>
+  </div>
+);
 
 export default function IndexV2() {
   // ── Landing content ──
@@ -137,18 +149,18 @@ export default function IndexV2() {
     printWindow.document.write(`<html><head><title>Orçamento - ${company.name || 'HandyFlow'}</title><style>
       @page { size: A4; margin: 20mm 15mm 25mm 15mm; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; }
-      .header { display: flex; justify-content: space-between; margin-bottom: 30px; border-bottom: 3px solid #3b82f6; padding-bottom: 16px; }
-      .company-name { font-size: 22px; font-weight: 700; color: #3b82f6; }
+      body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; color: #0F1B2A; }
+      .header { display: flex; justify-content: space-between; margin-bottom: 30px; border-bottom: 3px solid #1B3A5C; padding-bottom: 16px; }
+      .company-name { font-size: 22px; font-weight: 700; color: #1B3A5C; }
       .service-block { margin-bottom: 20px; page-break-inside: avoid; break-inside: avoid; }
       table { width: 100%; border-collapse: collapse; margin: 0 0 8px; page-break-inside: avoid; break-inside: avoid; }
       thead { display: table-header-group; }
-      th { background: #f1f5f9; text-align: left; padding: 6px 8px; font-size: 10px; text-transform: uppercase; color: #475569; border-bottom: 2px solid #e2e8f0; }
-      td { padding: 6px 8px; border-bottom: 1px solid #e2e8f0; font-size: 12px; }
+      th { background: #F5F5F5; text-align: left; padding: 6px 8px; font-size: 10px; text-transform: uppercase; color: #555; border-bottom: 2px solid #ECEEF0; }
+      td { padding: 6px 8px; border-bottom: 1px solid #ECEEF0; font-size: 12px; }
       tr { page-break-inside: avoid; break-inside: avoid; }
       .totals { text-align: right; margin-top: 16px; page-break-inside: avoid; break-inside: avoid; }
-      .notes { margin-top: 20px; padding: 12px; background: #f8fafc; border-radius: 6px; font-size: 12px; color: #475569; page-break-inside: avoid; break-inside: avoid; }
-      .footer { margin-top: 30px; text-align: center; font-size: 11px; color: #9ca3af; }
+      .notes { margin-top: 20px; padding: 12px; background: #FFF2E3; border-radius: 6px; font-size: 12px; color: #555; page-break-inside: avoid; break-inside: avoid; }
+      .footer { margin-top: 30px; text-align: center; font-size: 11px; color: #9aa0a6; }
       @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
     </style></head><body>${printContent.innerHTML}<div class="footer">Gerado com HandyFlow — handyflow.app</div></body></html>`);
     printWindow.document.close();
@@ -186,63 +198,229 @@ export default function IndexV2() {
   };
 
   const hero = content['hero'];
-  const about = content['about'];
-  const cta = content['cta'];
+
+  const features = [
+    { icon: FileText, label: 'Orçamentos', desc: 'Profissionais em minutos' },
+    { icon: ClipboardList, label: 'Templates', desc: 'Reutilize serviços comuns' },
+    { icon: BarChart3, label: 'Gestão', desc: 'Projetos num só lugar' },
+    { icon: Users, label: 'Clientes', desc: 'CRM ligado aos orçamentos' },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navbar */}
-      <nav className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto flex items-center justify-between h-16 px-4">
-          <Link to="/" className="font-heading text-xl font-bold text-primary">HandyFlow</Link>
-          <div className="flex items-center gap-4">
-            <Link to="/quote"><Button variant="outline" size="sm">Versão Passo a Passo</Button></Link>
-            <Link to="/admin"><Button variant="ghost" size="sm">Admin</Button></Link>
+      {/* ─────── NAVBAR ─────── */}
+      <nav className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-[1180px] items-center justify-between px-6">
+          <Link to="/"><WordMark /></Link>
+          <div className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
+            <a href="#features" className="hover:text-foreground transition-colors">Funcionalidades</a>
+            <a href="#quote-builder" className="hover:text-foreground transition-colors">Orçamento</a>
+            <a href="#waitlist" className="hover:text-foreground transition-colors">Waitlist</a>
+            <Link to="/quote" className="hover:text-foreground transition-colors">Passo a passo</Link>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link to="/admin" className="hidden md:block"><Button variant="ghost" size="sm">Admin</Button></Link>
+            <Button size="sm" variant="accent" onClick={scrollToQuote}>Criar orçamento</Button>
           </div>
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="py-20 md:py-28">
-        <div className="container mx-auto px-4 text-center max-w-3xl">
-          <div className="inline-flex items-center gap-2 rounded-full border bg-card px-4 py-1.5 text-sm text-muted-foreground mb-8 shadow-sm">
-            <ShieldCheck className="h-4 w-4 text-primary" />
-            <span>100% seguro · Os seus dados nunca são guardados</span>
+      {/* ─────── HERO ─────── */}
+      <section className="px-6 pt-20 pb-16 md:pt-28 md:pb-20">
+        <div className="mx-auto max-w-[1180px]">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
+              <Sparkles className="h-3 w-3" /> Para construtores portugueses
+            </div>
+            <h1 className="mt-5 font-heading text-4xl md:text-6xl font-bold leading-[1.05] text-foreground text-balance">
+              {hero?.title || 'A ferramenta de orçamentos que cabe na obra.'}
+            </h1>
+            <p className="mt-5 max-w-xl text-lg text-muted-foreground leading-relaxed">
+              {hero?.subtitle || 'Crie, envie e organize orçamentos profissionais em minutos — do telemóvel, sem complicações.'}
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Button size="lg" variant="accent" onClick={scrollToQuote} className="gap-2 h-12 px-6">
+                Criar Orçamento Agora <ArrowRight className="h-4 w-4" />
+              </Button>
+              <a href="#waitlist">
+                <Button size="lg" variant="outline" className="h-12 px-6">Juntar-me à Waitlist</Button>
+              </a>
+            </div>
+            <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
+              <ShieldCheck className="h-4 w-4 text-success" />
+              100% seguro · Os seus dados nunca são guardados
+            </div>
           </div>
-          <h1 className="font-heading text-4xl md:text-6xl font-bold text-foreground leading-tight mb-6">
-            {hero?.title || 'Organize o seu negócio de construção'}
-          </h1>
-          <p className="text-xl text-muted-foreground mb-4">
-            {hero?.subtitle || 'Crie orçamentos profissionais em minutos.'}
-          </p>
-          <div className="flex-col gap-4 justify-center flex sm:flex-col">
-            <Button size="lg" className="gap-2 text-base" onClick={scrollToQuote}>
-              Criar Orçamento Agora <ArrowRight className="h-4 w-4" />
-            </Button>
-            <a href="#waitlist">
-              <Button size="lg" variant="outline" className="text-base">Juntar-me à Waitlist</Button>
-            </a>
+
+          {/* 4 features inline */}
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-6 max-w-4xl">
+            {features.map((f) => (
+              <div key={f.label} className="flex flex-col gap-1.5">
+                <f.icon className="h-5 w-5 text-foreground" strokeWidth={1.5} />
+                <p className="font-semibold text-sm text-foreground">{f.label}</p>
+                <p className="text-xs text-muted-foreground leading-snug">{f.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════ INLINE QUOTE BUILDER ═══════════════════ */}
-      <section ref={quoteRef} id="quote-builder" className="py-20 bg-secondary/30">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="text-center mb-10">
-            <h2 className="font-heading text-3xl font-bold text-foreground mb-3">Crie o seu orçamento</h2>
-            <p className="text-muted-foreground">Preencha os dados abaixo — tudo numa só página, sem passos.</p>
+      {/* ─────── PRODUCT MOCKUP ─────── */}
+      <section id="features" className="px-6 pb-20">
+        <div className="mx-auto max-w-[1180px]">
+          <div className="rounded-2xl bg-card border border-border shadow-soft overflow-hidden">
+            <img
+              src={mockupTool}
+              alt="Interface do HandyFlow para criação de orçamentos"
+              className="w-full h-auto"
+              loading="lazy"
+              width={1180}
+              height={700}
+            />
+          </div>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 opacity-60">
+            <span className="font-heading font-bold text-sm tracking-tight">SILVA CONSTRUÇÕES</span>
+            <span className="font-heading font-bold text-sm tracking-tight">MARTINS &amp; FILHOS</span>
+            <span className="font-heading font-bold text-sm tracking-tight">RENOVAR.PT</span>
+            <span className="font-heading font-bold text-sm tracking-tight">OBRA NOVA</span>
+            <span className="font-heading font-bold text-sm tracking-tight">CASA &amp; LAR</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────── SECTION: Operações de orçamentação à escala ─────── */}
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-[1180px]">
+          <div className="grid md:grid-cols-2 gap-12 mb-12">
+            <div>
+              <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground leading-tight text-balance">
+                Gere orçamentos<br />à escala
+              </h2>
+            </div>
+            <div className="flex items-end">
+              <p className="text-muted-foreground text-base leading-relaxed">
+                A plataforma mais simples para construtores portugueses. Feita para ser usada com o telemóvel na mão, no estaleiro.
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-soft">
+              <img src={mockupTemplate} alt="Templates de serviços" className="w-full h-auto" loading="lazy" width={580} height={420} />
+              <div className="p-6 border-t border-border">
+                <h3 className="font-heading font-semibold text-lg mb-1">Templates inteligentes</h3>
+                <p className="text-muted-foreground text-sm">Reutilize serviços e materiais frequentes com um clique.</p>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-soft">
+              <img src={mockupTool} alt="Builder numa só página" className="w-full h-auto" loading="lazy" width={580} height={420} />
+              <div className="p-6 border-t border-border">
+                <h3 className="font-heading font-semibold text-lg mb-1">Tudo numa só página</h3>
+                <p className="text-muted-foreground text-sm">Sem passos confusos. Preencha, calcule IVA e exporte PDF.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────── SECTION: 10x menos tempo ─────── */}
+      <section className="px-6 py-20 bg-card border-y border-border">
+        <div className="mx-auto max-w-[1180px]">
+          <div className="grid md:grid-cols-2 gap-12 mb-10">
+            <div>
+              <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground leading-tight text-balance">
+                10x menos tempo<br />a fazer orçamentos
+              </h2>
+            </div>
+            <div className="flex items-end gap-3">
+              <p className="text-muted-foreground text-base leading-relaxed flex-1">
+                Cálculo automático de IVA, materiais e mão de obra. Pronto para enviar em minutos.
+              </p>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold text-accent">
+                <Zap className="h-3 w-3" /> Rápido
+              </span>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-background overflow-hidden shadow-soft p-2">
+            <img src={mockupTemplate} alt="Velocidade de criação" className="w-full h-auto rounded-xl" loading="lazy" width={1180} height={520} />
+          </div>
+        </div>
+      </section>
+
+      {/* ─────── SECTION: Sem comissões ─────── */}
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-[1180px]">
+          <div className="grid md:grid-cols-2 gap-12 mb-12">
+            <div>
+              <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground leading-tight text-balance">
+                Sem comissões.<br />Sem letras pequenas.
+              </h2>
+            </div>
+            <div className="flex items-end">
+              <p className="text-muted-foreground text-base leading-relaxed">
+                Os seus dados são processados localmente. Os seus orçamentos são seus. Sempre.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { icon: Lock, title: 'Privado por defeito', desc: 'Os dados do orçamento ficam no seu navegador. Nada é enviado.' },
+              { icon: ShieldCheck, title: 'RGPD desde o dia 1', desc: 'Conforme com a legislação portuguesa e europeia.' },
+              { icon: Zap, title: 'Sem fees por uso', desc: 'Pague pela ferramenta, não por cada orçamento que envia.' },
+            ].map((item) => (
+              <div key={item.title} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+                <div className="h-10 w-10 rounded-xl bg-accent-soft flex items-center justify-center mb-4">
+                  <item.icon className="h-5 w-5 text-accent" strokeWidth={1.5} />
+                </div>
+                <h3 className="font-heading font-semibold text-base mb-1.5">{item.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─────── TESTIMONIAL ─────── */}
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-3xl">
+          <div className="rounded-3xl border border-border bg-card p-10 md:p-14 text-center shadow-soft">
+            <div className="text-accent text-4xl font-heading font-bold mb-4">"</div>
+            <blockquote className="font-heading text-xl md:text-2xl font-semibold text-foreground leading-snug text-balance">
+              Antes do HandyFlow, perdia 2 horas por orçamento. Agora faço em 10 minutos, no carro, entre obras.
+            </blockquote>
+            <div className="mt-6 flex items-center justify-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-heading font-bold text-sm">JS</div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-foreground">João Silva</p>
+                <p className="text-xs text-muted-foreground">Construtor · Porto</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────── INLINE QUOTE BUILDER ─────── */}
+      <section ref={quoteRef} id="quote-builder" className="px-6 py-20 bg-card border-y border-border">
+        <div className="mx-auto max-w-3xl">
+          <div className="text-center mb-10">
+            <span className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
+              <FileText className="h-3 w-3" /> Experimente agora
+            </span>
+            <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-foreground text-balance">Crie o seu orçamento</h2>
+            <p className="mt-3 text-muted-foreground">Tudo numa só página. Sem registo. Sem demoras.</p>
+          </div>
+
+          <div className="space-y-3">
             {/* ── Company ── */}
-            <Card>
-              <button onClick={() => toggleSection('company')} className="w-full">
+            <Card className="shadow-soft border-border">
+              <button onClick={() => toggleSection('company')} className="w-full text-left">
                 <CardHeader className="flex flex-row items-center justify-between cursor-pointer py-4">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <Building2 className="h-5 w-5" /> Dados da Sua Empresa
+                  <CardTitle className="flex items-center gap-2 text-base font-heading">
+                    <Building2 className="h-5 w-5 text-accent" strokeWidth={1.5} /> Dados da Sua Empresa
                   </CardTitle>
-                  {expandedSections.company ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  {expandedSections.company ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                 </CardHeader>
               </button>
               {expandedSections.company && (
@@ -259,13 +437,13 @@ export default function IndexV2() {
             </Card>
 
             {/* ── Client ── */}
-            <Card>
-              <button onClick={() => toggleSection('client')} className="w-full">
+            <Card className="shadow-soft border-border">
+              <button onClick={() => toggleSection('client')} className="w-full text-left">
                 <CardHeader className="flex flex-row items-center justify-between cursor-pointer py-4">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <Users className="h-5 w-5" /> Dados do Cliente
+                  <CardTitle className="flex items-center gap-2 text-base font-heading">
+                    <Users className="h-5 w-5 text-accent" strokeWidth={1.5} /> Dados do Cliente
                   </CardTitle>
-                  {expandedSections.client ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  {expandedSections.client ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                 </CardHeader>
               </button>
               {expandedSections.client && (
@@ -281,25 +459,25 @@ export default function IndexV2() {
             </Card>
 
             {/* ── Services ── */}
-            <Card>
-              <button onClick={() => toggleSection('services')} className="w-full">
+            <Card className="shadow-soft border-border">
+              <button onClick={() => toggleSection('services')} className="w-full text-left">
                 <CardHeader className="flex flex-row items-center justify-between cursor-pointer py-4">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <Wrench className="h-5 w-5" /> Serviços e Materiais
+                  <CardTitle className="flex items-center gap-2 text-base font-heading">
+                    <Wrench className="h-5 w-5 text-accent" strokeWidth={1.5} /> Serviços e Materiais
                     {services.length > 0 && subtotal > 0 && (
                       <span className="ml-2 text-sm font-normal text-muted-foreground">({fmt(subtotal)})</span>
                     )}
                   </CardTitle>
-                  {expandedSections.services ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  {expandedSections.services ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                 </CardHeader>
               </button>
               {expandedSections.services && (
                 <CardContent className="space-y-6 pt-0">
                   {services.map((svc, idx) => (
-                    <div key={svc.id} className="border rounded-lg p-4 space-y-4 bg-muted/20">
+                    <div key={svc.id} className="border border-border rounded-xl p-4 space-y-4 bg-background">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-sm flex items-center gap-2">
-                          <Wrench className="h-4 w-4" /> Serviço {idx + 1}
+                        <span className="font-heading font-semibold text-sm flex items-center gap-2">
+                          <Wrench className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} /> Serviço {idx + 1}
                         </span>
                         {services.length > 1 && (
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeService(svc.id)}>
@@ -316,14 +494,14 @@ export default function IndexV2() {
                         <div><Label className="text-xs">Horas Aprox.</Label><Input type="number" min={0.5} step={0.5} value={svc.hours} onChange={(e) => updateService(svc.id, 'hours', Number(e.target.value))} /></div>
                       </div>
                       <div className="text-right text-xs text-muted-foreground">
-                        Mão de obra: <span className="font-medium text-foreground">{fmt(serviceLaborTotal(svc))}</span>
+                        Mão de obra: <span className="font-semibold text-foreground">{fmt(serviceLaborTotal(svc))}</span>
                       </div>
 
                       {/* Materials */}
-                      <div className="border-t pt-3">
+                      <div className="border-t border-border pt-3">
                         <div className="flex items-center gap-2 mb-2">
-                          <Package className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-xs font-medium">Materiais</span>
+                          <Package className="h-3 w-3 text-muted-foreground" strokeWidth={1.5} />
+                          <span className="text-xs font-semibold">Materiais</span>
                         </div>
                         {templates.length > 0 && (
                           <div className="mb-2">
@@ -337,7 +515,7 @@ export default function IndexV2() {
                           </div>
                         )}
                         {svc.materials.map((mat, mIdx) => (
-                          <div key={mat.id} className="border rounded-md p-3 space-y-2 mb-2 bg-background">
+                          <div key={mat.id} className="border border-border rounded-lg p-3 space-y-2 mb-2 bg-card">
                             <div className="flex justify-between items-center">
                               <span className="text-xs text-muted-foreground">Material {mIdx + 1}</span>
                               <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeMaterial(svc.id, mat.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
@@ -349,7 +527,7 @@ export default function IndexV2() {
                               <div><Label className="text-xs">Preço Unit. (€)</Label><Input type="number" min={0} step={0.01} value={mat.unitPrice} onChange={(e) => updateMaterial(svc.id, mat.id, 'unitPrice', Number(e.target.value))} /></div>
                             </div>
                             <div className="text-right text-xs text-muted-foreground">
-                              Subtotal: <span className="font-medium text-foreground">{fmt(mat.quantity * mat.unitPrice)}</span>
+                              Subtotal: <span className="font-semibold text-foreground">{fmt(mat.quantity * mat.unitPrice)}</span>
                             </div>
                           </div>
                         ))}
@@ -358,9 +536,9 @@ export default function IndexV2() {
                         </Button>
                       </div>
 
-                      <div className="border-t pt-2 text-right text-sm">
+                      <div className="border-t border-border pt-2 text-right text-sm">
                         {svc.materials.length > 0 && <p className="text-xs text-muted-foreground">Materiais: {fmt(serviceMaterialsTotal(svc))}</p>}
-                        <p className="font-semibold text-foreground">Total Serviço {idx + 1}: {fmt(serviceTotal(svc))}</p>
+                        <p className="font-heading font-bold text-foreground">Total Serviço {idx + 1}: {fmt(serviceTotal(svc))}</p>
                       </div>
                     </div>
                   ))}
@@ -370,13 +548,13 @@ export default function IndexV2() {
             </Card>
 
             {/* ── Notes ── */}
-            <Card>
-              <button onClick={() => toggleSection('notes')} className="w-full">
+            <Card className="shadow-soft border-border">
+              <button onClick={() => toggleSection('notes')} className="w-full text-left">
                 <CardHeader className="flex flex-row items-center justify-between cursor-pointer py-4">
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <FileText className="h-5 w-5" /> Notas e Condições
+                  <CardTitle className="flex items-center gap-2 text-base font-heading">
+                    <FileText className="h-5 w-5 text-accent" strokeWidth={1.5} /> Notas e Condições
                   </CardTitle>
-                  {expandedSections.notes ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  {expandedSections.notes ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                 </CardHeader>
               </button>
               {expandedSections.notes && (
@@ -387,20 +565,20 @@ export default function IndexV2() {
             </Card>
 
             {/* ── Totals Bar ── */}
-            <Card className="border-primary/30 bg-primary/5">
+            <Card className="bg-primary text-primary-foreground border-primary shadow-soft">
               <CardContent className="pt-6">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                  <div className="space-y-1 text-sm text-center md:text-left">
-                    <p className="text-muted-foreground">Mão de Obra: <span className="font-medium text-foreground">{fmt(subtotalServices)}</span></p>
-                    <p className="text-muted-foreground">Materiais: <span className="font-medium text-foreground">{fmt(subtotalMaterials)}</span></p>
-                    <p className="text-muted-foreground">IVA (23%): <span className="font-medium text-foreground">{fmt(iva)}</span></p>
-                    <p className="text-lg font-bold text-foreground">Total: {fmt(total)}</p>
+                  <div className="space-y-0.5 text-sm text-center md:text-left text-primary-foreground/80">
+                    <p>Mão de Obra: <span className="font-semibold text-primary-foreground">{fmt(subtotalServices)}</span></p>
+                    <p>Materiais: <span className="font-semibold text-primary-foreground">{fmt(subtotalMaterials)}</span></p>
+                    <p>IVA (23%): <span className="font-semibold text-primary-foreground">{fmt(iva)}</span></p>
+                    <p className="text-xl font-heading font-bold text-primary-foreground pt-1">Total: {fmt(total)}</p>
                   </div>
                   <div className="flex gap-3">
-                    <Button variant="outline" onClick={() => setShowPreview(!showPreview)} className="gap-2">
-                      <Eye className="h-4 w-4" /> {showPreview ? 'Ocultar Preview' : 'Ver Preview'}
+                    <Button variant="outline" onClick={() => setShowPreview(!showPreview)} className="gap-2 bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+                      <Eye className="h-4 w-4" /> {showPreview ? 'Ocultar' : 'Preview'}
                     </Button>
-                    <Button onClick={handleDownloadPDF} className="gap-2">
+                    <Button variant="accent" onClick={handleDownloadPDF} className="gap-2">
                       <Download className="h-4 w-4" /> Download PDF
                     </Button>
                   </div>
@@ -410,72 +588,72 @@ export default function IndexV2() {
 
             {/* ── Preview ── */}
             {showPreview && (
-              <Card>
+              <Card className="shadow-soft border-border">
                 <CardContent className="pt-6">
                   <div ref={printRef}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, borderBottom: '3px solid #3b82f6', paddingBottom: 16 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24, borderBottom: '3px solid #1B3A5C', paddingBottom: 16 }}>
                       <div>
-                        <div style={{ fontSize: 24, fontWeight: 700, color: '#3b82f6' }}>{company.name || 'A Sua Empresa'}</div>
-                        {company.nif && <p style={{ fontSize: 13, color: '#6b7280' }}>NIF: {company.nif}</p>}
-                        {company.email && <p style={{ fontSize: 13, color: '#6b7280' }}>{company.email}</p>}
-                        {company.phone && <p style={{ fontSize: 13, color: '#6b7280' }}>{company.phone}</p>}
-                        {company.address && <p style={{ fontSize: 13, color: '#6b7280' }}>{company.address}</p>}
+                        <div style={{ fontSize: 24, fontWeight: 700, color: '#1B3A5C', fontFamily: 'Poppins, sans-serif' }}>{company.name || 'A Sua Empresa'}</div>
+                        {company.nif && <p style={{ fontSize: 13, color: '#555' }}>NIF: {company.nif}</p>}
+                        {company.email && <p style={{ fontSize: 13, color: '#555' }}>{company.email}</p>}
+                        {company.phone && <p style={{ fontSize: 13, color: '#555' }}>{company.phone}</p>}
+                        {company.address && <p style={{ fontSize: 13, color: '#555' }}>{company.address}</p>}
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1e293b' }}>ORÇAMENTO</h2>
-                        <p style={{ fontSize: 13, color: '#6b7280' }}>Data: {new Date().toLocaleDateString('pt-PT')}</p>
+                        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0F1B2A', fontFamily: 'Poppins, sans-serif' }}>ORÇAMENTO</h2>
+                        <p style={{ fontSize: 13, color: '#555' }}>Data: {new Date().toLocaleDateString('pt-PT')}</p>
                       </div>
                     </div>
                     <div style={{ marginBottom: 20 }}>
-                      <h3 style={{ fontSize: 12, color: '#6b7280', textTransform: 'uppercase', marginBottom: 6 }}>Cliente</h3>
+                      <h3 style={{ fontSize: 11, color: '#555', textTransform: 'uppercase', marginBottom: 6, letterSpacing: '0.08em' }}>Cliente</h3>
                       <p style={{ fontSize: 14 }}><strong>{client.name}</strong></p>
-                      {client.email && <p style={{ fontSize: 13, color: '#475569' }}>{client.email}</p>}
-                      {client.phone && <p style={{ fontSize: 13, color: '#475569' }}>{client.phone}</p>}
-                      {client.address && <p style={{ fontSize: 13, color: '#475569' }}>{client.address}</p>}
+                      {client.email && <p style={{ fontSize: 13, color: '#555' }}>{client.email}</p>}
+                      {client.phone && <p style={{ fontSize: 13, color: '#555' }}>{client.phone}</p>}
+                      {client.address && <p style={{ fontSize: 13, color: '#555' }}>{client.address}</p>}
                     </div>
                     {services.map((svc, idx) => (
                       <div key={svc.id} className="service-block" style={{ marginBottom: 28, pageBreakInside: 'avoid' }}>
-                        <p style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', marginBottom: 4 }}>{idx + 1}. {svc.name || `Serviço ${idx + 1}`}</p>
-                        {svc.description && <p style={{ fontSize: 13, color: '#475569', marginBottom: 8 }}>{svc.description}</p>}
-                        <p style={{ fontSize: 13, color: '#475569', marginBottom: 8 }}>Mão de obra: {fmt(svc.pricePerHour)}/hora × {svc.hours}h = <strong>{fmt(serviceLaborTotal(svc))}</strong></p>
+                        <p style={{ fontSize: 16, fontWeight: 600, color: '#0F1B2A', marginBottom: 4, fontFamily: 'Poppins, sans-serif' }}>{idx + 1}. {svc.name || `Serviço ${idx + 1}`}</p>
+                        {svc.description && <p style={{ fontSize: 13, color: '#555', marginBottom: 8 }}>{svc.description}</p>}
+                        <p style={{ fontSize: 13, color: '#555', marginBottom: 8 }}>Mão de obra: {fmt(svc.pricePerHour)}/hora × {svc.hours}h = <strong>{fmt(serviceLaborTotal(svc))}</strong></p>
                         {svc.materials.length > 0 && (
                           <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 8 }}>
                             <thead><tr>
                               {['Material', 'Qtd', 'Unidade', 'Preço Unit.', 'Total'].map((h, i) => (
-                                <th key={i} style={{ background: '#f1f5f9', textAlign: i >= 1 ? (i === 2 ? 'center' : 'right') : 'left', padding: '6px 8px', fontSize: 11, textTransform: 'uppercase', color: '#475569', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                                <th key={i} style={{ background: '#F5F5F5', textAlign: i >= 1 ? (i === 2 ? 'center' : 'right') : 'left', padding: '6px 8px', fontSize: 11, textTransform: 'uppercase', color: '#555', borderBottom: '2px solid #ECEEF0' }}>{h}</th>
                               ))}
                             </tr></thead>
                             <tbody>
                               {svc.materials.map((mat) => (
                                 <tr key={mat.id}>
-                                  <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12 }}>{mat.name}</td>
-                                  <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12, textAlign: 'right' }}>{mat.quantity}</td>
-                                  <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12, textAlign: 'center' }}>{mat.unit}</td>
-                                  <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12, textAlign: 'right' }}>{fmt(mat.unitPrice)}</td>
-                                  <td style={{ padding: '6px 8px', borderBottom: '1px solid #e2e8f0', fontSize: 12, textAlign: 'right', fontWeight: 600 }}>{fmt(mat.quantity * mat.unitPrice)}</td>
+                                  <td style={{ padding: '6px 8px', borderBottom: '1px solid #ECEEF0', fontSize: 12 }}>{mat.name}</td>
+                                  <td style={{ padding: '6px 8px', borderBottom: '1px solid #ECEEF0', fontSize: 12, textAlign: 'right' }}>{mat.quantity}</td>
+                                  <td style={{ padding: '6px 8px', borderBottom: '1px solid #ECEEF0', fontSize: 12, textAlign: 'center' }}>{mat.unit}</td>
+                                  <td style={{ padding: '6px 8px', borderBottom: '1px solid #ECEEF0', fontSize: 12, textAlign: 'right' }}>{fmt(mat.unitPrice)}</td>
+                                  <td style={{ padding: '6px 8px', borderBottom: '1px solid #ECEEF0', fontSize: 12, textAlign: 'right', fontWeight: 600 }}>{fmt(mat.quantity * mat.unitPrice)}</td>
                                 </tr>
                               ))}
                             </tbody>
                           </table>
                         )}
-                        <div style={{ textAlign: 'right', fontSize: 14, fontWeight: 600, color: '#1e293b' }}>Total Serviço: {fmt(serviceTotal(svc))}</div>
+                        <div style={{ textAlign: 'right', fontSize: 14, fontWeight: 600, color: '#0F1B2A' }}>Total Serviço: {fmt(serviceTotal(svc))}</div>
                       </div>
                     ))}
                     <div style={{ textAlign: 'right', marginTop: 16 }}>
-                      <p style={{ fontSize: 14, color: '#475569' }}>Mão de Obra: {fmt(subtotalServices)}</p>
-                      <p style={{ fontSize: 14, color: '#475569' }}>Materiais: {fmt(subtotalMaterials)}</p>
-                      <p style={{ fontSize: 14, color: '#475569' }}>Subtotal: {fmt(subtotal)}</p>
-                      <p style={{ fontSize: 14, color: '#475569' }}>IVA (23%): {fmt(iva)}</p>
-                      <p style={{ fontSize: 20, fontWeight: 700, color: '#3b82f6', borderTop: '2px solid #3b82f6', paddingTop: 8, marginTop: 8, display: 'inline-block' }}>Total: {fmt(total)}</p>
+                      <p style={{ fontSize: 14, color: '#555' }}>Mão de Obra: {fmt(subtotalServices)}</p>
+                      <p style={{ fontSize: 14, color: '#555' }}>Materiais: {fmt(subtotalMaterials)}</p>
+                      <p style={{ fontSize: 14, color: '#555' }}>Subtotal: {fmt(subtotal)}</p>
+                      <p style={{ fontSize: 14, color: '#555' }}>IVA (23%): {fmt(iva)}</p>
+                      <p style={{ fontSize: 20, fontWeight: 700, color: '#1B3A5C', borderTop: '2px solid #1B3A5C', paddingTop: 8, marginTop: 8, display: 'inline-block', fontFamily: 'Poppins, sans-serif' }}>Total: {fmt(total)}</p>
                     </div>
-                    {notes && <div style={{ marginTop: 24, padding: 16, background: '#f8fafc', borderRadius: 8, fontSize: 13, color: '#475569' }}><strong>Notas:</strong><br />{notes}</div>}
+                    {notes && <div style={{ marginTop: 24, padding: 16, background: '#FFF2E3', borderRadius: 8, fontSize: 13, color: '#555' }}><strong>Notas:</strong><br />{notes}</div>}
                   </div>
 
                   {/* Email delivery */}
-                  <div className="mt-6 border-t pt-6 space-y-4">
-                    <div className="bg-primary/5 border border-primary/20 rounded-lg p-5 space-y-4">
-                      <div className="flex items-center gap-2 text-primary font-heading font-semibold">
-                        <Mail className="h-5 w-5" /> Receber orçamento por email
+                  <div className="mt-6 border-t border-border pt-6 space-y-4">
+                    <div className="bg-accent-soft border border-accent/20 rounded-xl p-5 space-y-4">
+                      <div className="flex items-center gap-2 text-accent font-heading font-semibold">
+                        <Mail className="h-5 w-5" strokeWidth={1.5} /> Receber orçamento por email
                       </div>
                       <Input type="email" placeholder="O seu email" value={sendEmail} onChange={(e) => setSendEmail(e.target.value)} />
                       <div className="flex items-start gap-2">
@@ -484,12 +662,12 @@ export default function IndexV2() {
                           Aceito receber comunicações da HandyFlow sobre novidades e funcionalidades. Pode cancelar a qualquer momento.
                         </label>
                       </div>
-                      <Button onClick={handleSendByEmail} disabled={isSendingEmail} className="w-full gap-2">
+                      <Button variant="accent" onClick={handleSendByEmail} disabled={isSendingEmail} className="w-full gap-2">
                         <Mail className="h-4 w-4" /> {isSendingEmail ? 'A enviar...' : 'Enviar Orçamento por Email'}
                       </Button>
                     </div>
                     <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                      <ShieldCheck className="h-4 w-4" /> Os dados do orçamento não são guardados — processamento 100% local no seu navegador.
+                      <ShieldCheck className="h-4 w-4 text-success" /> Os dados do orçamento não são guardados — processamento 100% local no seu navegador.
                     </div>
                   </div>
                 </CardContent>
@@ -499,93 +677,72 @@ export default function IndexV2() {
         </div>
       </section>
 
-      {/* ═══════════════════ REST OF LANDING PAGE ═══════════════════ */}
-
-      {/* Product Snapshots */}
-      <section className="pb-20 pt-10">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="group rounded-2xl border bg-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-              <div className="overflow-hidden"><img src={mockupTemplate} alt="Exemplo de orçamento gerado" className="w-full h-auto group-hover:scale-[1.02] transition-transform duration-300" loading="lazy" width={800} height={600} /></div>
-              <div className="p-6"><h3 className="font-heading font-semibold text-lg mb-1">Orçamento Profissional</h3><p className="text-muted-foreground text-sm">Gere documentos prontos a enviar com todos os detalhes do serviço e materiais.</p></div>
-            </div>
-            <div className="group rounded-2xl border bg-card overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-              <div className="overflow-hidden"><img src={mockupTool} alt="Ferramenta de criação de orçamentos" className="w-full h-auto group-hover:scale-[1.02] transition-transform duration-300" loading="lazy" width={800} height={600} /></div>
-              <div className="p-6"><h3 className="font-heading font-semibold text-lg mb-1">Tudo Numa Só Página</h3><p className="text-muted-foreground text-sm">Preencha os dados, adicione serviços e materiais — sem passos, sem complicações.</p></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Privacy strip */}
-      <section className="border-y bg-card">
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <div className="flex items-center gap-3 justify-center md:justify-start">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0"><Trash2 className="h-5 w-5 text-primary" /></div>
-              <div><p className="font-medium text-sm">Nada é guardado</p><p className="text-muted-foreground text-xs">Dados desaparecem ao fechar</p></div>
-            </div>
-            <div className="flex items-center gap-3 justify-center">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0"><ShieldCheck className="h-5 w-5 text-primary" /></div>
-              <div><p className="font-medium text-sm">100% Privado</p><p className="text-muted-foreground text-xs">Processado no seu browser</p></div>
-            </div>
-            <div className="flex items-center gap-3 justify-center md:justify-end">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0"><Eye className="h-5 w-5 text-primary" /></div>
-              <div><p className="font-medium text-sm">Sem rastreamento</p><p className="text-muted-foreground text-xs">Sem partilha com terceiros</p></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="font-heading text-3xl font-bold text-foreground mb-3">{content['features']?.title || 'Tudo o que precisa para crescer'}</h2>
-            <p className="text-muted-foreground text-lg">{content['features']?.subtitle || 'Ferramentas pensadas para profissionais da construção'}</p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-            {features.map((f) => (
-              <Card key={f.title} className="border-0 shadow-md hover:shadow-lg transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4"><f.icon className="h-6 w-6 text-primary" /></div>
-                  <h3 className="font-heading font-semibold text-lg mb-2">{f.title}</h3>
-                  <p className="text-muted-foreground text-sm">{f.desc}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* App Coming Soon */}
-      <AppComingSoonSection />
-
-      {/* About */}
-      <section className="py-20 bg-secondary/30">
-        <div className="container mx-auto px-4 max-w-3xl text-center">
-          <h2 className="font-heading text-3xl font-bold text-foreground mb-3">{about?.title || 'Sobre a HandyFlow'}</h2>
-          <p className="text-lg text-muted-foreground mb-4">{about?.subtitle || ''}</p>
-          <p className="text-muted-foreground leading-relaxed">{about?.body || ''}</p>
-        </div>
-      </section>
-
-      {/* Waitlist */}
-      <section id="waitlist" className="py-20 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 max-w-lg text-center">
-          <h2 className="font-heading text-3xl font-bold mb-3">{cta?.title || 'Pronto para começar?'}</h2>
-          <p className="mb-8 opacity-90">{cta?.subtitle || 'Junte-se à lista de espera.'}</p>
-          <form onSubmit={handleWaitlist} className="space-y-3">
-            <Input placeholder="O seu nome" value={waitlistName} onChange={(e) => setWaitlistName(e.target.value)} className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60" />
-            <Input type="email" required placeholder="O seu email" value={waitlistEmail} onChange={(e) => setWaitlistEmail(e.target.value)} className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60" />
-            <Button type="submit" disabled={waitlistSubmitting} variant="secondary" className="w-full" size="lg">{waitlistSubmitting ? 'A submeter...' : 'Entrar na Lista de Espera'}</Button>
+      {/* ─────── WAITLIST CTA ─────── */}
+      <section id="waitlist" className="px-6 py-24 bg-navy-deep text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-30 pointer-events-none" style={{ background: 'radial-gradient(circle at 80% 20%, hsl(27 92% 47% / 0.4), transparent 50%)' }} />
+        <div className="mx-auto max-w-2xl text-center relative">
+          <h2 className="font-heading text-3xl md:text-5xl font-bold mb-4 text-balance">Pronto para o seu próximo orçamento?</h2>
+          <p className="mb-10 text-white/70 text-lg">Junte-se à waitlist e seja dos primeiros a usar o app completo.</p>
+          <form onSubmit={handleWaitlist} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <Input
+              type="email"
+              required
+              placeholder="O seu email"
+              value={waitlistEmail}
+              onChange={(e) => setWaitlistEmail(e.target.value)}
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/50 h-12"
+            />
+            <Button type="submit" disabled={waitlistSubmitting} variant="accent" size="lg" className="h-12 shrink-0">
+              {waitlistSubmitting ? 'A submeter...' : 'Entrar'}
+            </Button>
           </form>
+          <div className="mt-6 flex items-center justify-center gap-4 text-xs text-white/60">
+            <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Sem spam</span>
+            <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Cancele quando quiser</span>
+            <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Feito em PT</span>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 border-t">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">© {new Date().getFullYear()} HandyFlow. Todos os direitos reservados.</div>
+      {/* ─────── FOOTER ─────── */}
+      <footer className="px-6 py-16 border-t border-border bg-card">
+        <div className="mx-auto max-w-[1180px]">
+          <div className="grid md:grid-cols-4 gap-10">
+            <div className="md:col-span-1">
+              <WordMark />
+              <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
+                Ferramentas para construtores portugueses. Simples como uma chave de fendas.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-heading font-semibold text-sm mb-3">Produto</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="#quote-builder" className="hover:text-foreground">Orçamento</a></li>
+                <li><Link to="/quote" className="hover:text-foreground">Passo a passo</Link></li>
+                <li><a href="#features" className="hover:text-foreground">Funcionalidades</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-heading font-semibold text-sm mb-3">Empresa</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><a href="#waitlist" className="hover:text-foreground">Waitlist</a></li>
+                <li><Link to="/admin" className="hover:text-foreground">Admin</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-heading font-semibold text-sm mb-3">Legal</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>RGPD</li>
+                <li>Privacidade</li>
+                <li>Termos</li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+            <p>© {new Date().getFullYear()} HandyFlow. Todos os direitos reservados.</p>
+            <p className="flex items-center gap-1.5">Feito em <span className="font-semibold">🇵🇹 Portugal</span></p>
+          </div>
+        </div>
       </footer>
     </div>
   );

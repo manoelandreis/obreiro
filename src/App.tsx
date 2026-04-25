@@ -26,8 +26,8 @@ const App = () => (
         <AuthProvider>
           <Routes>
             {/* Public */}
-            <Route path="/" element={<Index />} />
-            <Route path="/v2" element={<IndexV2 />} />
+            <Route path="/" element={<IndexV2 />} />
+            <Route path="/v1" element={<Index />} />
             <Route path="/quote" element={<Quote />} />
 
             {/* Admin */}

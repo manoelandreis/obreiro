@@ -15,6 +15,10 @@ export default function AppSettings() {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
   const [companyName, setCompanyName] = useState('');
+  const [companyNif, setCompanyNif] = useState('');
+  const [companyEmail, setCompanyEmail] = useState('');
+  const [companyPhone, setCompanyPhone] = useState('');
+  const [companyAddress, setCompanyAddress] = useState('');
   const [pinEnabled, setPinEnabled] = useState(false);
   const [pin, setPin] = useState('');
   const [existingPin, setExistingPin] = useState<string | null>(null);
@@ -26,6 +30,10 @@ export default function AppSettings() {
       if (data) {
         setFullName(data.full_name ?? '');
         setCompanyName(data.company_name ?? '');
+        setCompanyNif((data as any).company_nif ?? '');
+        setCompanyEmail((data as any).company_email ?? '');
+        setCompanyPhone((data as any).company_phone ?? '');
+        setCompanyAddress((data as any).company_address ?? '');
         setPinEnabled(data.pin_enabled);
         setExistingPin(data.pin_hash);
       }
@@ -43,9 +51,13 @@ export default function AppSettings() {
       user_id: user.id,
       full_name: fullName.trim() || null,
       company_name: companyName.trim() || null,
+      company_nif: companyNif.trim() || null,
+      company_email: companyEmail.trim() || null,
+      company_phone: companyPhone.trim() || null,
+      company_address: companyAddress.trim() || null,
       pin_enabled: pinEnabled,
     };
-    if (pinEnabled && pin) payload.pin_hash = pin; // simple stored value (client-side gate only)
+    if (pinEnabled && pin) payload.pin_hash = pin;
     if (!pinEnabled) payload.pin_hash = null;
 
     const { error } = await supabase.from('app_user_settings').upsert(payload, { onConflict: 'user_id' });
@@ -86,9 +98,32 @@ export default function AppSettings() {
             <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
           </div>
 
-          <div>
-            <Label>Nome da empresa</Label>
-            <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
+          <div className="border-t border-border pt-6 space-y-4">
+            <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">Dados da Empresa</div>
+            <p className="text-sm text-muted-foreground -mt-2">Estes dados aparecem automaticamente em todos os orçamentos que criar.</p>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <Label>Nome da empresa</Label>
+                <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Ex: Silva Construções" />
+              </div>
+              <div>
+                <Label>NIF</Label>
+                <Input value={companyNif} onChange={(e) => setCompanyNif(e.target.value)} placeholder="Ex: 123456789" />
+              </div>
+              <div>
+                <Label>Email</Label>
+                <Input type="email" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} />
+              </div>
+              <div>
+                <Label>Telefone</Label>
+                <Input value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} />
+              </div>
+            </div>
+            <div>
+              <Label>Morada</Label>
+              <Input value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} />
+            </div>
           </div>
 
           <div className="border-t border-border pt-6">

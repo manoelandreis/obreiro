@@ -14,6 +14,233 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_clients: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          rgpd_consent: boolean
+          rgpd_consent_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          rgpd_consent?: boolean
+          rgpd_consent_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          rgpd_consent?: boolean
+          rgpd_consent_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      app_job_groups: {
+        Row: {
+          created_at: string
+          id: string
+          job_id: string
+          name: string
+          sort_order: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          job_id: string
+          name: string
+          sort_order?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          job_id?: string
+          name?: string
+          sort_order?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_job_groups_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "app_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_job_materials: {
+        Row: {
+          created_at: string
+          description: string
+          group_id: string
+          id: string
+          obtained: boolean
+          sort_order: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          group_id: string
+          id?: string
+          obtained?: boolean
+          sort_order?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          group_id?: string
+          id?: string
+          obtained?: boolean
+          sort_order?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_job_materials_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "app_job_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_job_tasks: {
+        Row: {
+          created_at: string
+          description: string
+          done: boolean
+          group_id: string
+          id: string
+          sort_order: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          done?: boolean
+          group_id: string
+          id?: string
+          sort_order?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          done?: boolean
+          group_id?: string
+          id?: string
+          sort_order?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_job_tasks_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "app_job_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_jobs: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          description: string | null
+          estimated_value: number | null
+          id: string
+          start_date: string | null
+          status: Database["public"]["Enums"]["job_status"]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          description?: string | null
+          estimated_value?: number | null
+          id?: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["job_status"]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          description?: string | null
+          estimated_value?: number | null
+          id?: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["job_status"]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_jobs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "app_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_user_settings: {
+        Row: {
+          company_name: string | null
+          created_at: string
+          full_name: string | null
+          pin_enabled: boolean
+          pin_hash: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_name?: string | null
+          created_at?: string
+          full_name?: string | null
+          pin_enabled?: boolean
+          pin_hash?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_name?: string | null
+          created_at?: string
+          full_name?: string | null
+          pin_enabled?: boolean
+          pin_hash?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       landing_content: {
         Row: {
           body: string | null
@@ -235,6 +462,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      job_status: "orcamento" | "aprovado" | "em_curso" | "concluido"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -363,6 +591,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      job_status: ["orcamento", "aprovado", "em_curso", "concluido"],
     },
   },
 } as const

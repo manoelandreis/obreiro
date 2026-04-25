@@ -22,6 +22,8 @@ import AppDashboard from "./pages/app/AppDashboard";
 import AppJobs from "./pages/app/AppJobs";
 import AppClients from "./pages/app/AppClients";
 import AppSettings from "./pages/app/AppSettings";
+import AppQuotes from "./pages/app/AppQuotes";
+import AppQuoteNew from "./pages/app/AppQuoteNew";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +56,8 @@ const App = () => (
               <Route path="/app" element={<AppLayout />}>
                 <Route index element={<AppDashboard />} />
                 <Route path="jobs" element={<AppJobs />} />
+                <Route path="quotes" element={<AppQuotes />} />
+                <Route path="quotes/new" element={<AppQuoteNew />} />
                 <Route path="clients" element={<AppClients />} />
                 <Route path="settings" element={<AppSettings />} />
               </Route>

@@ -21,32 +21,43 @@ export default function AppSettings() {
   const [companyAddress, setCompanyAddress] = useState('');
   const [pinEnabled, setPinEnabled] = useState(false);
   const [pin, setPin] = useState('');
-  const [existingPin, setExistingPin] = useState<string | null>(null);
+  const [hasExistingPin, setHasExistingPin] = useState(false);
+  const [initialPinEnabled, setInitialPinEnabled] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    supabase.from('app_user_settings').select('*').eq('user_id', user.id).maybeSingle().then(({ data }) => {
-      if (data) {
-        setFullName(data.full_name ?? '');
-        setCompanyName(data.company_name ?? '');
-        setCompanyNif((data as any).company_nif ?? '');
-        setCompanyEmail((data as any).company_email ?? '');
-        setCompanyPhone((data as any).company_phone ?? '');
-        setCompanyAddress((data as any).company_address ?? '');
-        setPinEnabled(data.pin_enabled);
-        setExistingPin(data.pin_hash);
-      }
-    });
+    // Never select pin_hash on the client.
+    supabase.from('app_user_settings')
+      .select('full_name, company_name, company_nif, company_email, company_phone, company_address, pin_enabled')
+      .eq('user_id', user.id).maybeSingle().then(({ data }) => {
+        if (data) {
+          setFullName(data.full_name ?? '');
+          setCompanyName(data.company_name ?? '');
+          setCompanyNif((data as any).company_nif ?? '');
+          setCompanyEmail((data as any).company_email ?? '');
+          setCompanyPhone((data as any).company_phone ?? '');
+          setCompanyAddress((data as any).company_address ?? '');
+          setPinEnabled(data.pin_enabled);
+          setInitialPinEnabled(data.pin_enabled);
+          setHasExistingPin(data.pin_enabled);
+        }
+      });
   }, [user]);
 
   const save = async () => {
     if (!user) return;
-    if (pinEnabled && !existingPin && !pin) {
+    if (pinEnabled && !hasExistingPin && !pin) {
       toast.error('Defina um PIN para ativar o bloqueio.');
       return;
     }
+    if (pinEnabled && pin && !/^\d{4,8}$/.test(pin)) {
+      toast.error('O PIN deve ter entre 4 e 8 dígitos.');
+      return;
+    }
     setSaving(true);
+
+    // Save profile/company fields (PIN fields are managed exclusively by edge functions).
     const payload: any = {
       user_id: user.id,
       full_name: fullName.trim() || null,
@@ -55,18 +66,33 @@ export default function AppSettings() {
       company_email: companyEmail.trim() || null,
       company_phone: companyPhone.trim() || null,
       company_address: companyAddress.trim() || null,
-      pin_enabled: pinEnabled,
     };
-    if (pinEnabled && pin) payload.pin_hash = pin;
-    if (!pinEnabled) payload.pin_hash = null;
-
     const { error } = await supabase.from('app_user_settings').upsert(payload, { onConflict: 'user_id' });
+    if (error) {
+      setSaving(false);
+      return toast.error('Erro a guardar.');
+    }
+
+    // Handle PIN changes via secure edge function.
+    try {
+      if (!pinEnabled && initialPinEnabled) {
+        const { error: fnErr } = await supabase.functions.invoke('set-pin', { body: { enabled: false } });
+        if (fnErr) throw fnErr;
+        setHasExistingPin(false);
+      } else if (pinEnabled && pin) {
+        const { error: fnErr } = await supabase.functions.invoke('set-pin', { body: { pin } });
+        if (fnErr) throw fnErr;
+        setHasExistingPin(true);
+      }
+      setInitialPinEnabled(pinEnabled);
+    } catch (e) {
+      setSaving(false);
+      return toast.error('Erro a guardar o PIN.');
+    }
+
     setSaving(false);
-    if (error) return toast.error('Erro a guardar.');
     toast.success('Definições guardadas.');
     setPin('');
-    if (pinEnabled && pin) setExistingPin(pin);
-    if (!pinEnabled) setExistingPin(null);
   };
 
   const deleteAll = async () => {
@@ -139,7 +165,7 @@ export default function AppSettings() {
             </div>
             {pinEnabled && (
               <div className="mt-4">
-                <Label>{existingPin ? 'Definir novo PIN (deixe vazio para manter)' : 'Novo PIN'}</Label>
+                <Label>{hasExistingPin ? 'Definir novo PIN (deixe vazio para manter)' : 'Novo PIN'}</Label>
                 <Input
                   type="password"
                   inputMode="numeric"

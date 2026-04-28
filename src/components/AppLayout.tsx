@@ -23,18 +23,17 @@ export default function AppLayout() {
   const { user, loading, signOut } = useAppAuth();
   const navigate = useNavigate();
   const [pinEnabled, setPinEnabled] = useState(false);
-  const [pinHash, setPinHash] = useState<string | null>(null);
   const [locked, setLocked] = useState(false);
   const [pinInput, setPinInput] = useState('');
+  const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    supabase.from('app_user_settings').select('pin_enabled, pin_hash').eq('user_id', user.id).maybeSingle()
+    // Only read the boolean flag — never the hash — from the client.
+    supabase.from('app_user_settings').select('pin_enabled').eq('user_id', user.id).maybeSingle()
       .then(({ data }) => {
-        if (data?.pin_enabled && data.pin_hash) {
+        if (data?.pin_enabled) {
           setPinEnabled(true);
-          setPinHash(data.pin_hash);
-          // Lock on initial entry only if returning from a fresh page load
           if (sessionStorage.getItem('app-unlocked') !== '1') {
             setLocked(true);
           }
@@ -43,7 +42,7 @@ export default function AppLayout() {
   }, [user]);
 
   const lockNow = () => {
-    if (pinEnabled && pinHash) {
+    if (pinEnabled) {
       sessionStorage.removeItem('app-unlocked');
       setLocked(true);
     } else {
@@ -51,17 +50,22 @@ export default function AppLayout() {
     }
   };
 
-  const tryUnlock = (e: React.FormEvent) => {
+  const tryUnlock = async (e: React.FormEvent) => {
     e.preventDefault();
-    // simple hash compare (PIN stored as plain hash for now)
-    if (pinInput === pinHash) {
-      sessionStorage.setItem('app-unlocked', '1');
-      setLocked(false);
-      setPinInput('');
-    } else {
+    if (verifying) return;
+    setVerifying(true);
+    const { data, error } = await supabase.functions.invoke('verify-pin', {
+      body: { pin: pinInput },
+    });
+    setVerifying(false);
+    if (error || !data?.ok) {
       toast.error('PIN incorreto.');
       setPinInput('');
+      return;
     }
+    sessionStorage.setItem('app-unlocked', '1');
+    setLocked(false);
+    setPinInput('');
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">A carregar...</div>;
@@ -145,7 +149,9 @@ export default function AppLayout() {
                 onChange={(e) => setPinInput(e.target.value)}
               />
             </div>
-            <Button type="submit" className="w-full">Desbloquear</Button>
+            <Button type="submit" className="w-full" disabled={verifying}>
+              {verifying ? 'A verificar...' : 'Desbloquear'}
+            </Button>
           </form>
         </DialogContent>
       </Dialog>

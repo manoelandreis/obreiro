@@ -253,68 +253,35 @@ export default function IndexV2() {
       </div>
       </section>
 
-      {/* ─────── SECTION: Os 3 problemas ─────── */}
-      <section id="features" className="px-6 py-20">
+      {/* ─────── SECTION: Problemas vs Solução ─────── */}
+      <section id="features" className="px-6 py-16">
         <div className="mx-auto max-w-[1180px]">
-          <div className="grid md:grid-cols-2 gap-12 mb-12">
-            <div>
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground leading-tight text-balance">
-                Os 3 problemas<br />que matam o teu tempo
-              </h2>
-            </div>
-            <div className="flex items-end">
-              <p className="text-muted-foreground text-base leading-relaxed">
-                Falámos com mais de 50 construtores portugueses. Estes são os bloqueios que aparecem em todas as conversas.
-              </p>
-            </div>
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground leading-tight text-balance">
+              O que te trava hoje, resolvido.
+            </h2>
+            <p className="mt-3 text-muted-foreground text-base leading-relaxed">
+              Falámos com mais de 50 construtores portugueses. Estes são os 3 bloqueios — e como o HandyFlow os elimina.
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-5">
             {[
-              { icon: Calculator, title: 'Cálculo de IVA manual', desc: 'IVA a 6%, 13%, 23%, retenção na fonte. Um erro e o cliente desconfia da tua proposta.' },
-              { icon: FileX, title: 'Word e Excel a desformatar', desc: 'Tabelas que partem, fonts que mudam, logos que se mexem. Pareces amador, mesmo não sendo.' },
-              { icon: RotateCcw, title: 'Reescrever sempre tudo', desc: 'Cada novo orçamento começa do zero. Os preços de referência? Estão num caderno em casa.' },
+              { icon: Calculator, problem: 'Cálculo de IVA manual', solution: 'IVA automático a 6%, 13%, 23% + validação de NIF.' },
+              { icon: FileCheck, problem: 'Word e Excel a desformatar', solution: 'PDF profissional com o teu logo, sempre alinhado.' },
+              { icon: Repeat, problem: 'Reescrever sempre tudo', solution: 'Templates reutilizáveis. Próximo orçamento em segundos.' },
             ].map((item) => (
-              <div key={item.title} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-                <div className="h-10 w-10 rounded-xl bg-destructive/10 flex items-center justify-center mb-4">
-                  <item.icon className="h-5 w-5 text-destructive" strokeWidth={1.5} />
+              <div key={item.problem} className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="h-9 w-9 rounded-lg bg-accent-soft flex items-center justify-center shrink-0">
+                    <item.icon className="h-4.5 w-4.5 text-accent" strokeWidth={1.5} />
+                  </div>
+                  <p className="text-sm text-muted-foreground line-through pt-1.5">{item.problem}</p>
                 </div>
-                <h3 className="font-heading font-semibold text-base mb-1.5">{item.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─────── SECTION: Como o HandyFlow resolve ─────── */}
-      <section className="px-6 py-20 bg-card/30">
-        <div className="mx-auto max-w-[1180px]">
-          <div className="grid md:grid-cols-2 gap-12 mb-12">
-            <div>
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground leading-tight text-balance">
-                Como o HandyFlow<br />resolve
-              </h2>
-            </div>
-            <div className="flex items-end">
-              <p className="text-muted-foreground text-base leading-relaxed">
-                Não é mais uma app de gestão. É uma ferramenta focada em fazer orçamentos rápido e bem.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { icon: Calculator, title: 'IVA automático e correcto', desc: 'Selecciona o regime, o sistema calcula. Validação de NIF incluída.' },
-              { icon: FileCheck, title: 'PDF profissional sempre', desc: 'Template limpo, cabeçalho com o teu logo, nada se desformata. Pronto a enviar.' },
-              { icon: Repeat, title: 'Templates reutilizáveis', desc: 'Guarda os serviços e materiais que usas mais. O próximo orçamento começa em segundos.' },
-            ].map((item) => (
-              <div key={item.title} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-                <div className="h-10 w-10 rounded-xl bg-success/10 flex items-center justify-center mb-4">
-                  <item.icon className="h-5 w-5 text-success" strokeWidth={1.5} />
+                <div className="flex items-start gap-2">
+                  <Check className="h-4 w-4 text-success mt-0.5 shrink-0" strokeWidth={2.5} />
+                  <p className="text-sm font-medium text-foreground leading-snug">{item.solution}</p>
                 </div>
-                <h3 className="font-heading font-semibold text-base mb-1.5">{item.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>

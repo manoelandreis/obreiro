@@ -23,7 +23,13 @@ export default function AdminLeads() {
   }, []);
 
   const exportCSV = () => {
-    const csv = ['Name,Email,Source,Date', ...leads.map((l) => `"${l.name || ''}","${l.email}","${l.source || ''}","${new Date(l.created_at).toLocaleDateString('pt-PT')}"`),].join('\n');
+    // Prevent CSV formula injection: prefix risky leading chars and escape quotes.
+    const sanitize = (v: string) => {
+      const s = String(v ?? '');
+      const safe = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+      return `"${safe.replace(/"/g, '""')}"`;
+    };
+    const csv = ['Name,Email,Source,Date', ...leads.map((l) => [l.name || '', l.email, l.source || '', new Date(l.created_at).toLocaleDateString('pt-PT')].map(sanitize).join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);

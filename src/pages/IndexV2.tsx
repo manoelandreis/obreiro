@@ -717,7 +717,6 @@ export default function IndexV2() {
               <h4 className="font-heading font-semibold text-sm mb-3">Produto</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><a href="#quote-builder" className="hover:text-foreground">Orçamento</a></li>
-                <li><Link to="/quote" className="hover:text-foreground">Passo a passo</Link></li>
                 <li><a href="#features" className="hover:text-foreground">Funcionalidades</a></li>
               </ul>
             </div>

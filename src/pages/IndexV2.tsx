@@ -216,7 +216,6 @@ export default function IndexV2() {
             <a href="#features" className="hover:text-foreground transition-colors">Funcionalidades</a>
             <a href="#quote-builder" className="hover:text-foreground transition-colors">Orçamento</a>
             <a href="#waitlist" className="hover:text-foreground transition-colors">Waitlist</a>
-            <Link to="/quote" className="hover:text-foreground transition-colors">Passo a passo</Link>
           </div>
           <div className="flex items-center gap-2">
             <Link to="/admin" className="hidden md:block"><Button variant="ghost" size="sm">Admin</Button></Link>

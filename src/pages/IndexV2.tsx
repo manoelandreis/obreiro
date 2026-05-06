@@ -216,7 +216,6 @@ export default function IndexV2() {
             <a href="#features" className="hover:text-foreground transition-colors">Funcionalidades</a>
             <a href="#quote-builder" className="hover:text-foreground transition-colors">Orçamento</a>
             <a href="#waitlist" className="hover:text-foreground transition-colors">Waitlist</a>
-            <Link to="/quote" className="hover:text-foreground transition-colors">Passo a passo</Link>
           </div>
           <div className="flex items-center gap-2">
             <Link to="/admin" className="hidden md:block"><Button variant="ghost" size="sm">Admin</Button></Link>
@@ -718,7 +717,6 @@ export default function IndexV2() {
               <h4 className="font-heading font-semibold text-sm mb-3">Produto</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><a href="#quote-builder" className="hover:text-foreground">Orçamento</a></li>
-                <li><Link to="/quote" className="hover:text-foreground">Passo a passo</Link></li>
                 <li><a href="#features" className="hover:text-foreground">Funcionalidades</a></li>
               </ul>
             </div>

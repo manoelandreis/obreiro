@@ -265,9 +265,8 @@ export default function IndexV2() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-5">
+          <div className="grid md:grid-cols-2 gap-5 max-w-2xl mx-auto">
             {[
-              { icon: Calculator, problem: 'Cálculo de IVA manual', solution: 'IVA automático a 6%, 13%, 23% + validação de NIF.' },
               { icon: FileCheck, problem: 'Word e Excel a desformatar', solution: 'PDF profissional com o teu logo, sempre alinhado.' },
               { icon: Repeat, problem: 'Reescrever sempre tudo', solution: 'Templates reutilizáveis. Próximo orçamento em segundos.' },
             ].map((item) => (

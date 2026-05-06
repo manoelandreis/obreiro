@@ -249,18 +249,6 @@ export default function IndexV2() {
               <ShieldCheck className="h-4 w-4 text-success" />
               100% seguro · Os seus dados nunca são guardados
             </div>
-          </div>
-
-          {/* 4 features inline */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-6 max-w-4xl">
-            {features.map((f) => (
-              <div key={f.label} className="flex flex-col gap-1.5">
-                <f.icon className="h-5 w-5 text-foreground" strokeWidth={1.5} />
-                <p className="font-semibold text-sm text-foreground">{f.label}</p>
-                <p className="text-xs text-muted-foreground leading-snug">{f.desc}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 

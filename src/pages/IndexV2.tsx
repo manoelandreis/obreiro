@@ -322,31 +322,6 @@ export default function IndexV2() {
         </div>
       </section>
 
-      {/* ─────── SECTION: 10x menos tempo ─────── */}
-      <section className="px-6 py-20 bg-card border-y border-border">
-        <div className="mx-auto max-w-[1180px]">
-          <div className="grid md:grid-cols-2 gap-12 mb-10">
-            <div>
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground leading-tight text-balance">
-                10x menos tempo<br />a fazer orçamentos
-              </h2>
-            </div>
-            <div className="flex items-end gap-3">
-              <p className="text-muted-foreground text-base leading-relaxed flex-1">
-                Cálculo automático de IVA, materiais e mão de obra. Pronto para enviar em minutos.
-              </p>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold text-accent">
-                <Zap className="h-3 w-3" /> Rápido
-              </span>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-border bg-background overflow-hidden shadow-soft p-2">
-            <img src={mockupTemplate} alt="Velocidade de criação" className="w-full h-auto rounded-xl" loading="lazy" width={1180} height={520} />
-          </div>
-        </div>
-      </section>
-
       {/* ─────── SECTION: Sem comissões ─────── */}
       <section className="px-6 py-20">
         <div className="mx-auto max-w-[1180px]">

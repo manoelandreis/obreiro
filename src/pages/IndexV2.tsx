@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import {
   FileText, BarChart3, Users, ClipboardList, ArrowRight, ShieldCheck, Eye, Trash2,
   Plus, Download, Building2, Wrench, Package, Mail, ChevronDown, ChevronUp,
-  Zap, Lock, Sparkles, Check, Calculator, FileX, RotateCcw, FileCheck, Repeat,
+  Zap, Lock, Sparkles, Check, FileCheck, Repeat,
 } from 'lucide-react';
 import mockupTemplate from '@/assets/mockup-template.jpg';
 import mockupTool from '@/assets/mockup-tool.jpg';
@@ -265,9 +265,8 @@ export default function IndexV2() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-5">
+          <div className="grid md:grid-cols-2 gap-5 max-w-2xl mx-auto">
             {[
-              { icon: Calculator, problem: 'Cálculo de IVA manual', solution: 'IVA automático a 6%, 13%, 23% + validação de NIF.' },
               { icon: FileCheck, problem: 'Word e Excel a desformatar', solution: 'PDF profissional com o teu logo, sempre alinhado.' },
               { icon: Repeat, problem: 'Reescrever sempre tudo', solution: 'Templates reutilizáveis. Próximo orçamento em segundos.' },
             ].map((item) => (

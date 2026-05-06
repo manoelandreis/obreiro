@@ -277,13 +277,6 @@ export default function IndexV2() {
               height={700}
             />
           </div>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 opacity-60">
-            <span className="font-heading font-bold text-sm tracking-tight">SILVA CONSTRUÇÕES</span>
-            <span className="font-heading font-bold text-sm tracking-tight">MARTINS &amp; FILHOS</span>
-            <span className="font-heading font-bold text-sm tracking-tight">RENOVAR.PT</span>
-            <span className="font-heading font-bold text-sm tracking-tight">OBRA NOVA</span>
-            <span className="font-heading font-bold text-sm tracking-tight">CASA &amp; LAR</span>
-          </div>
         </div>
       </section>
 

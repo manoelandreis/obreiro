@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import {
   FileText, BarChart3, Users, ClipboardList, ArrowRight, ShieldCheck, Eye, Trash2,
   Plus, Download, Building2, Wrench, Package, Mail, ChevronDown, ChevronUp,
-  Zap, Lock, Sparkles, Check, Calculator, FileX, RotateCcw, FileCheck, Repeat,
+  Zap, Lock, Sparkles, Check, FileCheck, Repeat,
 } from 'lucide-react';
 import mockupTemplate from '@/assets/mockup-template.jpg';
 import mockupTool from '@/assets/mockup-tool.jpg';

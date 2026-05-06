@@ -250,6 +250,7 @@ export default function IndexV2() {
               100% seguro · Os seus dados nunca são guardados
             </div>
         </div>
+      </div>
       </section>
 
       {/* ─────── SECTION: Operações de orçamentação à escala ─────── */}

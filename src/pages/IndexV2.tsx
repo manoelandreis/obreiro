@@ -264,24 +264,8 @@ export default function IndexV2() {
         </div>
       </section>
 
-      {/* ─────── PRODUCT MOCKUP ─────── */}
-      <section id="features" className="px-6 pb-20">
-        <div className="mx-auto max-w-[1180px]">
-          <div className="rounded-2xl bg-card border border-border shadow-soft overflow-hidden">
-            <img
-              src={mockupTool}
-              alt="Interface do HandyFlow para criação de orçamentos"
-              className="w-full h-auto"
-              loading="lazy"
-              width={1180}
-              height={700}
-            />
-          </div>
-        </div>
-      </section>
-
       {/* ─────── SECTION: Operações de orçamentação à escala ─────── */}
-      <section className="px-6 py-20">
+      <section id="features" className="px-6 py-20">
         <div className="mx-auto max-w-[1180px]">
           <div className="grid md:grid-cols-2 gap-12 mb-12">
             <div>

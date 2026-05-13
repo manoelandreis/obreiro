@@ -263,93 +263,6 @@ export default function IndexV2() {
         </div>
       </section>
 
-      {/* ─────── SECTION: Problemas vs Solução ─────── */}
-      <section id="features" className="px-6 py-16">
-        <div className="mx-auto max-w-[1180px]">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground leading-tight text-balance">
-              O que te trava hoje, resolvido.
-            </h2>
-            <p className="mt-3 text-muted-foreground text-base leading-relaxed">
-              Falámos com mais de 50 construtores portugueses. Estes são os 3 bloqueios — e como o HandyFlow os elimina.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-5 max-w-2xl mx-auto">
-            {[
-              { icon: FileCheck, problem: 'Word e Excel a desformatar', solution: 'PDF profissional com o teu logo, sempre alinhado.' },
-              { icon: Repeat, problem: 'Reescrever sempre tudo', solution: 'Templates reutilizáveis. Próximo orçamento em segundos.' },
-            ].map((item) => (
-              <div key={item.problem} className="rounded-2xl border border-border bg-card p-5 shadow-soft">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="h-9 w-9 rounded-lg bg-accent-soft flex items-center justify-center shrink-0">
-                    <item.icon className="h-4.5 w-4.5 text-accent" strokeWidth={1.5} />
-                  </div>
-                  <p className="text-sm text-muted-foreground line-through pt-1.5">{item.problem}</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-success mt-0.5 shrink-0" strokeWidth={2.5} />
-                  <p className="text-sm font-medium text-foreground leading-snug">{item.solution}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─────── SECTION: Sem comissões ─────── */}
-      <section className="px-6 py-20">
-        <div className="mx-auto max-w-[1180px]">
-          <div className="grid md:grid-cols-2 gap-12 mb-12">
-            <div>
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground leading-tight text-balance">
-                Sem comissões.<br />Sem letras pequenas.
-              </h2>
-            </div>
-            <div className="flex items-end">
-              <p className="text-muted-foreground text-base leading-relaxed">
-                Os seus dados são processados localmente. Os seus orçamentos são seus. Sempre.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { icon: Lock, title: 'Privado por defeito', desc: 'Os dados do orçamento ficam no seu navegador. Nada é enviado.' },
-              { icon: ShieldCheck, title: 'RGPD desde o dia 1', desc: 'Conforme com a legislação portuguesa e europeia.' },
-              { icon: Zap, title: 'Sem fees por uso', desc: 'Pague pela ferramenta, não por cada orçamento que envia.' },
-            ].map((item) => (
-              <div key={item.title} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-                <div className="h-10 w-10 rounded-xl bg-accent-soft flex items-center justify-center mb-4">
-                  <item.icon className="h-5 w-5 text-accent" strokeWidth={1.5} />
-                </div>
-                <h3 className="font-heading font-semibold text-base mb-1.5">{item.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─────── TESTIMONIAL ─────── */}
-      <section className="px-6 py-20">
-        <div className="mx-auto max-w-3xl">
-          <div className="rounded-3xl border border-border bg-card p-10 md:p-14 text-center shadow-soft">
-            <div className="text-accent text-4xl font-heading font-bold mb-4">"</div>
-            <blockquote className="font-heading text-xl md:text-2xl font-semibold text-foreground leading-snug text-balance">
-              Antes do HandyFlow, perdia 2 horas por orçamento. Agora faço em 10 minutos, no carro, entre obras.
-            </blockquote>
-            <div className="mt-6 flex items-center justify-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-heading font-bold text-sm">JS</div>
-              <div className="text-left">
-                <p className="text-sm font-semibold text-foreground">João Silva</p>
-                <p className="text-xs text-muted-foreground">Construtor · Porto</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ─────── INLINE QUOTE BUILDER ─────── */}
       <section ref={quoteRef} id="quote-builder" className="px-6 py-20 bg-card border-y border-border">
         <div className="mx-auto max-w-3xl">
@@ -625,6 +538,94 @@ export default function IndexV2() {
           </div>
         </div>
       </section>
+
+      {/* ─────── SECTION: Problemas vs Solução ─────── */}
+      <section id="features" className="px-6 py-16">
+        <div className="mx-auto max-w-[1180px]">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground leading-tight text-balance">
+              O que te trava hoje, resolvido.
+            </h2>
+            <p className="mt-3 text-muted-foreground text-base leading-relaxed">
+              Falámos com mais de 50 construtores portugueses. Estes são os 3 bloqueios — e como o HandyFlow os elimina.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-5 max-w-2xl mx-auto">
+            {[
+              { icon: FileCheck, problem: 'Word e Excel a desformatar', solution: 'PDF profissional com o teu logo, sempre alinhado.' },
+              { icon: Repeat, problem: 'Reescrever sempre tudo', solution: 'Templates reutilizáveis. Próximo orçamento em segundos.' },
+            ].map((item) => (
+              <div key={item.problem} className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="h-9 w-9 rounded-lg bg-accent-soft flex items-center justify-center shrink-0">
+                    <item.icon className="h-4.5 w-4.5 text-accent" strokeWidth={1.5} />
+                  </div>
+                  <p className="text-sm text-muted-foreground line-through pt-1.5">{item.problem}</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="h-4 w-4 text-success mt-0.5 shrink-0" strokeWidth={2.5} />
+                  <p className="text-sm font-medium text-foreground leading-snug">{item.solution}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─────── SECTION: Sem comissões ─────── */}
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-[1180px]">
+          <div className="grid md:grid-cols-2 gap-12 mb-12">
+            <div>
+              <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground leading-tight text-balance">
+                Sem comissões.<br />Sem letras pequenas.
+              </h2>
+            </div>
+            <div className="flex items-end">
+              <p className="text-muted-foreground text-base leading-relaxed">
+                Os seus dados são processados localmente. Os seus orçamentos são seus. Sempre.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { icon: Lock, title: 'Privado por defeito', desc: 'Os dados do orçamento ficam no seu navegador. Nada é enviado.' },
+              { icon: ShieldCheck, title: 'RGPD desde o dia 1', desc: 'Conforme com a legislação portuguesa e europeia.' },
+              { icon: Zap, title: 'Sem fees por uso', desc: 'Pague pela ferramenta, não por cada orçamento que envia.' },
+            ].map((item) => (
+              <div key={item.title} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+                <div className="h-10 w-10 rounded-xl bg-accent-soft flex items-center justify-center mb-4">
+                  <item.icon className="h-5 w-5 text-accent" strokeWidth={1.5} />
+                </div>
+                <h3 className="font-heading font-semibold text-base mb-1.5">{item.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─────── TESTIMONIAL ─────── */}
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-3xl">
+          <div className="rounded-3xl border border-border bg-card p-10 md:p-14 text-center shadow-soft">
+            <div className="text-accent text-4xl font-heading font-bold mb-4">"</div>
+            <blockquote className="font-heading text-xl md:text-2xl font-semibold text-foreground leading-snug text-balance">
+              Antes do HandyFlow, perdia 2 horas por orçamento. Agora faço em 10 minutos, no carro, entre obras.
+            </blockquote>
+            <div className="mt-6 flex items-center justify-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-heading font-bold text-sm">JS</div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-foreground">João Silva</p>
+                <p className="text-xs text-muted-foreground">Construtor · Porto</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
 
       {/* ─────── WAITLIST CTA ─────── */}
       <section id="waitlist" className="px-6 py-24 bg-navy-deep text-white relative overflow-hidden">

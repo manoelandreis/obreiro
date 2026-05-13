@@ -218,7 +218,6 @@ export default function IndexV2() {
             <a href="#waitlist" className="hover:text-foreground transition-colors">Waitlist</a>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/admin" className="hidden md:block"><Button variant="ghost" size="sm">Admin</Button></Link>
             <Button size="sm" variant="accent" onClick={scrollToQuote}>Criar orçamento</Button>
           </div>
         </div>

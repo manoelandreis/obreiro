@@ -538,39 +538,6 @@ export default function IndexV2() {
         </div>
       </section>
 
-      {/* ─────── SECTION: Problemas vs Solução ─────── */}
-      <section id="features" className="px-6 py-16">
-        <div className="mx-auto max-w-[1180px]">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground leading-tight text-balance">
-              O que te trava hoje, resolvido.
-            </h2>
-            <p className="mt-3 text-muted-foreground text-base leading-relaxed">
-              Falámos com mais de 50 construtores portugueses. Estes são os 3 bloqueios — e como o HandyFlow os elimina.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-5 max-w-2xl mx-auto">
-            {[
-              { icon: FileCheck, problem: 'Word e Excel a desformatar', solution: 'PDF profissional com o teu logo, sempre alinhado.' },
-              { icon: Repeat, problem: 'Reescrever sempre tudo', solution: 'Templates reutilizáveis. Próximo orçamento em segundos.' },
-            ].map((item) => (
-              <div key={item.problem} className="rounded-2xl border border-border bg-card p-5 shadow-soft">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="h-9 w-9 rounded-lg bg-accent-soft flex items-center justify-center shrink-0">
-                    <item.icon className="h-4.5 w-4.5 text-accent" strokeWidth={1.5} />
-                  </div>
-                  <p className="text-sm text-muted-foreground line-through pt-1.5">{item.problem}</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-success mt-0.5 shrink-0" strokeWidth={2.5} />
-                  <p className="text-sm font-medium text-foreground leading-snug">{item.solution}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ─────── SECTION: Sem comissões ─────── */}
       <section className="px-6 py-20">

@@ -227,17 +227,17 @@ export default function IndexV2() {
       {/* ─────── HERO ─────── */}
       <section className="px-6 pt-20 pb-16 md:pt-28 md:pb-20">
         <div className="mx-auto max-w-[1180px]">
-          <div className="max-w-3xl">
+          <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
               <Sparkles className="h-3 w-3" /> Para construtores portugueses
             </div>
             <h1 className="mt-5 font-heading text-4xl md:text-6xl font-bold leading-[1.05] text-foreground text-balance">
               {hero?.title || 'A ferramenta de orçamentos que cabe na obra.'}
             </h1>
-            <p className="mt-5 max-w-xl text-lg text-muted-foreground leading-relaxed">
+            <p className="mt-5 mx-auto max-w-xl text-lg text-muted-foreground leading-relaxed">
               {hero?.subtitle || 'Crie, envie e organize orçamentos profissionais em minutos — do telemóvel, sem complicações.'}
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button size="lg" variant="accent" onClick={scrollToQuote} className="gap-2 h-12 px-6">
                 Criar Orçamento Agora <ArrowRight className="h-4 w-4" />
               </Button>
@@ -245,12 +245,22 @@ export default function IndexV2() {
                 <Button size="lg" variant="outline" className="h-12 px-6">Juntar-me à Waitlist</Button>
               </a>
             </div>
-            <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
-              <ShieldCheck className="h-4 w-4 text-success" />
-              100% seguro · Os seus dados nunca são guardados
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />
+                100% seguro · Os seus dados nunca são guardados
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Check className="h-3.5 w-3.5 text-success shrink-0" strokeWidth={2.5} />
+                PDF profissional com o teu logo, sempre alinhado
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Check className="h-3.5 w-3.5 text-success shrink-0" strokeWidth={2.5} />
+                Templates reutilizáveis. Próximo orçamento em segundos
+              </span>
             </div>
+          </div>
         </div>
-      </div>
       </section>
 
       {/* ─────── SECTION: Problemas vs Solução ─────── */}

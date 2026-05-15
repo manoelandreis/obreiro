@@ -11,8 +11,9 @@ import { toast } from 'sonner';
 import {
   FileText, BarChart3, Users, ClipboardList, ArrowRight, ShieldCheck, Eye, Trash2,
   Plus, Download, Building2, Wrench, Package, Mail, ChevronDown, ChevronUp,
-  Zap, Lock, Sparkles, Check, FileCheck, Repeat,
+  Zap, Lock, Sparkles, Check, FileCheck, Repeat, HelpCircle,
 } from 'lucide-react';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import mockupTemplate from '@/assets/mockup-template.jpg';
 import mockupTool from '@/assets/mockup-tool.jpg';
 
@@ -592,6 +593,56 @@ export default function IndexV2() {
         </div>
       </section>
 
+
+      {/* ─────── FAQ ─────── */}
+      <section id="faq" className="px-6 py-20 bg-secondary/30">
+        <div className="mx-auto max-w-2xl">
+          <div className="text-center mb-10">
+            <span className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
+              <HelpCircle className="h-3 w-3" /> Dúvidas comuns
+            </span>
+            <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-foreground text-balance">Perguntas Frequentes</h2>
+          </div>
+
+          <Accordion type="single" collapsible className="space-y-3">
+            {[
+              {
+                q: 'O meu orçamento é guardado na vossa base de dados?',
+                a: 'Não. Os dados do orçamento são processados localmente no seu navegador. Nada é enviado para os nossos servidores. Quando faz download do PDF ou envia por email, o processamento ocorre no seu dispositivo.',
+              },
+              {
+                q: 'Preciso de criar conta para usar o gerador de orçamentos?',
+                a: 'Não é necessário registo para criar e descarregar orçamentos. Preencha os dados, gere o PDF e está pronto. Para a app completa com gestão de clientes e histórico, pode juntar-se à waitlist.',
+              },
+              {
+                q: 'Os cálculos de IVA estão actualizados com a legislação portuguesa?',
+                a: 'Sim. O sistema usa a taxa de IVA padrão de 23% aplicável à maioria dos serviços de construção em Portugal. Estamos atentos a alterações legislativas para manter os cálculos sempre correctos.',
+              },
+              {
+                q: 'Posso usar o meu próprio logotipo nos PDFs?',
+                a: 'Sim. Basta inserir o nome da sua empresa nos dados da empresa e o cabeçalho do PDF ficará personalizado com a identidade da sua marca.',
+              },
+              {
+                q: 'Como é garantida a privacidade dos meus dados?',
+                a: 'A privacidade é o nosso pilar fundamental. Os dados do orçamento nunca saem do seu navegador. Não usamos cookies de tracking nos orçamentos. E somos totalmente conformes com o RGPD desde o dia 1.',
+              },
+            ].map((item, i) => (
+              <AccordionItem
+                key={i}
+                value={`item-${i}`}
+                className="rounded-xl border border-border bg-card px-6 shadow-sm data-[state=open]:shadow-soft"
+              >
+                <AccordionTrigger className="text-left font-heading font-semibold text-sm text-foreground hover:no-underline py-4">
+                  {item.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-4">
+                  {item.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
 
       {/* ─────── WAITLIST CTA ─────── */}
       <section id="waitlist" className="px-6 py-24 bg-navy-deep text-white relative overflow-hidden">

@@ -11,8 +11,9 @@ import { toast } from 'sonner';
 import {
   FileText, BarChart3, Users, ClipboardList, ArrowRight, ShieldCheck, Eye, Trash2,
   Plus, Download, Building2, Wrench, Package, Mail, ChevronDown, ChevronUp,
-  Zap, Lock, Sparkles, Check, FileCheck, Repeat,
+  Zap, Lock, Sparkles, Check, FileCheck, Repeat, HelpCircle,
 } from 'lucide-react';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import mockupTemplate from '@/assets/mockup-template.jpg';
 import mockupTool from '@/assets/mockup-tool.jpg';
 

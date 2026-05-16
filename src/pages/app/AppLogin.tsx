@@ -36,7 +36,7 @@ export default function AppLogin() {
           <div className="mx-auto h-14 w-14 rounded-2xl bg-primary flex items-center justify-center">
             <Briefcase className="h-7 w-7 text-primary-foreground" />
           </div>
-          <CardTitle className="font-heading text-2xl">Entrar no HandyFlow</CardTitle>
+          <CardTitle className="font-heading text-2xl">Entrar no Obreiro</CardTitle>
           <p className="text-sm text-muted-foreground">Aceda ao seu negócio.</p>
         </CardHeader>
         <CardContent>

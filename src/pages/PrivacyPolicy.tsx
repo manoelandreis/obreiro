@@ -12,10 +12,10 @@ export default function PrivacyPolicy() {
               className="flex items-center justify-center rounded-[10px] bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white font-heading font-bold shadow-accent-glow"
               style={{ width: 32, height: 32, fontSize: 16 }}
             >
-              H
+              O
             </div>
             <span className="font-heading font-bold text-lg tracking-tight text-foreground">
-              Handy<span className="text-accent font-normal">Flow</span>
+              obr<span className="text-accent font-normal">eiro</span>
             </span>
           </Link>
           <Link
@@ -49,10 +49,10 @@ export default function PrivacyPolicy() {
                 1. Quem somos
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-3">
-                A HandyFlow é uma plataforma de ferramentas para construtores portugueses, operada por Manoel & Reis, Unipessoal Lda. Esta política de privacidade descreve como recolhemos, usamos e protegemos os seus dados pessoais em conformidade com o Regulamento Geral de Protecção de Dados (RGPD) e a legislação portuguesa.
+                A Obreiro é uma plataforma de ferramentas para construtores portugueses, operada por Manoel & Reis, Unipessoal Lda. Esta política de privacidade descreve como recolhemos, usamos e protegemos os seus dados pessoais em conformidade com o Regulamento Geral de Protecção de Dados (RGPD) e a legislação portuguesa.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                Contacto do Encarregado de Protecção de Dados (DPO): <span className="text-foreground font-medium">dpo@handyflow.app</span>
+                Contacto do Encarregado de Protecção de Dados (DPO): <span className="text-foreground font-medium">dpo@obreiro.app</span>
               </p>
             </section>
 
@@ -113,7 +113,7 @@ export default function PrivacyPolicy() {
                 <li><strong className="text-foreground">Direito a não ser sujeito a decisões automatizadas:</strong> não usamos decisões automatizadas com efeitos legais.</li>
               </ul>
               <p className="text-muted-foreground leading-relaxed mt-3">
-                Para exercer qualquer destes direitos, contacte-nos através do email <span className="text-foreground font-medium">dpo@handyflow.app</span>. Responderemos no prazo de 30 dias.
+                Para exercer qualquer destes direitos, contacte-nos através do email <span className="text-foreground font-medium">dpo@obreiro.app</span>. Responderemos no prazo de 30 dias.
               </p>
             </section>
 
@@ -166,7 +166,7 @@ export default function PrivacyPolicy() {
               </h2>
               <p className="text-muted-foreground leading-relaxed">
                 Para questões sobre privacidade, exercício de direitos ou reclamações, contacte o nosso Encarregado de Protecção de Dados:<br />
-                <span className="text-foreground font-medium">Email: dpo@handyflow.app</span><br />
+                <span className="text-foreground font-medium">Email: dpo@obreiro.app</span><br />
                 <span className="text-muted-foreground">Resposta no prazo de 30 dias.</span>
               </p>
               <p className="text-muted-foreground leading-relaxed mt-3">
@@ -186,7 +186,7 @@ export default function PrivacyPolicy() {
       {/* Footer */}
       <footer className="px-6 py-12 border-t border-border bg-card">
         <div className="mx-auto max-w-[1180px] flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} HandyFlow. Todos os direitos reservados.</p>
+          <p>© {new Date().getFullYear()} Obreiro. Todos os direitos reservados.</p>
           <div className="flex items-center gap-6">
             <Link to="/" className="hover:text-foreground transition-colors">Voltar ao site</Link>
             <span className="text-muted-foreground/40">|</span>

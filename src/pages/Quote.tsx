@@ -186,7 +186,7 @@ export default function Quote() {
     printWindow.document.write(`
       <html>
         <head>
-          <title>Orçamento - ${company.name || 'HandyFlow'}</title>
+          <title>Orçamento - ${company.name || 'Obreiro'}</title>
           <style>
             @page {
               size: A4;
@@ -221,7 +221,7 @@ export default function Quote() {
         </head>
         <body>
           ${printContent.innerHTML}
-          <div class="footer">Gerado com HandyFlow — handyflow.app</div>
+          <div class="footer">Gerado com Obreiro — obreiro.app</div>
         </body>
       </html>
     `);
@@ -279,7 +279,7 @@ export default function Quote() {
     <div className="min-h-screen bg-background">
       <nav className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto flex items-center justify-between h-16 px-4">
-          <Link to="/" className="font-heading text-xl font-bold text-primary">HandyFlow</Link>
+          <Link to="/" className="font-heading text-xl font-bold text-primary">Obreiro</Link>
           <span className="text-sm text-muted-foreground">Gerador de Orçamentos</span>
         </div>
       </nav>
@@ -548,7 +548,7 @@ export default function Quote() {
                         onCheckedChange={(v) => setConsentChecked(v === true)}
                       />
                       <label htmlFor="consent" className="text-xs text-muted-foreground leading-tight cursor-pointer">
-                        Aceito receber comunicações da HandyFlow sobre novidades e funcionalidades. Pode cancelar a qualquer momento.
+                        Aceito receber comunicações da Obreiro sobre novidades e funcionalidades. Pode cancelar a qualquer momento.
                       </label>
                     </div>
                     <Button onClick={handleSendByEmail} disabled={isSendingEmail} className="w-full gap-2">

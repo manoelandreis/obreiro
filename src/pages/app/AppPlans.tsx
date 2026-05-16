@@ -27,7 +27,7 @@ const PLANS: Plan[] = [
     features: [
       { label: '3 orçamentos por mês', included: true },
       { label: 'Até 5 clientes guardados', included: true },
-      { label: 'PDF profissional (com marca HandyFlow)', included: true },
+      { label: 'PDF profissional (com marca Obreiro)', included: true },
       { label: 'Logo e cores próprias no PDF', included: false },
       { label: 'Envio do PDF por email ao cliente', included: false },
       { label: 'Galeria de fotos e anexos', included: false },
@@ -47,7 +47,7 @@ const PLANS: Plan[] = [
       { label: 'Orçamentos ilimitados', included: true },
       { label: 'Clientes ilimitados', included: true },
       { label: 'Logo, cores e descrição no PDF', included: true },
-      { label: 'PDF sem marca HandyFlow', included: true },
+      { label: 'PDF sem marca Obreiro', included: true },
       { label: 'Envio do PDF por email ao cliente', included: true },
       { label: 'Galeria de fotos e anexos', included: true },
       { label: 'Tracking + estados do orçamento', included: true },

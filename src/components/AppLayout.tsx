@@ -81,7 +81,7 @@ export default function AppLayout() {
           <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
             <Briefcase className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="font-heading text-lg font-bold text-foreground">HandyFlow</span>
+          <span className="font-heading text-lg font-bold text-foreground">Obreiro</span>
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1">

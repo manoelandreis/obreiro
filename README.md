@@ -1,8 +1,8 @@
-# HandyFlow — Orçamentos Profissionais para Construção e Serviços
+# Obreiro — Orçamentos Profissionais para Construção e Serviços
 
 ## Visão Geral
 
-O **HandyFlow** é uma ferramenta gratuita e online para criação de orçamentos profissionais, desenhada para profissionais de construção e serviços em Portugal.
+O **Obreiro** é uma ferramenta gratuita e online para criação de orçamentos profissionais, desenhada para profissionais de construção e serviços em Portugal.
 
 **Problema que resolve:** substituir folhas de Excel, documentos Word ou orçamentos em papel por um fluxo digital, guiado e com aspeto profissional — sem necessidade de registo, instalação ou conhecimentos técnicos.
 
@@ -175,7 +175,7 @@ O Step 4 gera uma visualização completa e formatada do orçamento:
 │  NOTAS / TERMOS E CONDIÇÕES         │
 │  (campo de texto livre)              │
 ├─────────────────────────────────────┤
-│  Gerado com HandyFlow                │
+│  Gerado com Obreiro                │
 └─────────────────────────────────────┘
 ```
 
@@ -184,7 +184,7 @@ O Step 4 gera uma visualização completa e formatada do orçamento:
 - Tabelas formatadas com alinhamento de valores
 - Resumo financeiro destacado
 - Campo de notas para termos, condições de pagamento, validade, etc.
-- Branding discreto "Gerado com HandyFlow" no rodapé
+- Branding discreto "Gerado com Obreiro" no rodapé
 
 ---
 
@@ -200,7 +200,7 @@ O Step 4 implementa uma estratégia de entrega que prioriza a captação de lead
 │  [email pré-preenchido do Step 2]│
 │                                  │
 │  ☑ Aceito receber comunicações   │  ← Checkbox RGPD obrigatório
-│    da HandyFlow sobre novidades  │
+│    da Obreiro sobre novidades  │
 │    e funcionalidades.            │
 │                                  │
 │  [ Enviar para o meu email ]     │  ← Botão primário
@@ -221,7 +221,7 @@ O Step 4 implementa uma estratégia de entrega que prioriza a captação de lead
 
 ### 7. Privacidade e Segurança
 
-O HandyFlow foi desenhado com um modelo **privacy-first**:
+O Obreiro foi desenhado com um modelo **privacy-first**:
 
 | Princípio | Implementação |
 |-----------|--------------|
@@ -253,7 +253,7 @@ O HandyFlow foi desenhado com um modelo **privacy-first**:
 | **Product Snapshots** | 2 cards lado a lado com mockups (orçamento gerado + ferramenta de criação) |
 | **Privacy Strip** | 3 pilares com ícones: "Nada é guardado" · "100% Privado" · "Sem rastreamento" |
 | **Feature Cards** | 4 cards em grid: Orçamentos Profissionais · Templates Reutilizáveis · Gestão Organizada · Impressione Clientes |
-| **Sobre** | Secção com título, subtítulo e corpo de texto sobre o HandyFlow |
+| **Sobre** | Secção com título, subtítulo e corpo de texto sobre o Obreiro |
 | **Waitlist** | Formulário com nome + email sobre fundo primário |
 | **Footer** | Copyright simples |
 
@@ -261,7 +261,7 @@ O HandyFlow foi desenhado com um modelo **privacy-first**:
 
 ## Proposta de Valor vs. Concorrentes
 
-| Critério | HandyFlow | Excel/Word | ERPs (Primavera, PHC) | Outros SaaS |
+| Critério | Obreiro | Excel/Word | ERPs (Primavera, PHC) | Outros SaaS |
 |----------|-----------|------------|----------------------|-------------|
 | **Preço** | Gratuito | Gratuito (com licença Office) | €50-200+/mês | €10-50/mês |
 | **Registo necessário** | Não | N/A | Sim | Sim |

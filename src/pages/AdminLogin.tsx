@@ -32,7 +32,7 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="font-heading text-2xl">HandyFlow Admin</CardTitle>
+          <CardTitle className="font-heading text-2xl">Obreiro Admin</CardTitle>
           <p className="text-sm text-muted-foreground">Acesso ao backoffice</p>
         </CardHeader>
         <CardContent>

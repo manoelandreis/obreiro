@@ -214,51 +214,72 @@ export type Database = {
       app_quotes: {
         Row: {
           client_id: string | null
+          client_message: string | null
           client_snapshot: Json
           company_snapshot: Json
           created_at: string
+          expires_at: string | null
           id: string
           iva: number
           job_id: string | null
           notes: string | null
+          public_token: string | null
+          responded_at: string | null
+          sent_at: string | null
           services: Json
+          status: Database["public"]["Enums"]["quote_status"]
           subtotal: number
           title: string
           total: number
           updated_at: string
           user_id: string
+          viewed_at: string | null
         }
         Insert: {
           client_id?: string | null
+          client_message?: string | null
           client_snapshot?: Json
           company_snapshot?: Json
           created_at?: string
+          expires_at?: string | null
           id?: string
           iva?: number
           job_id?: string | null
           notes?: string | null
+          public_token?: string | null
+          responded_at?: string | null
+          sent_at?: string | null
           services?: Json
+          status?: Database["public"]["Enums"]["quote_status"]
           subtotal?: number
           title?: string
           total?: number
           updated_at?: string
           user_id: string
+          viewed_at?: string | null
         }
         Update: {
           client_id?: string | null
+          client_message?: string | null
           client_snapshot?: Json
           company_snapshot?: Json
           created_at?: string
+          expires_at?: string | null
           id?: string
           iva?: number
           job_id?: string | null
           notes?: string | null
+          public_token?: string | null
+          responded_at?: string | null
+          sent_at?: string | null
           services?: Json
+          status?: Database["public"]["Enums"]["quote_status"]
           subtotal?: number
           title?: string
           total?: number
           updated_at?: string
           user_id?: string
+          viewed_at?: string | null
         }
         Relationships: [
           {
@@ -403,6 +424,47 @@ export type Database = {
         }
         Relationships: []
       }
+      quote_attachments: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          quote_id: string
+          sort_order: number
+          storage_path: string
+          type: Database["public"]["Enums"]["attachment_type"]
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          quote_id: string
+          sort_order?: number
+          storage_path: string
+          type?: Database["public"]["Enums"]["attachment_type"]
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          quote_id?: string
+          sort_order?: number
+          storage_path?: string
+          type?: Database["public"]["Enums"]["attachment_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_attachments_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "app_quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_events: {
         Row: {
           created_at: string
@@ -470,6 +532,44 @@ export type Database = {
           total_amount?: number | null
         }
         Relationships: []
+      }
+      quote_status_history: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          quote_id: string
+          source: string
+          status: Database["public"]["Enums"]["quote_status"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          quote_id: string
+          source?: string
+          status: Database["public"]["Enums"]["quote_status"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          quote_id?: string
+          source?: string
+          status?: Database["public"]["Enums"]["quote_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_status_history_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "app_quotes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quote_templates: {
         Row: {
@@ -596,6 +696,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_public_quote: { Args: { _token: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -603,10 +704,23 @@ export type Database = {
         }
         Returns: boolean
       }
+      mark_quote_viewed: { Args: { _token: string }; Returns: undefined }
+      respond_to_quote: {
+        Args: { _action: string; _message?: string; _token: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "user"
+      attachment_type: "photo" | "file"
       job_status: "orcamento" | "aprovado" | "em_curso" | "concluido"
+      quote_status:
+        | "rascunho"
+        | "enviado"
+        | "visto"
+        | "aceite"
+        | "rejeitado"
+        | "expirado"
       subscription_status:
         | "active"
         | "trialing"
@@ -742,7 +856,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      attachment_type: ["photo", "file"],
       job_status: ["orcamento", "aprovado", "em_curso", "concluido"],
+      quote_status: [
+        "rascunho",
+        "enviado",
+        "visto",
+        "aceite",
+        "rejeitado",
+        "expirado",
+      ],
       subscription_status: [
         "active",
         "trialing",

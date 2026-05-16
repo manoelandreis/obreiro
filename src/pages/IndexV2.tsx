@@ -215,6 +215,7 @@ export default function IndexV2() {
           <Link to="/"><WordMark /></Link>
           <div className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
             <a href="#sobre" className="hover:text-foreground transition-colors">Sobre</a>
+            <a href="#exemplos" className="hover:text-foreground transition-colors">Exemplos</a>
             <a href="#quote-builder" className="hover:text-foreground transition-colors">Orçamento</a>
             <a href="#waitlist" className="hover:text-foreground transition-colors">Waitlist</a>
           </div>

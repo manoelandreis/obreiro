@@ -427,20 +427,20 @@ export default function IndexV2() {
             </Card>
 
             {/* ── Totals Bar ── */}
-            <Card className="bg-primary text-primary-foreground border-primary shadow-soft">
+            <Card className="bg-brand-dark text-brand-dark-foreground border-brand-dark shadow-soft">
               <CardContent className="pt-6">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                  <div className="space-y-0.5 text-sm text-center md:text-left text-primary-foreground/80">
-                    <p>Mão de Obra: <span className="font-semibold text-primary-foreground">{fmt(subtotalServices)}</span></p>
-                    <p>Materiais: <span className="font-semibold text-primary-foreground">{fmt(subtotalMaterials)}</span></p>
-                    <p>IVA (23%): <span className="font-semibold text-primary-foreground">{fmt(iva)}</span></p>
-                    <p className="text-xl font-heading font-bold text-primary-foreground pt-1">Total: {fmt(total)}</p>
+                  <div className="space-y-0.5 text-sm text-center md:text-left text-brand-dark-foreground/80">
+                    <p>Mão de Obra: <span className="font-semibold text-brand-dark-foreground">{fmt(subtotalServices)}</span></p>
+                    <p>Materiais: <span className="font-semibold text-brand-dark-foreground">{fmt(subtotalMaterials)}</span></p>
+                    <p>IVA (23%): <span className="font-semibold text-brand-dark-foreground">{fmt(iva)}</span></p>
+                    <p className="text-xl font-heading font-bold text-brand-dark-foreground pt-1">Total: {fmt(total)}</p>
                   </div>
                   <div className="flex gap-3">
-                    <Button variant="outline" onClick={() => setShowPreview(!showPreview)} className="gap-2 bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+                    <Button variant="outline" onClick={() => setShowPreview(!showPreview)} className="gap-2 bg-transparent border-brand-dark-foreground/30 text-brand-dark-foreground hover:bg-brand-dark-foreground/10">
                       <Eye className="h-4 w-4" /> {showPreview ? 'Ocultar' : 'Preview'}
                     </Button>
-                    <Button variant="accent" onClick={handleDownloadPDF} className="gap-2">
+                    <Button onClick={handleDownloadPDF} className="gap-2">
                       <Download className="h-4 w-4" /> Download PDF
                     </Button>
                   </div>

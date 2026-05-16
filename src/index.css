@@ -16,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 212 47% 11%;
 
-    --primary: 212 55% 23%;          /* #1B3A5C Navy */
+    --primary: 27 92% 47%;           /* #E8730A Burnt Orange — brand */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 96%;           /* Light Grey surface */
@@ -40,7 +40,7 @@
 
     --border: 216 11% 93%;           /* #ECEEF0 subtle */
     --input: 216 11% 88%;
-    --ring: 212 55% 23%;
+    --ring: 27 92% 47%;
 
     --radius: 0.875rem;              /* 14px */
 

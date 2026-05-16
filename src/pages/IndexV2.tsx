@@ -215,6 +215,7 @@ export default function IndexV2() {
           <Link to="/"><WordMark /></Link>
           <div className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
             <a href="#sobre" className="hover:text-foreground transition-colors">Sobre</a>
+            <a href="#exemplos" className="hover:text-foreground transition-colors">Exemplos</a>
             <a href="#quote-builder" className="hover:text-foreground transition-colors">Orçamento</a>
             <a href="#waitlist" className="hover:text-foreground transition-colors">Waitlist</a>
           </div>
@@ -577,6 +578,117 @@ export default function IndexV2() {
                 <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─────── SECTION: Exemplos de Orçamentos ─────── */}
+      <section id="exemplos" className="px-6 py-20 bg-secondary/30 scroll-mt-20">
+        <div className="mx-auto max-w-[1180px]">
+          <div className="text-center mb-12">
+            <span className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
+              <FileCheck className="h-3 w-3" /> Exemplos reais
+            </span>
+            <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-foreground text-balance">
+              Veja como ficam os seus orçamentos
+            </h2>
+            <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
+              Três exemplos de orçamentos profissionais criados em minutos com o HandyFlow.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                icon: Wrench,
+                category: 'Canalização',
+                title: 'Reparação de fuga + substituição',
+                client: 'Cliente particular · Lisboa',
+                items: [
+                  { name: 'Mão de obra (3h)', value: '90,00 €' },
+                  { name: 'Torneira monocomando', value: '65,00 €' },
+                  { name: 'Sifão + acessórios', value: '18,50 €' },
+                ],
+                subtotal: '173,50 €',
+                iva: '39,91 €',
+                total: '213,41 €',
+              },
+              {
+                icon: Building2,
+                category: 'Pintura',
+                title: 'Pintura interior T2',
+                client: 'Sr. Almeida · Porto',
+                items: [
+                  { name: 'Mão de obra (24h)', value: '480,00 €' },
+                  { name: 'Tinta CIN (15L)', value: '142,00 €' },
+                  { name: 'Material consumível', value: '38,00 €' },
+                ],
+                subtotal: '660,00 €',
+                iva: '151,80 €',
+                total: '811,80 €',
+              },
+              {
+                icon: Package,
+                category: 'Remodelação',
+                title: 'Casa de banho completa',
+                client: 'Família Costa · Braga',
+                items: [
+                  { name: 'Mão de obra (60h)', value: '1.500,00 €' },
+                  { name: 'Cerâmica + loiças', value: '980,00 €' },
+                  { name: 'Canalização + elét.', value: '420,00 €' },
+                ],
+                subtotal: '2.900,00 €',
+                iva: '667,00 €',
+                total: '3.567,00 €',
+              },
+            ].map((quote) => (
+              <div
+                key={quote.title}
+                className="rounded-2xl border border-border bg-card p-6 shadow-soft hover:shadow-md transition-shadow flex flex-col"
+              >
+                <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border">
+                  <div className="h-10 w-10 rounded-xl bg-accent-soft flex items-center justify-center shrink-0">
+                    <quote.icon className="h-5 w-5 text-accent" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-accent">{quote.category}</p>
+                    <h3 className="font-heading font-semibold text-sm text-foreground leading-tight">{quote.title}</h3>
+                  </div>
+                </div>
+
+                <p className="text-xs text-muted-foreground mb-4">{quote.client}</p>
+
+                <ul className="space-y-2 mb-4 text-sm">
+                  {quote.items.map((item) => (
+                    <li key={item.name} className="flex justify-between text-foreground/80">
+                      <span className="truncate pr-2">{item.name}</span>
+                      <span className="font-medium tabular-nums shrink-0">{item.value}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-auto pt-4 border-t border-border space-y-1.5 text-xs">
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Subtotal</span>
+                    <span className="tabular-nums">{quote.subtotal}</span>
+                  </div>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>IVA (23%)</span>
+                    <span className="tabular-nums">{quote.iva}</span>
+                  </div>
+                  <div className="flex justify-between font-heading font-bold text-base text-foreground pt-1.5">
+                    <span>Total</span>
+                    <span className="tabular-nums text-accent">{quote.total}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 text-center">
+            <Button size="lg" variant="accent" onClick={scrollToQuote} className="gap-2 h-12 px-6">
+              Criar o meu orçamento <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </section>

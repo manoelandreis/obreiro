@@ -33,6 +33,9 @@
 
     --navy-deep: 212 55% 15%;        /* #11263B */
 
+    --brand-dark: 212 47% 11%;       /* #0F1B2A — accent escuro p/ summaries, CTAs secundários */
+    --brand-dark-foreground: 0 0% 100%;
+
     --success: 146 67% 37%;          /* #1F9D55 */
     --success-foreground: 0 0% 100%;
     --success-soft: 146 60% 94%;

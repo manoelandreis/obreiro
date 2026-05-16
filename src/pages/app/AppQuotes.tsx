@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Plus, Search, FileText, Trash2, Calendar } from 'lucide-react';
+import { StatusBadge } from '@/components/app/QuoteStatusBadge';
 import { toast } from 'sonner';
 
 interface QuoteRow {
@@ -13,6 +14,7 @@ interface QuoteRow {
   title: string;
   total: number;
   created_at: string;
+  status: 'rascunho' | 'enviado' | 'visto' | 'aceite' | 'rejeitado' | 'expirado';
   client_id: string | null;
   app_clients?: { name: string } | null;
 }
@@ -28,7 +30,7 @@ export default function AppQuotes() {
   const load = async () => {
     const { data } = await supabase
       .from('app_quotes')
-      .select('id, title, total, created_at, client_id, app_clients(name)')
+      .select('id, title, total, created_at, status, client_id, app_clients(name)')
       .order('created_at', { ascending: false });
     if (data) setQuotes(data as any);
   };
@@ -74,19 +76,25 @@ export default function AppQuotes() {
           ) : (
             <div className="divide-y divide-border">
               {filtered.map((q) => (
-                <div key={q.id} className="py-4 flex items-center gap-4 flex-wrap">
+                <div
+                  key={q.id}
+                  className="py-4 flex items-center gap-4 flex-wrap cursor-pointer hover:bg-muted/30 -mx-2 px-2 rounded"
+                  onClick={() => navigate(`/app/quotes/${q.id}`)}
+                >
                   <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                     <FileText className="h-5 w-5" />
                   </div>
                   <div className="flex-1 min-w-[200px]">
-                    <div className="font-semibold">{q.title}</div>
+                    <div className="font-semibold flex items-center gap-2 flex-wrap">
+                      {q.title} <StatusBadge status={q.status} />
+                    </div>
                     <div className="text-sm text-muted-foreground flex items-center gap-3 mt-1 flex-wrap">
                       {q.app_clients?.name && <span>{q.app_clients.name}</span>}
                       <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {new Date(q.created_at).toLocaleDateString('pt-PT')}</span>
                     </div>
                   </div>
                   <div className="font-bold text-primary">{fmt(Number(q.total))}</div>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(q.id)} className="text-destructive hover:text-destructive hover:bg-destructive/5">
+                  <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleDelete(q.id); }} className="text-destructive hover:text-destructive hover:bg-destructive/5">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

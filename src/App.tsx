@@ -25,8 +25,10 @@ import AppClients from "./pages/app/AppClients";
 import AppSettings from "./pages/app/AppSettings";
 import AppQuotes from "./pages/app/AppQuotes";
 import AppQuoteNew from "./pages/app/AppQuoteNew";
+import AppQuoteDetail from "./pages/app/AppQuoteDetail";
 import AppPlans from "./pages/app/AppPlans";
 import AppBrand from "./pages/app/AppBrand";
+import PublicQuote from "./pages/PublicQuote";
 import CookieConsent from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
@@ -45,6 +47,7 @@ const App = () => (
               <Route path="/v1" element={<Index />} />
               <Route path="/quote" element={<Quote />} />
               <Route path="/privacidade" element={<PrivacyPolicy />} />
+              <Route path="/q/:token" element={<PublicQuote />} />
 
               {/* Admin */}
               <Route path="/admin" element={<AdminLogin />} />
@@ -63,6 +66,7 @@ const App = () => (
                 <Route path="jobs" element={<AppJobs />} />
                 <Route path="quotes" element={<AppQuotes />} />
                 <Route path="quotes/new" element={<AppQuoteNew />} />
+                <Route path="quotes/:id" element={<AppQuoteDetail />} />
                 <Route path="clients" element={<AppClients />} />
                 <Route path="settings" element={<AppSettings />} />
                 <Route path="brand" element={<AppBrand />} />

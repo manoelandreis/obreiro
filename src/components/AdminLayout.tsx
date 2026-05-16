@@ -33,7 +33,7 @@ export default function AdminLayout() {
             <ShieldCheck className="h-5 w-5 text-primary-foreground" />
           </div>
           <div className="leading-tight">
-            <div className="font-heading text-lg font-bold text-foreground">HandyFlow</div>
+            <div className="font-heading text-lg font-bold text-foreground">Obreiro</div>
             <div className="text-xs text-muted-foreground">Backoffice</div>
           </div>
         </div>

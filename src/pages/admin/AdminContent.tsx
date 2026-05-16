@@ -44,7 +44,7 @@ const LANDING_SECTIONS: SectionMeta[] = [
   { key: 'privacy_strip', label: 'Faixa de Privacidade', description: 'Três pilares de segurança: nada guardado, 100% privado, sem rastreamento.', icon: Shield, editable: false },
   { key: 'features', label: 'Funcionalidades', description: 'Grelha de 4 features com ícones.', icon: Star, editable: true, fields: ['title', 'subtitle'] },
   { key: 'app_coming_soon', label: 'App Em Breve', description: 'Secção expandível com funcionalidades da app futura.', icon: Smartphone, editable: false },
-  { key: 'about', label: 'Sobre', description: 'Texto sobre a HandyFlow.', icon: Info, editable: true, fields: ['title', 'subtitle', 'body'] },
+  { key: 'about', label: 'Sobre', description: 'Texto sobre a Obreiro.', icon: Info, editable: true, fields: ['title', 'subtitle', 'body'] },
   { key: 'cta', label: 'Waitlist / CTA', description: 'Formulário de lista de espera com título e subtítulo.', icon: MessageSquare, editable: true, fields: ['title', 'subtitle'] },
   { key: 'footer', label: 'Footer', description: 'Rodapé com copyright.', icon: Layout, editable: false },
 ];

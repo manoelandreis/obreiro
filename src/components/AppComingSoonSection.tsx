@@ -55,7 +55,7 @@ export default function AppComingSoonSection() {
           <div className="rounded-2xl overflow-hidden shadow-xl bg-[#e8ddd0]">
             <img
               src={appPreviewMockup}
-              alt="Preview da app HandyFlow"
+              alt="Preview da app Obreiro"
               className="w-full h-auto"
               loading="lazy"
               width={800}

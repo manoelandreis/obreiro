@@ -42,7 +42,7 @@ export default function AppSignup() {
           <div className="mx-auto h-14 w-14 rounded-2xl bg-primary flex items-center justify-center">
             <Briefcase className="h-7 w-7 text-primary-foreground" />
           </div>
-          <CardTitle className="font-heading text-2xl">Criar conta HandyFlow</CardTitle>
+          <CardTitle className="font-heading text-2xl">Criar conta Obreiro</CardTitle>
           <p className="text-sm text-muted-foreground">Comece a gerir o seu negócio em minutos.</p>
         </CardHeader>
         <CardContent>

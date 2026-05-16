@@ -265,7 +265,7 @@ export default function PublicQuote() {
         )}
 
         <div className="text-center text-xs text-muted-foreground">
-          Powered by <a href="/" className="text-primary hover:underline">HandyFlow</a>
+          Powered by <a href="/" className="text-primary hover:underline">Obreiro</a>
         </div>
       </div>
     </div>

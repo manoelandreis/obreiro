@@ -1,4 +1,4 @@
-# Design Tokens — HandyFlow
+# Design Tokens — Obreiro
 
 Todos os componentes do app, admin e landing usam **apenas** estes tokens semânticos.
 Nunca uses cores tailwind diretas (`bg-emerald-50`, `text-blue-600`, etc.) nem HSL hardcoded em componentes.

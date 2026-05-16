@@ -388,7 +388,7 @@ export default function AppQuoteDetail() {
             <div className="flex-1">
               <div className="font-semibold">PDF com a sua marca</div>
               <p className="text-sm text-muted-foreground">
-                No plano Free o PDF leva uma pequena marca HandyFlow. Faça upgrade para Pro para
+                No plano Free o PDF leva uma pequena marca Obreiro. Faça upgrade para Pro para
                 personalizar com o seu logo, cores, T&Cs e galeria de fotos.
               </p>
             </div>

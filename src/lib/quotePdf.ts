@@ -122,14 +122,14 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
     : '';
 
   const watermarkHtml = opts.withWatermark
-    ? `<div class="watermark">Orçamento criado com HandyFlow — <a href="https://service-flow-mate.lovable.app">crie o seu grátis</a></div>`
+    ? `<div class="watermark">Orçamento criado com Obreiro — <a href="https://service-flow-mate.lovable.app">crie o seu grátis</a></div>`
     : '';
 
   return `<!DOCTYPE html>
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>${esc(q.title)} — ${esc(q.company.name || 'HandyFlow')}</title>
+<title>${esc(q.title)} — ${esc(q.company.name || 'Obreiro')}</title>
 <style>
   @page { size: A4; margin: 18mm 14mm 22mm 14mm; }
   * { box-sizing: border-box; margin: 0; padding: 0; }

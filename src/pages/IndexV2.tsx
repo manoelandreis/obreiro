@@ -147,7 +147,7 @@ export default function IndexV2() {
     if (!printContent) return;
     const printWindow = window.open('', '_blank');
     if (!printWindow) { toast.error('Pop-up bloqueado. Permita pop-ups para fazer download.'); return; }
-    printWindow.document.write(`<html><head><title>Orçamento - ${company.name || 'HandyFlow'}</title><style>
+    printWindow.document.write(`<html><head><title>Orçamento - ${company.name || 'Obreiro'}</title><style>
       @page { size: A4; margin: 20mm 15mm 25mm 15mm; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; color: #0F1B2A; }
@@ -163,7 +163,7 @@ export default function IndexV2() {
       .notes { margin-top: 20px; padding: 12px; background: #FFF2E3; border-radius: 6px; font-size: 12px; color: #555; page-break-inside: avoid; break-inside: avoid; }
       .footer { margin-top: 30px; text-align: center; font-size: 11px; color: #9aa0a6; }
       @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
-    </style></head><body>${printContent.innerHTML}<div class="footer">Gerado com HandyFlow — handyflow.app</div></body></html>`);
+    </style></head><body>${printContent.innerHTML}<div class="footer">Gerado com Obreiro — obreiro.app</div></body></html>`);
     printWindow.document.close();
     setTimeout(() => { printWindow.print(); }, 500);
   };
@@ -529,7 +529,7 @@ export default function IndexV2() {
                       <div className="flex items-start gap-2">
                         <Checkbox id="consent-v2" checked={consentChecked} onCheckedChange={(v) => setConsentChecked(v === true)} />
                         <label htmlFor="consent-v2" className="text-xs text-muted-foreground leading-tight cursor-pointer">
-                          Aceito receber comunicações da HandyFlow sobre novidades e funcionalidades. Pode cancelar a qualquer momento.
+                          Aceito receber comunicações da Obreiro sobre novidades e funcionalidades. Pode cancelar a qualquer momento.
                         </label>
                       </div>
                       <Button variant="accent" onClick={handleSendByEmail} disabled={isSendingEmail} className="w-full gap-2">
@@ -593,7 +593,7 @@ export default function IndexV2() {
               Veja como ficam os seus orçamentos
             </h2>
             <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
-              Três exemplos de orçamentos profissionais criados em minutos com o HandyFlow.
+              Três exemplos de orçamentos profissionais criados em minutos com o Obreiro.
             </p>
           </div>
 
@@ -692,7 +692,7 @@ export default function IndexV2() {
           <div className="rounded-3xl border border-border bg-card p-10 md:p-14 text-center shadow-soft">
             <div className="text-accent text-4xl font-heading font-bold mb-4">"</div>
             <blockquote className="font-heading text-xl md:text-2xl font-semibold text-foreground leading-snug text-balance">
-              Antes do HandyFlow, perdia 2 horas por orçamento. Agora faço em 10 minutos, no carro, entre obras.
+              Antes do Obreiro, perdia 2 horas por orçamento. Agora faço em 10 minutos, no carro, entre obras.
             </blockquote>
             <div className="mt-6 flex items-center justify-center gap-3">
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-heading font-bold text-sm">JS</div>
@@ -817,7 +817,7 @@ export default function IndexV2() {
             </div>
           </div>
           <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-            <p>© {new Date().getFullYear()} HandyFlow. Todos os direitos reservados.</p>
+            <p>© {new Date().getFullYear()} Obreiro. Todos os direitos reservados.</p>
             <p className="flex items-center gap-1.5">Feito em <span className="font-semibold">🇵🇹 Portugal</span></p>
           </div>
         </div>

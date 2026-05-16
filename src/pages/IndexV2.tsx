@@ -630,7 +630,7 @@ export default function IndexV2() {
                   className="group relative block rounded-2xl bg-card border border-border overflow-hidden shadow-soft hover:shadow-lg transition-all"
                   aria-label={`Ver orçamento ${quote.title} no navegador`}
                 >
-                  <div className="aspect-[3/4] overflow-hidden bg-secondary/50">
+                  <div className="aspect-square overflow-hidden bg-secondary/50">
                     <img
                       src={quote.preview}
                       alt={`Pré-visualização do orçamento de ${quote.category.toLowerCase()}`}

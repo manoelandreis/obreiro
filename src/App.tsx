@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AppAuthProvider } from "@/hooks/useAppAuth";
-import Index from "./pages/Index";
+
 import Quote from "./pages/Quote";
 import AdminLogin from "./pages/AdminLogin";
 import AdminLayout from "./components/AdminLayout";
@@ -50,7 +50,7 @@ const App = () => {
             <Routes>
               {/* Public */}
               <Route path="/" element={<IndexV2 />} />
-              <Route path="/v1" element={<Index />} />
+              
               <Route path="/quote" element={<Quote />} />
               <Route path="/privacidade" element={<PrivacyPolicy />} />
               <Route path="/q/:token" element={<PublicQuote />} />

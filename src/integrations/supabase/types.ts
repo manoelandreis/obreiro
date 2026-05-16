@@ -279,44 +279,65 @@ export type Database = {
       }
       app_user_settings: {
         Row: {
+          brand_color_accent: string | null
+          brand_color_primary: string | null
           company_address: string | null
+          company_description: string | null
           company_email: string | null
           company_name: string | null
           company_nif: string | null
           company_phone: string | null
+          company_terms: string | null
           created_at: string
           full_name: string | null
+          logo_url: string | null
+          payment_conditions: string | null
           pin_enabled: boolean
           pin_hash: string | null
           pin_salt: string | null
+          quote_validity_days: number
           updated_at: string
           user_id: string
         }
         Insert: {
+          brand_color_accent?: string | null
+          brand_color_primary?: string | null
           company_address?: string | null
+          company_description?: string | null
           company_email?: string | null
           company_name?: string | null
           company_nif?: string | null
           company_phone?: string | null
+          company_terms?: string | null
           created_at?: string
           full_name?: string | null
+          logo_url?: string | null
+          payment_conditions?: string | null
           pin_enabled?: boolean
           pin_hash?: string | null
           pin_salt?: string | null
+          quote_validity_days?: number
           updated_at?: string
           user_id: string
         }
         Update: {
+          brand_color_accent?: string | null
+          brand_color_primary?: string | null
           company_address?: string | null
+          company_description?: string | null
           company_email?: string | null
           company_name?: string | null
           company_nif?: string | null
           company_phone?: string | null
+          company_terms?: string | null
           created_at?: string
           full_name?: string | null
+          logo_url?: string | null
+          payment_conditions?: string | null
           pin_enabled?: boolean
           pin_hash?: string | null
           pin_salt?: string | null
+          quote_validity_days?: number
           updated_at?: string
           user_id?: string
         }
@@ -504,6 +525,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string | null
+          id: string
+          provider: string | null
+          provider_customer_id: string | null
+          provider_subscription_id: string | null
+          status: Database["public"]["Enums"]["subscription_status"]
+          tier: Database["public"]["Enums"]["subscription_tier"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          provider?: string | null
+          provider_customer_id?: string | null
+          provider_subscription_id?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          provider?: string | null
+          provider_customer_id?: string | null
+          provider_subscription_id?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       waitlist_leads: {
         Row: {
           created_at: string
@@ -544,6 +607,13 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       job_status: "orcamento" | "aprovado" | "em_curso" | "concluido"
+      subscription_status:
+        | "active"
+        | "trialing"
+        | "past_due"
+        | "canceled"
+        | "incomplete"
+      subscription_tier: "free" | "pro" | "business"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -673,6 +743,14 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       job_status: ["orcamento", "aprovado", "em_curso", "concluido"],
+      subscription_status: [
+        "active",
+        "trialing",
+        "past_due",
+        "canceled",
+        "incomplete",
+      ],
+      subscription_tier: ["free", "pro", "business"],
     },
   },
 } as const

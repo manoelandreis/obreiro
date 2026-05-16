@@ -597,88 +597,81 @@ export default function IndexV2() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                icon: Wrench,
                 category: 'Canalização',
                 title: 'Reparação de fuga + substituição',
-                client: 'Cliente particular · Lisboa',
-                items: [
-                  { name: 'Mão de obra (3h)', value: '90,00 €' },
-                  { name: 'Torneira monocomando', value: '65,00 €' },
-                  { name: 'Sifão + acessórios', value: '18,50 €' },
-                ],
-                subtotal: '173,50 €',
-                iva: '39,91 €',
-                total: '213,41 €',
+                desc: 'Orçamento de serviço pontual com mão de obra e materiais detalhados. Ideal para reparações rápidas.',
+                pdf: '/exemplos/orcamento-canalizacao.pdf',
+                preview: '/exemplos/orcamento-canalizacao.png',
               },
               {
-                icon: Building2,
                 category: 'Pintura',
-                title: 'Pintura interior T2',
-                client: 'Sr. Almeida · Porto',
-                items: [
-                  { name: 'Mão de obra (24h)', value: '480,00 €' },
-                  { name: 'Tinta CIN (15L)', value: '142,00 €' },
-                  { name: 'Material consumível', value: '38,00 €' },
-                ],
-                subtotal: '660,00 €',
-                iva: '151,80 €',
-                total: '811,80 €',
+                title: 'Pintura interior de apartamento T2',
+                desc: 'Orçamento por horas com discriminação de tintas e materiais consumíveis. Notas com condições e garantias.',
+                pdf: '/exemplos/orcamento-pintura.pdf',
+                preview: '/exemplos/orcamento-pintura.png',
               },
               {
-                icon: Package,
                 category: 'Remodelação',
-                title: 'Casa de banho completa',
-                client: 'Família Costa · Braga',
-                items: [
-                  { name: 'Mão de obra (60h)', value: '1.500,00 €' },
-                  { name: 'Cerâmica + loiças', value: '980,00 €' },
-                  { name: 'Canalização + elét.', value: '420,00 €' },
-                ],
-                subtotal: '2.900,00 €',
-                iva: '667,00 €',
-                total: '3.567,00 €',
+                title: 'Remodelação integral de casa de banho',
+                desc: 'Múltiplos serviços (construção, canalização, eletricidade) com subtotais por serviço e plano de pagamento.',
+                pdf: '/exemplos/orcamento-remodelacao.pdf',
+                preview: '/exemplos/orcamento-remodelacao.png',
               },
             ].map((quote) => (
-              <div
-                key={quote.title}
-                className="rounded-2xl border border-border bg-card p-6 shadow-soft hover:shadow-md transition-shadow flex flex-col"
-              >
-                <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border">
-                  <div className="h-10 w-10 rounded-xl bg-accent-soft flex items-center justify-center shrink-0">
-                    <quote.icon className="h-5 w-5 text-accent" strokeWidth={1.5} />
+              <div key={quote.title} className="flex flex-col">
+                {/* PDF preview image */}
+                <a
+                  href={quote.pdf}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative block rounded-2xl bg-card border border-border overflow-hidden shadow-soft hover:shadow-lg transition-all"
+                  aria-label={`Ver orçamento ${quote.title} no navegador`}
+                >
+                  <div className="aspect-[3/4] overflow-hidden bg-secondary/50">
+                    <img
+                      src={quote.preview}
+                      alt={`Pré-visualização do orçamento de ${quote.category.toLowerCase()}`}
+                      loading="lazy"
+                      className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
+                    />
                   </div>
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-accent">{quote.category}</p>
-                    <h3 className="font-heading font-semibold text-sm text-foreground leading-tight">{quote.title}</h3>
-                  </div>
-                </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-background/95 backdrop-blur px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-foreground shadow-sm">
+                    <FileText className="h-3 w-3 text-accent" /> PDF
+                  </span>
+                </a>
 
-                <p className="text-xs text-muted-foreground mb-4">{quote.client}</p>
-
-                <ul className="space-y-2 mb-4 text-sm">
-                  {quote.items.map((item) => (
-                    <li key={item.name} className="flex justify-between text-foreground/80">
-                      <span className="truncate pr-2">{item.name}</span>
-                      <span className="font-medium tabular-nums shrink-0">{item.value}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-auto pt-4 border-t border-border space-y-1.5 text-xs">
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Subtotal</span>
-                    <span className="tabular-nums">{quote.subtotal}</span>
-                  </div>
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>IVA (23%)</span>
-                    <span className="tabular-nums">{quote.iva}</span>
-                  </div>
-                  <div className="flex justify-between font-heading font-bold text-base text-foreground pt-1.5">
-                    <span>Total</span>
-                    <span className="tabular-nums text-accent">{quote.total}</span>
+                {/* Title + description + links (outside the image) */}
+                <div className="pt-5 px-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-accent mb-1.5">
+                    {quote.category}
+                  </p>
+                  <h3 className="font-heading font-bold text-lg text-foreground leading-tight mb-2">
+                    {quote.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    {quote.desc}
+                  </p>
+                  <div className="flex items-center gap-4 text-sm">
+                    <a
+                      href={quote.pdf}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 font-semibold text-accent hover:text-accent/80 transition-colors"
+                    >
+                      <Eye className="h-4 w-4" /> Ver na web
+                    </a>
+                    <span className="text-border" aria-hidden="true">·</span>
+                    <a
+                      href={quote.pdf}
+                      download
+                      className="inline-flex items-center gap-1.5 font-semibold text-foreground hover:text-accent transition-colors"
+                    >
+                      <Download className="h-4 w-4" /> Download PDF
+                    </a>
                   </div>
                 </div>
               </div>

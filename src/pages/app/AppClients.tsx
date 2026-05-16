@@ -157,7 +157,7 @@ export default function AppClients() {
                   <div className="text-sm text-muted-foreground flex items-center gap-1.5">
                     {c.address && <><MapPin className="h-3.5 w-3.5" /> {c.address}</>}
                   </div>
-                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 gap-1.5"><UserCheck className="h-3 w-3" /> Consentimento ativo</Badge>
+                  <Badge variant="outline" className="bg-success-soft text-success-soft-foreground border-success/20 gap-1.5"><UserCheck className="h-3 w-3" /> Consentimento ativo</Badge>
                   <Button variant="ghost" size="icon" onClick={() => handleDelete(c.id)} className="text-destructive hover:text-destructive hover:bg-destructive/5">
                     <Trash2 className="h-4 w-4" />
                   </Button>

@@ -76,7 +76,7 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
-      <aside className="w-64 shrink-0 bg-white border-r border-border flex flex-col">
+      <aside className="w-64 shrink-0 bg-card border-r border-border flex flex-col">
         <div className="p-5 flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
             <Briefcase className="h-5 w-5 text-primary-foreground" />

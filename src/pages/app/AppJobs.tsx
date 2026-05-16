@@ -25,9 +25,9 @@ const STATUSES = [
 ];
 const STATUS_BADGE: Record<string, string> = {
   orcamento: 'bg-primary/10 text-primary border-primary/20',
-  aprovado: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  em_curso: 'bg-amber-50 text-amber-700 border-amber-200',
-  concluido: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  aprovado: 'bg-success-soft text-success-soft-foreground border-success/20',
+  em_curso: 'bg-warning-soft text-warning-soft-foreground border-warning/20',
+  concluido: 'bg-success-soft text-success-soft-foreground border-success/20',
 };
 
 interface Job {
@@ -307,7 +307,7 @@ function PlanningDialog({ job, onClose, userId }: { job: Job; onClose: () => voi
                   onClick={() => setActiveGroup(g.id)}
                   className={`w-full text-left px-3 py-3 rounded-lg flex items-center gap-2 text-sm transition ${activeGroup === g.id ? 'bg-primary/10 text-primary border border-primary/20 font-semibold' : 'hover:bg-muted'}`}
                 >
-                  <span className="h-2 w-2 rounded-full bg-amber-500" />
+                  <span className="h-2 w-2 rounded-full bg-warning" />
                   <span className="flex-1 truncate">{g.name}</span>
                   <ChevronRight className="h-4 w-4 opacity-50" />
                 </button>
@@ -352,7 +352,7 @@ function PlanningDialog({ job, onClose, userId }: { job: Job; onClose: () => voi
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-1.5 text-emerald-600 text-xs uppercase tracking-wide font-bold mb-3">
+                  <div className="flex items-center gap-1.5 text-success text-xs uppercase tracking-wide font-bold mb-3">
                     <Package className="h-4 w-4" /> Produtos / Materiais
                   </div>
                   <div className="flex gap-2 mb-3">
@@ -362,8 +362,8 @@ function PlanningDialog({ job, onClose, userId }: { job: Job; onClose: () => voi
                   <div className="space-y-1.5">
                     {materials.map((m) => (
                       <button key={m.id} onClick={() => toggleMat(m)} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted text-left">
-                        <span className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 ${m.obtained ? 'bg-emerald-600 border-emerald-600' : 'border-muted-foreground/40'}`}>
-                          {m.obtained && <Check className="h-3 w-3 text-white" />}
+                        <span className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 ${m.obtained ? 'bg-success border-success' : 'border-muted-foreground/40'}`}>
+                          {m.obtained && <Check className="h-3 w-3 text-success-foreground" />}
                         </span>
                         <span className={`text-sm ${m.obtained ? 'line-through text-muted-foreground' : ''}`}>{m.description}</span>
                       </button>

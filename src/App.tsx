@@ -25,6 +25,7 @@ import AppClients from "./pages/app/AppClients";
 import AppSettings from "./pages/app/AppSettings";
 import AppQuotes from "./pages/app/AppQuotes";
 import AppQuoteNew from "./pages/app/AppQuoteNew";
+import CookieConsent from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => (
 
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <CookieConsent />
           </AppAuthProvider>
         </AuthProvider>
       </BrowserRouter>

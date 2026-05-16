@@ -1,156 +1,119 @@
-# Plano: Branding na App + Monetização em 3 Tiers
 
-## Visão geral
+# Admin / Backoffice — Estado atual e o que falta
 
-Implementar em paralelo (1) capacidade de personalização de marca por utilizador autenticado em `/app`, e (2) sistema de subscrições Stripe com 3 tiers e paywall por funcionalidade. Domínio de email fica adiado até decisão de nome final.
+## O que já tens
 
----
+| Módulo | Estado | Localização |
+|---|---|---|
+| Leads (waitlist) | ✅ Listagem | `/admin/leads` |
+| Analytics do funil de orçamento | ✅ Eventos por step | `/admin/analytics` |
+| Catálogo de templates | ✅ CRUD | `/admin/templates` |
+| Landing CMS | ✅ Editar secções | `/admin/content` |
+| Auth admin (role-based) | ✅ `user_roles` + `has_role` | — |
 
-## Fase 1 — Fundações (paywall + branding base)
+## O que falta para um "CRM completo" de gestão da tool
 
-### 1.1 Stripe Payments (seamless)
-- Ativar `enable_stripe_payments` (sem necessidade de conta Stripe própria).
-- Criar 3 produtos com preços recorrentes mensais:
-  - **Free** — 0€ (sem checkout, default)
-  - **Pro** — 12€/mês
-  - **Business** — 29€/mês
-- Webhook handler para sincronizar estado de subscrição.
+Dividido em 4 categorias. Para cada uma indico **se vale a pena construir dentro do Lovable** ou **usar uma ferramenta externa**.
 
-### 1.2 Tabela de subscrições
-- Nova tabela `user_subscriptions` (user_id, tier, status, stripe_customer_id, current_period_end).
-- RLS: cada user vê só a sua. Service role escreve via webhook.
-- Hook `useSubscription()` que devolve `{ tier, isPro, isBusiness, limits }`.
+### 1. Gestão de utilizadores e subscrições (CORE — construir)
+Agora que tens `user_subscriptions` (Free/Pro/Business), precisas de:
+- Lista de utilizadores com: email, tier, status, data registo, último login, nº orçamentos criados, MRR contribuído
+- Ação manual: mudar tier (oferecer Pro grátis, dar trial, suspender)
+- Ver subscrições prestes a expirar / canceladas
+- Pesquisa por email/nome
 
-### 1.3 Página de Planos
-- `/app/planos` com 3 cards comparativos.
-- Botão "Subscrever" → Stripe Checkout.
-- Portal de gestão (cancelar, atualizar cartão).
+**Porquê construir:** depende dos teus dados internos (subscriptions + auth) e ações precisam de escrever na BD. Nenhum SaaS externo faz isto sem integração custom pesada.
 
-### 1.4 Storage bucket para branding
-- Bucket privado `company-assets` (logos, fotos de obras, anexos).
-- RLS por `auth.uid()` na primeira pasta do path.
-- Limite tamanho: 5MB logo, 10MB por foto.
+### 2. Métricas de negócio / SaaS (CORE — construir leve)
+Dashboard com KPIs:
+- MRR, ARR, churn rate, conversão Free→Pro
+- Utilizadores ativos (DAU/WAU/MAU)
+- Orçamentos criados por dia, taxa de aceite (status `aceite` / enviados)
+- Top utilizadores por volume
 
-### 1.5 Estender `app_user_settings`
-Novas colunas:
-- `logo_url`, `brand_color_primary`, `brand_color_accent`
-- `company_description` (text, max 2000 chars)
-- `company_terms` (T&Cs reutilizáveis no PDF)
-- `quote_validity_days` (default 30)
-- `payment_conditions` (texto livre)
+**Porquê construir:** dados vivem no teu Supabase; uma página com queries agregadas resolve. Substituir por externo seria over-engineering.
 
-### 1.6 Página `/app/definicoes/marca`
-- Upload de logo (preview live)
-- Color picker para cores da empresa
-- Editor de descrição, T&Cs, condições pagamento
-- **Gated**: só Pro/Business consegue gravar (Free vê preview com lock).
+### 3. Product analytics / behavior tracking (USAR EXTERNO ✅)
+Para entender **como** os users usam a app (heatmaps, funnels avançados, retenção, session replay):
 
----
+**Recomendação: PostHog (free tier generoso)**
+- Funnels, retenção, session replay, feature flags, A/B tests
+- Self-hosted ou cloud, GDPR-friendly (EU hosting)
+- Substitui o que terias de construir manualmente em `quote_events`
+- Free até 1M eventos/mês
 
-## Fase 2 — Limites por tier
+Alternativas: Mixpanel (pago mais cedo), Plausible (só pageviews, mais simples).
 
-### 2.1 Matriz de limites
+**O que manter no teu admin:** o `AdminAnalytics` atual continua útil para o funil específico do gerador de orçamentos público (que é o teu lead magnet).
 
-| Funcionalidade | Free | Pro | Business |
-|---|---|---|---|
-| Orçamentos/mês | 3 | ∞ | ∞ |
-| Clientes guardados | 5 | ∞ | ∞ |
-| Marca no PDF | "Feito com X" | sem marca | sem marca |
-| Logo + cores no PDF | ❌ | ✅ | ✅ |
-| Envio PDF por email | ❌ | ✅ | ✅ |
-| Galeria fotos/anexos | ❌ | ✅ | ✅ |
-| Tracking + estados | ❌ | ✅ | ✅ |
-| T&Cs personalizadas | ❌ | ✅ | ✅ |
-| Multi-utilizador | ❌ | ❌ | até 5 |
-| Export SAF-T PT | ❌ | ❌ | ✅ |
-| Conversão → fatura | ❌ | ❌ | ✅ |
+### 4. Suporte ao cliente & comunicação (USAR EXTERNO ✅)
+- **Chat/help desk:** Crisp (free tier) ou Intercom (caro). Crisp é o mais usado por SaaS PT pequenos.
+- **Email marketing / onboarding:** Resend (transacional, já compatível com Lovable) + Loops.so ou Customer.io para sequências.
+- **Knowledge base:** Crisp inclui, ou usar Notion público.
 
-### 2.2 Enforcement
-- Componente `<FeatureGate feature="email_send">` que renderiza o botão real ou um CTA "Upgrade para Pro".
-- Server-side: edge functions verificam tier antes de executar (envio email, contagem mensal).
-- Contagem de orçamentos/mês via query a `app_quotes` (já existe `created_at`).
+**Não construir:** caixa de mensagens internas é trabalho enorme e mal feito vs. ferramentas dedicadas.
+
+### 5. CRM de leads (DEPENDE)
+Tens `waitlist_leads` simples. Para um CRM de vendas real (notas, tags, pipeline, follow-ups):
+
+**Opção A — Manter simples no admin** (recomendado se vais lançar self-service):
+- Adicionar: tags, notas, status (contactado/convertido), exportar CSV
+- ~1 sprint de trabalho
+
+**Opção B — Sincronizar com HubSpot Free / Pipedrive**:
+- Edge function que envia novos leads via API
+- HubSpot CRM é gratuito até 1M contactos
+- Faz sentido se vais ter equipa de vendas a trabalhar leads ativamente
+
+Como o teu produto é self-service B2B SMB, **Opção A chega**.
 
 ---
 
-## Fase 3 — Funcionalidades premium
+## Recomendação consolidada
 
-### 3.1 Branding completo no PDF
-- Atualizar gerador de PDF para usar `logo_url`, cores da empresa, descrição.
-- Free: rodapé "Orçamento criado com [Nome] — cria o teu grátis em [link]".
-- Pro/Business: sem rodapé.
+**Construir no admin (Sprint próximo):**
+1. **Gestão de utilizadores & subscrições** (lista, filtros, ações: mudar tier, suspender)
+2. **Dashboard de KPIs SaaS** (MRR, churn, conversão, orçamentos)
+3. **Enriquecer leads** (tags, notas, status, export CSV)
 
-### 3.2 Envio de PDF por email ao cliente
-- Edge function `send-quote-to-client`:
-  - Gera PDF server-side (ou recebe blob do cliente)
-  - Template React Email com branding do user
-  - Envia via Lovable Emails (já configurado quando domínio for comprado; até lá, fallback para subdomínio default)
-  - Regista em `quote_sends` (quote_id, sent_at, recipient, open_count)
-- Rate-limit: 50 envios/dia/user.
+**Integrar (sem construir):**
+4. **PostHog** — product analytics & session replay (substitui análise comportamental custom)
+5. **Crisp** — chat de suporte + knowledge base (snippet no site)
+6. **Resend + Loops.so** — emails transacionais e sequências de onboarding (já temos infra Resend pronta)
 
-### 3.3 Galeria fotos + anexos
-- Nova tabela `quote_attachments` (quote_id, user_id, type: 'photo'|'file', storage_path, caption).
-- UI no quote builder: zona drag-drop dentro de cada secção.
-- Fotos aparecem no PDF (grid 2 colunas).
-
-### 3.4 Tracking + estados
-- Tabela `quote_status_history` (quote_id, status, changed_at).
-- Enum: `rascunho`, `enviado`, `visto`, `aceite`, `rejeitado`, `expirado`.
-- Pixel `<img>` 1x1 no email com endpoint que regista `visto`.
-- Página pública `/q/[token]` onde cliente vê o PDF online e clica "Aceitar/Rejeitar" (sem conta).
-- Notificação no app quando estado muda.
-
-### 3.5 T&Cs e validade
-- Campos já em `app_user_settings` (1.5).
-- PDF mostra "Válido até DD/MM/YYYY", T&Cs no rodapé/última página, condições pagamento em secção própria.
-- Job diário (pg_cron) marca orçamentos como `expirado` após validade.
+**Não construir nunca:**
+- Sistema de tickets/chat próprio
+- Email marketing engine
+- Heatmaps / session replay
 
 ---
 
-## Fase 4 — Polimento
+## Plano de execução proposto
 
-- Onboarding: ao criar conta, wizard de 3 passos (logo, cores, descrição) → desbloqueia primeiro orçamento personalizado.
-- Banner "Tens 1 orçamento Free este mês" quando próximo do limite.
-- Email transacional: "O teu orçamento foi visto pelo cliente".
-- Dashboard `/app`: métricas (orçamentos enviados, taxa de aceitação, valor médio).
+```text
+Sprint A — Admin: Users & Subscriptions
+  - Tabela admin_users_view (query agregada: profiles + subs + counts)
+  - Página /admin/users com filtros, search, ações
+  - Edge function admin-update-subscription (mudar tier manualmente)
 
----
+Sprint B — Admin: KPIs Dashboard
+  - Página /admin/dashboard (substituir landing do /admin)
+  - Cards: MRR estimado, users totais, ativos 30d, orçamentos enviados/aceites
+  - Gráfico time-series (recharts) com novos signups e orçamentos
 
-## Detalhes técnicos
+Sprint C — Leads CRM-lite
+  - Adicionar campos a waitlist_leads: status, tags[], notes
+  - UI com kanban simples ou tabela editável + export CSV
 
-**Schema novo (resumo):**
-- `user_subscriptions`, `quote_attachments`, `quote_sends`, `quote_status_history`
-- Colunas extra em `app_user_settings` e `app_quotes` (status, public_token, expires_at)
-- Bucket `company-assets` (privado, RLS por user_id na pasta raiz)
-- Bucket `quote-attachments` (privado, RLS por user_id)
+Sprint D — Integrações externas (snippets + docs)
+  - PostHog: instalar SDK, identificar user, eventos-chave
+  - Crisp: snippet no AppLayout (só authenticated)
+  - Loops.so: webhook on signup (edge function)
+```
 
-**Edge functions novas:**
-- `stripe-checkout` (cria sessão)
-- `stripe-webhook` (sincroniza subscrições)
-- `send-quote-to-client` (envia PDF + regista envio)
-- `track-quote-open` (pixel)
-- `quote-public-action` (cliente aceita/rejeita via token público)
-
-**Dependências:**
-- Stripe via Lovable Payments (sem secret manual)
-- Lovable Emails para envio de PDFs (domínio fica em subdomínio default até comprares o teu)
-- React Email para templates
-
----
-
-## Ordem de execução sugerida
-
-1. **Sprint 1** (Fase 1.1–1.5): Stripe + tabela subscrições + página planos + bucket + colunas branding
-2. **Sprint 2** (Fase 1.6 + 2): Página de marca + FeatureGate + matriz de limites enforced
-3. **Sprint 3** (Fase 3.1 + 3.2): Branding no PDF + envio por email
-4. **Sprint 4** (Fase 3.3 + 3.4): Galeria + tracking/estados
-5. **Sprint 5** (Fase 3.5 + 4): T&Cs/validade + onboarding + polimento
-
-Cada sprint é deployável de forma independente.
-
----
-
-## Fora deste plano (decisão futura)
-
-- **Domínio próprio + email branded**: assim que decidires o nome (recomendo brainstorm separado).
-- **SAF-T PT export** (Business tier): complexo, fica para sprint dedicado depois do Business ter clientes reais.
-- **Multi-utilizador** (Business): requer convites, roles por workspace — sprint próprio.
+## Pergunta antes de começar
+Por onde queres começar?
+- **(1)** Sprint A — Users & Subscriptions (mais útil para gerires utilizadores hoje)
+- **(2)** Sprint B — KPIs Dashboard (visibilidade do negócio)
+- **(3)** Integrar PostHog primeiro (sem isto, vais lançar às cegas)
+- **(4)** Tudo pela ordem A→B→C→D

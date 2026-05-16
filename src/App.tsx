@@ -25,6 +25,8 @@ import AppClients from "./pages/app/AppClients";
 import AppSettings from "./pages/app/AppSettings";
 import AppQuotes from "./pages/app/AppQuotes";
 import AppQuoteNew from "./pages/app/AppQuoteNew";
+import AppPlans from "./pages/app/AppPlans";
+import AppBrand from "./pages/app/AppBrand";
 import CookieConsent from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
@@ -63,6 +65,8 @@ const App = () => (
                 <Route path="quotes/new" element={<AppQuoteNew />} />
                 <Route path="clients" element={<AppClients />} />
                 <Route path="settings" element={<AppSettings />} />
+                <Route path="brand" element={<AppBrand />} />
+                <Route path="planos" element={<AppPlans />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />

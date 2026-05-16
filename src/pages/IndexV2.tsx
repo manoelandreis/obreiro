@@ -214,7 +214,7 @@ export default function IndexV2() {
         <div className="mx-auto flex h-16 max-w-[1180px] items-center justify-between px-6">
           <Link to="/"><WordMark /></Link>
           <div className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
-            <a href="#features" className="hover:text-foreground transition-colors">Funcionalidades</a>
+            <a href="#sobre" className="hover:text-foreground transition-colors">Sobre</a>
             <a href="#quote-builder" className="hover:text-foreground transition-colors">Orçamento</a>
             <a href="#waitlist" className="hover:text-foreground transition-colors">Waitlist</a>
           </div>
@@ -548,7 +548,7 @@ export default function IndexV2() {
 
 
       {/* ─────── SECTION: Sem comissões ─────── */}
-      <section id="features" className="px-6 py-20 scroll-mt-20">
+      <section id="sobre" className="px-6 py-20 scroll-mt-20">
         <div className="mx-auto max-w-[1180px]">
           <div className="grid md:grid-cols-2 gap-12 mb-12">
             <div>

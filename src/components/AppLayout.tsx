@@ -78,10 +78,10 @@ export default function AppLayout() {
       {/* Sidebar */}
       <aside className="w-64 shrink-0 bg-white border-r border-border flex flex-col">
         <div className="p-5 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
-            <Briefcase className="h-5 w-5 text-primary-foreground" />
+          <div className="h-10 w-10 rounded-xl bg-accent flex items-center justify-center shadow-accent-glow">
+            <Briefcase className="h-5 w-5 text-accent-foreground" />
           </div>
-          <span className="font-heading text-lg font-bold">HandyFlow</span>
+          <span className="font-heading text-lg font-bold text-primary">HandyFlow</span>
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1">

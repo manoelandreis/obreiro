@@ -17,6 +17,7 @@ Fonte da verdade: `src/index.css` (variáveis CSS) + `tailwind.config.ts` (mapea
 | **warning** | `bg-warning` | `bg-warning-soft` | `text-warning-soft-foreground` | Avisos, em curso, pendente, ação requerida |
 | **info** | `bg-info` | `bg-info-soft` | `text-info-soft-foreground` | Estado informativo, visto, enviado |
 | **destructive** | `bg-destructive` | `bg-destructive-soft` | `text-destructive-soft-foreground` | Erros, rejeitado, apagar |
+| **brand-dark** | `bg-brand-dark` / `text-brand-dark-foreground` | — | — | Accent escuro alternativo (resumo de orçamento, CTAs em fundo claro) |
 | **muted** | `bg-muted` | — | `text-muted-foreground` | Estados neutros, rascunhos, placeholders |
 
 Para texto/ícone sobre sólidos: `text-{family}-foreground` (ex: `text-success-foreground`).

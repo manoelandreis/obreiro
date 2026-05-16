@@ -74,7 +74,7 @@ export default function AppLayout() {
   if (!user) return <Navigate to="/app/login" replace />;
 
   return (
-    <div className="min-h-screen flex bg-[hsl(210_30%_97%)]">
+    <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
       <aside className="w-64 shrink-0 bg-white border-r border-border flex flex-col">
         <div className="p-5 flex items-center gap-3">

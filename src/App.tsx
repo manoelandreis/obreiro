@@ -41,6 +41,7 @@ const App = () => (
               <Route path="/" element={<IndexV2 />} />
               <Route path="/v1" element={<Index />} />
               <Route path="/quote" element={<Quote />} />
+              <Route path="/privacidade" element={<PrivacyPolicy />} />
 
               {/* Admin */}
               <Route path="/admin" element={<AdminLogin />} />

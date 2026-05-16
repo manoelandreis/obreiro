@@ -36,7 +36,7 @@ const LogoMark = ({ size = 32 }: { size?: number }) => (
     className="flex items-center justify-center rounded-[10px] bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white font-heading font-bold shadow-accent-glow"
     style={{ width: size, height: size, fontSize: size * 0.5 }}
   >
-    H
+    O
   </div>
 );
 
@@ -44,7 +44,7 @@ const WordMark = () => (
   <div className="flex items-center gap-2.5">
     <LogoMark size={32} />
     <span className="font-heading font-bold text-lg tracking-tight text-foreground">
-      Handy<span className="text-accent font-normal">Flow</span>
+      obr<span className="text-accent font-normal">eiro</span>
     </span>
   </div>
 );

@@ -12,10 +12,10 @@ export default function PrivacyPolicy() {
               className="flex items-center justify-center rounded-[10px] bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white font-heading font-bold shadow-accent-glow"
               style={{ width: 32, height: 32, fontSize: 16 }}
             >
-              H
+              O
             </div>
             <span className="font-heading font-bold text-lg tracking-tight text-foreground">
-              Handy<span className="text-accent font-normal">Flow</span>
+              obr<span className="text-accent font-normal">eiro</span>
             </span>
           </Link>
           <Link

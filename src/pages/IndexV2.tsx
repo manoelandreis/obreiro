@@ -264,7 +264,7 @@ export default function IndexV2() {
       </section>
 
       {/* ─────── INLINE QUOTE BUILDER ─────── */}
-      <section ref={quoteRef} id="quote-builder" className="px-6 py-20 bg-card border-y border-border">
+      <section ref={quoteRef} id="quote-builder" className="px-6 py-20 bg-card border-y border-border scroll-mt-20">
         <div className="mx-auto max-w-3xl">
           <div className="text-center mb-10">
             <span className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
@@ -548,7 +548,7 @@ export default function IndexV2() {
 
 
       {/* ─────── SECTION: Sem comissões ─────── */}
-      <section className="px-6 py-20">
+      <section id="features" className="px-6 py-20 scroll-mt-20">
         <div className="mx-auto max-w-[1180px]">
           <div className="grid md:grid-cols-2 gap-12 mb-12">
             <div>
@@ -652,7 +652,7 @@ export default function IndexV2() {
       </section>
 
       {/* ─────── WAITLIST CTA ─────── */}
-      <section id="waitlist" className="px-6 py-24 bg-navy-deep text-white relative overflow-hidden">
+      <section id="waitlist" className="px-6 py-24 bg-navy-deep text-white relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 opacity-30 pointer-events-none" style={{ background: 'radial-gradient(circle at 80% 20%, hsl(27 92% 47% / 0.4), transparent 50%)' }} />
         <div className="mx-auto max-w-2xl text-center relative">
           <h2 className="font-heading text-3xl md:text-5xl font-bold mb-4 text-balance">Pronto para o seu próximo orçamento?</h2>

@@ -6,10 +6,12 @@ import {
 } from '@/components/ui/sidebar';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
-import { Users, FileText, BarChart3, Layout, LogOut } from 'lucide-react';
+import { Users, FileText, BarChart3, Layout, LogOut, LayoutDashboard, UserCog } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
+  { title: 'Dashboard', url: '/admin/dashboard', icon: LayoutDashboard },
+  { title: 'Utilizadores', url: '/admin/users', icon: UserCog },
   { title: 'Leads', url: '/admin/leads', icon: Users },
   { title: 'Conteúdo', url: '/admin/content', icon: Layout },
   { title: 'Templates', url: '/admin/templates', icon: FileText },

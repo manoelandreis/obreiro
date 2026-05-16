@@ -15,9 +15,9 @@ const STATUS_LABELS: Record<string, string> = {
 };
 const STATUS_STYLES: Record<string, string> = {
   orcamento: 'bg-primary/10 text-primary border-primary/20',
-  aprovado: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  em_curso: 'bg-amber-50 text-amber-700 border-amber-200',
-  concluido: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  aprovado: 'bg-success-soft text-success-soft-foreground border-success/20',
+  em_curso: 'bg-warning-soft text-warning-soft-foreground border-warning/20',
+  concluido: 'bg-success-soft text-success-soft-foreground border-success/20',
 };
 
 export default function AppDashboard() {
@@ -82,8 +82,8 @@ export default function AppDashboard() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard icon={Briefcase} label="Trabalhos ativos" value={activeJobs} accent="text-primary" bg="bg-primary/10" />
-        <StatCard icon={CheckSquare} label="Tarefas pendentes" value={pendingTasks} accent="text-amber-600" bg="bg-amber-50" suffix="para hoje" />
-        <StatCard icon={Calendar} label="Próximos eventos" value={weekEvents} accent="text-violet-600" bg="bg-violet-50" suffix="esta semana" />
+        <StatCard icon={CheckSquare} label="Tarefas pendentes" value={pendingTasks} accent="text-warning-soft-foreground" bg="bg-warning-soft" suffix="para hoje" />
+        <StatCard icon={Calendar} label="Próximos eventos" value={weekEvents} accent="text-info-soft-foreground" bg="bg-info-soft" suffix="esta semana" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

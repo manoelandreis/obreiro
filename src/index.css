@@ -34,9 +34,24 @@
     --navy-deep: 212 55% 15%;        /* #11263B */
 
     --success: 146 67% 37%;          /* #1F9D55 */
-    --warning: 43 92% 47%;           /* #E8A80A */
+    --success-foreground: 0 0% 100%;
+    --success-soft: 146 60% 94%;
+    --success-soft-foreground: 146 67% 25%;
+
+    --warning: 36 92% 47%;           /* amber */
+    --warning-foreground: 0 0% 100%;
+    --warning-soft: 36 100% 94%;
+    --warning-soft-foreground: 30 80% 30%;
+
+    --info: 212 90% 50%;
+    --info-foreground: 0 0% 100%;
+    --info-soft: 212 100% 95%;
+    --info-soft-foreground: 212 70% 32%;
+
     --destructive: 0 64% 57%;        /* #D94B4B */
     --destructive-foreground: 0 0% 100%;
+    --destructive-soft: 0 80% 96%;
+    --destructive-soft-foreground: 0 64% 38%;
 
     --border: 216 11% 93%;           /* #ECEEF0 subtle */
     --input: 216 11% 88%;

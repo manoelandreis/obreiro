@@ -175,12 +175,12 @@ export default function AppQuoteNew() {
       </Card>
 
       {!companyConfigured && (
-        <Card className="border-amber-200 bg-amber-50/50">
+        <Card className="border-warning/30 bg-warning-soft/60">
           <CardContent className="pt-6 flex items-start gap-3">
-            <Building2 className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+            <Building2 className="h-5 w-5 text-warning-soft-foreground mt-0.5 shrink-0" />
             <div className="flex-1">
-              <div className="font-semibold text-amber-900">Dados da empresa em falta</div>
-              <p className="text-sm text-amber-800 mt-1">
+              <div className="font-semibold text-warning-soft-foreground">Dados da empresa em falta</div>
+              <p className="text-sm text-warning-soft-foreground/90 mt-1">
                 Configure os dados da sua empresa em <strong>Definições</strong> para aparecerem automaticamente nos orçamentos.
               </p>
             </div>

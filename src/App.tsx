@@ -15,6 +15,7 @@ import AdminTemplates from "./pages/admin/AdminTemplates";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import NotFound from "./pages/NotFound";
 import IndexV2 from "./pages/IndexV2";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AppLayout from "./components/AppLayout";
 import AppLogin from "./pages/app/AppLogin";
 import AppSignup from "./pages/app/AppSignup";
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/" element={<IndexV2 />} />
               <Route path="/v1" element={<Index />} />
               <Route path="/quote" element={<Quote />} />
+              <Route path="/privacidade" element={<PrivacyPolicy />} />
 
               {/* Admin */}
               <Route path="/admin" element={<AdminLogin />} />

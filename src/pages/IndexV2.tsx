@@ -698,8 +698,8 @@ export default function IndexV2() {
             <div>
               <h4 className="font-heading font-semibold text-sm mb-3">Legal</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>RGPD</li>
-                <li>Privacidade</li>
+                <li><Link to="/privacidade" className="hover:text-foreground transition-colors">RGPD & Privacidade</Link></li>
+                <li><Link to="/privacidade" className="hover:text-foreground transition-colors">Política de Privacidade</Link></li>
                 <li>Termos</li>
               </ul>
             </div>

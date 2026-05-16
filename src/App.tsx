@@ -15,6 +15,7 @@ import AdminTemplates from "./pages/admin/AdminTemplates";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import NotFound from "./pages/NotFound";
 import IndexV2 from "./pages/IndexV2";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AppLayout from "./components/AppLayout";
 import AppLogin from "./pages/app/AppLogin";
 import AppSignup from "./pages/app/AppSignup";

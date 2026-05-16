@@ -673,21 +673,33 @@ export type Database = {
           email: string
           id: string
           name: string | null
+          notes: string | null
           source: string | null
+          status: Database["public"]["Enums"]["lead_status"]
+          tags: string[]
+          updated_at: string
         }
         Insert: {
           created_at?: string
           email: string
           id?: string
           name?: string | null
+          notes?: string | null
           source?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          tags?: string[]
+          updated_at?: string
         }
         Update: {
           created_at?: string
           email?: string
           id?: string
           name?: string | null
+          notes?: string | null
           source?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          tags?: string[]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -696,6 +708,40 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_dashboard_kpis: { Args: never; Returns: Json }
+      admin_dashboard_timeseries: {
+        Args: { _days?: number }
+        Returns: {
+          day: string
+          leads: number
+          quotes: number
+          signups: number
+        }[]
+      }
+      admin_list_users: {
+        Args: never
+        Returns: {
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string
+          display_name: string
+          email: string
+          last_quote_at: string
+          quotes_accepted: number
+          quotes_count: number
+          sub_status: Database["public"]["Enums"]["subscription_status"]
+          tier: Database["public"]["Enums"]["subscription_tier"]
+          user_id: string
+        }[]
+      }
+      admin_update_subscription: {
+        Args: {
+          _status: Database["public"]["Enums"]["subscription_status"]
+          _tier: Database["public"]["Enums"]["subscription_tier"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
       get_public_quote: { Args: { _token: string }; Returns: Json }
       has_role: {
         Args: {
@@ -714,6 +760,12 @@ export type Database = {
       app_role: "admin" | "user"
       attachment_type: "photo" | "file"
       job_status: "orcamento" | "aprovado" | "em_curso" | "concluido"
+      lead_status:
+        | "novo"
+        | "contactado"
+        | "qualificado"
+        | "convertido"
+        | "perdido"
       quote_status:
         | "rascunho"
         | "enviado"
@@ -858,6 +910,13 @@ export const Constants = {
       app_role: ["admin", "user"],
       attachment_type: ["photo", "file"],
       job_status: ["orcamento", "aprovado", "em_curso", "concluido"],
+      lead_status: [
+        "novo",
+        "contactado",
+        "qualificado",
+        "convertido",
+        "perdido",
+      ],
       quote_status: [
         "rascunho",
         "enviado",

@@ -13,6 +13,10 @@ import AdminLeads from "./pages/admin/AdminLeads";
 import AdminContent from "./pages/admin/AdminContent";
 import AdminTemplates from "./pages/admin/AdminTemplates";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import { useEffect } from "react";
+import { initPosthog, initCrisp } from "./lib/integrations";
 import NotFound from "./pages/NotFound";
 import IndexV2 from "./pages/IndexV2";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -33,7 +37,9 @@ import CookieConsent from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  useEffect(() => { initPosthog(); initCrisp(); }, []);
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -52,6 +58,9 @@ const App = () => (
               {/* Admin */}
               <Route path="/admin" element={<AdminLogin />} />
               <Route path="/admin/*" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="users" element={<AdminUsers />} />
                 <Route path="leads" element={<AdminLeads />} />
                 <Route path="content" element={<AdminContent />} />
                 <Route path="templates" element={<AdminTemplates />} />
@@ -81,6 +90,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

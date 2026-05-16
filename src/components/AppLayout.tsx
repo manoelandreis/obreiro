@@ -2,7 +2,7 @@ import { Navigate, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Briefcase, LayoutGrid, Users, Settings, LogOut, Lock, FileText } from 'lucide-react';
+import { Briefcase, LayoutGrid, Users, Settings, LogOut, Lock, FileText, Palette, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
@@ -16,7 +16,9 @@ const nav = [
   { to: '/app/quotes', label: 'Orçamentos', icon: FileText },
   { to: '/app/jobs', label: 'Trabalhos', icon: Briefcase },
   { to: '/app/clients', label: 'Clientes', icon: Users },
+  { to: '/app/brand', label: 'Marca', icon: Palette },
   { to: '/app/settings', label: 'Definições', icon: Settings },
+  { to: '/app/planos', label: 'Planos', icon: Sparkles },
 ];
 
 export default function AppLayout() {

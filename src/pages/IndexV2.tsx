@@ -33,10 +33,10 @@ const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', curren
 // ── Logo mark ──
 const LogoMark = ({ size = 32 }: { size?: number }) => (
   <div
-    className="flex items-center justify-center rounded-[10px] bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white font-heading font-bold shadow-accent-glow"
-    style={{ width: size, height: size, fontSize: size * 0.5 }}
+    className="flex items-center justify-center rounded-[10px] bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white shadow-accent-glow"
+    style={{ width: size, height: size }}
   >
-    O
+    <span className="material-symbols-outlined" style={{ fontSize: size * 0.6, lineHeight: 1 }}>handyman</span>
   </div>
 );
 
@@ -44,10 +44,11 @@ const WordMark = () => (
   <div className="flex items-center gap-2.5">
     <LogoMark size={32} />
     <span className="font-heading font-bold text-lg tracking-tight text-foreground">
-      obr<span className="text-accent font-normal">eiro</span>
+      Obreiro
     </span>
   </div>
 );
+
 
 export default function IndexV2() {
   // ── Landing content ──

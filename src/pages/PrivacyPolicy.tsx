@@ -9,13 +9,13 @@ export default function PrivacyPolicy() {
         <div className="mx-auto flex h-16 max-w-[1180px] items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2.5">
             <div
-              className="flex items-center justify-center rounded-[10px] bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white font-heading font-bold shadow-accent-glow"
-              style={{ width: 32, height: 32, fontSize: 16 }}
+              className="flex items-center justify-center rounded-[10px] bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white shadow-accent-glow"
+              style={{ width: 32, height: 32 }}
             >
-              O
+              <span className="material-symbols-outlined" style={{ fontSize: 20, lineHeight: 1 }}>handyman</span>
             </div>
             <span className="font-heading font-bold text-lg tracking-tight text-foreground">
-              obr<span className="text-accent font-normal">eiro</span>
+              Obreiro
             </span>
           </Link>
           <Link

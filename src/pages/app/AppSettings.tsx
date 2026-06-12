@@ -217,6 +217,37 @@ export default function AppSettings() {
         <p className="text-muted-foreground">Gira a sua conta, segurança e dados da empresa.</p>
       </div>
 
+      {/* Company */}
+      <Card>
+        <CardContent className="pt-6 space-y-4">
+          <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">Dados da Empresa</div>
+          <p className="text-sm text-muted-foreground -mt-2">Estes dados aparecem automaticamente em todos os orçamentos que criar.</p>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label>Nome da empresa</Label>
+              <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Ex: Silva Construções" />
+            </div>
+            <div>
+              <Label>NIF</Label>
+              <Input value={companyNif} onChange={(e) => setCompanyNif(e.target.value)} placeholder="Ex: 123456789" />
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input type="email" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} />
+            </div>
+            <div>
+              <Label>Telefone</Label>
+              <Input value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} />
+            </div>
+          </div>
+          <div>
+            <Label>Morada</Label>
+            <Input value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Account Management */}
       <Card>
         <CardContent className="pt-6 space-y-6">
@@ -291,37 +322,6 @@ export default function AppSettings() {
               {updatingPassword ? 'A atualizar...' : 'Alterar password'}
             </Button>
             <p className="text-xs text-muted-foreground">Mínimo 8 caracteres.</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Company */}
-      <Card>
-        <CardContent className="pt-6 space-y-4">
-          <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">Dados da Empresa</div>
-          <p className="text-sm text-muted-foreground -mt-2">Estes dados aparecem automaticamente em todos os orçamentos que criar.</p>
-
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <Label>Nome da empresa</Label>
-              <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Ex: Silva Construções" />
-            </div>
-            <div>
-              <Label>NIF</Label>
-              <Input value={companyNif} onChange={(e) => setCompanyNif(e.target.value)} placeholder="Ex: 123456789" />
-            </div>
-            <div>
-              <Label>Email</Label>
-              <Input type="email" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} />
-            </div>
-            <div>
-              <Label>Telefone</Label>
-              <Input value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} />
-            </div>
-          </div>
-          <div>
-            <Label>Morada</Label>
-            <Input value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} />
           </div>
         </CardContent>
       </Card>

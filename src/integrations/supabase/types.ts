@@ -300,6 +300,7 @@ export type Database = {
       }
       app_user_settings: {
         Row: {
+          avatar_url: string | null
           brand_color_accent: string | null
           brand_color_primary: string | null
           company_address: string | null
@@ -321,6 +322,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          avatar_url?: string | null
           brand_color_accent?: string | null
           brand_color_primary?: string | null
           company_address?: string | null
@@ -342,6 +344,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          avatar_url?: string | null
           brand_color_accent?: string | null
           brand_color_primary?: string | null
           company_address?: string | null

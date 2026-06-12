@@ -11,12 +11,12 @@ export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, user } = useAuth();
+  const { signIn, user, isAdmin, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) navigate('/admin/analytics', { replace: true });
-  }, [user, navigate]);
+    if (!authLoading && user && isAdmin) navigate('/admin/dashboard', { replace: true });
+  }, [user, isAdmin, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

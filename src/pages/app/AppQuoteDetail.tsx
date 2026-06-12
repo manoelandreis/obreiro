@@ -260,7 +260,7 @@ export default function AppQuoteDetail() {
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <Button variant="outline" onClick={handlePreview} disabled={generating} className="gap-2">
+          <Button variant="outline" onClick={() => navigate(`/app/quotes/${quote.id}/preview`)} className="gap-2">
             <FileText className="h-4 w-4" /> Pré-visualizar
           </Button>
           <Button onClick={handleDownload} disabled={generating} className="gap-2">

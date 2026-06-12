@@ -141,26 +141,35 @@ export default function AppQuotePreview() {
         </div>
       </div>
 
-      {/* PDF frame */}
-      <div className="flex justify-center px-4 sm:px-8 py-6 bg-muted/40 min-h-[calc(100vh-9rem)]">
+      {/* PDF frame — looks like an A4 sheet inside a document viewer */}
+      <div
+        className="flex justify-center px-4 sm:px-8 py-10 min-h-[calc(100vh-7rem)]"
+        style={{ background: '#525659' }}
+      >
         {loading ? (
-          <div className="flex items-center gap-2 text-muted-foreground mt-20">
+          <div className="flex items-center gap-2 text-white/80 mt-20">
             <Loader2 className="h-4 w-4 animate-spin" /> A gerar pré-visualização...
           </div>
         ) : html ? (
           <div
-            className="bg-white shadow-2xl rounded-sm overflow-hidden"
-            style={{ width: '210mm', maxWidth: '100%' }}
+            className="bg-white overflow-hidden"
+            style={{
+              width: '210mm',
+              maxWidth: '100%',
+              minHeight: '297mm',
+              boxShadow:
+                '0 1px 3px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35)',
+            }}
           >
             <iframe
               title="Pré-visualização do orçamento"
               srcDoc={html}
-              className="w-full block"
+              className="w-full block bg-white"
               style={{ height: '297mm', minHeight: '297mm', border: 'none' }}
             />
           </div>
         ) : (
-          <div className="text-muted-foreground mt-20">
+          <div className="text-white/80 mt-20">
             Não foi possível carregar o orçamento.
           </div>
         )}

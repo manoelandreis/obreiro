@@ -132,21 +132,95 @@ export default function AppQuoteNew() {
     if (!selectedClientId) return toast.error('Selecione ou crie um cliente.');
     if (services.every((s) => !s.name.trim())) return toast.error('Adicione pelo menos um serviço.');
     setSaving(true);
-    const { error } = await supabase.from('app_quotes').insert({
-      user_id: user.id,
-      client_id: selectedClientId,
-      title: title.trim() || 'Orçamento',
-      company_snapshot: company as any,
-      client_snapshot: selectedClient as any,
-      services: services as any,
-      notes: notes.trim() || null,
-      subtotal,
-      iva,
-      total,
-    });
+
+    // 1) Create a Job linked to the client so we can populate Tarefas
+    const { data: job, error: jobErr } = await supabase
+      .from('app_jobs')
+      .insert({
+        user_id: user.id,
+        client_id: selectedClientId,
+        title: title.trim() || 'Orçamento',
+        status: 'orcamento',
+        estimated_value: total,
+      })
+      .select('id')
+      .maybeSingle();
+
+    if (jobErr || !job) {
+      setSaving(false);
+      return toast.error('Erro a criar trabalho associado.');
+    }
+
+    // 2) Create quote linked to that job
+    const { data: quote, error } = await supabase
+      .from('app_quotes')
+      .insert({
+        user_id: user.id,
+        client_id: selectedClientId,
+        job_id: job.id,
+        title: title.trim() || 'Orçamento',
+        company_snapshot: company as any,
+        client_snapshot: selectedClient as any,
+        services: services as any,
+        notes: notes.trim() || null,
+        subtotal,
+        iva,
+        total,
+      })
+      .select('id')
+      .maybeSingle();
+
+    if (error || !quote) {
+      setSaving(false);
+      return toast.error('Erro a guardar orçamento.');
+    }
+
+    // 3) Auto-populate Tarefas: one group per service, with labour task + materials
+    const validServices = services.filter((s) => s.name.trim());
+    for (let i = 0; i < validServices.length; i++) {
+      const s = validServices[i];
+      const { data: group } = await supabase
+        .from('app_job_groups')
+        .insert({
+          user_id: user.id,
+          job_id: job.id,
+          name: s.name.trim(),
+          sort_order: i,
+        })
+        .select('id')
+        .maybeSingle();
+      if (!group) continue;
+
+      const tasks: { user_id: string; group_id: string; description: string; sort_order: number }[] = [];
+      if (s.description?.trim()) {
+        tasks.push({ user_id: user.id, group_id: group.id, description: s.description.trim(), sort_order: 0 });
+      }
+      if (s.hours > 0) {
+        tasks.push({
+          user_id: user.id,
+          group_id: group.id,
+          description: `Mão de obra: ${s.hours}h × ${s.pricePerHour.toFixed(2)} €/h`,
+          sort_order: tasks.length,
+        });
+      }
+      if (tasks.length) await supabase.from('app_job_tasks').insert(tasks);
+
+      if (s.materials.length) {
+        await supabase.from('app_job_materials').insert(
+          s.materials
+            .filter((m) => m.name.trim())
+            .map((m, idx) => ({
+              user_id: user.id,
+              group_id: group.id,
+              description: `${m.name} — ${m.quantity} ${m.unit || 'un'} × ${Number(m.unitPrice).toFixed(2)} €`,
+              sort_order: idx,
+            }))
+        );
+      }
+    }
+
     setSaving(false);
-    if (error) return toast.error('Erro a guardar orçamento.');
-    toast.success('Orçamento guardado.');
+    toast.success('Orçamento guardado e tarefas criadas.');
     navigate('/app/quotes');
   };
 

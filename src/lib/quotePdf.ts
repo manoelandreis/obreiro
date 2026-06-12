@@ -133,7 +133,9 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 <style>
   @page { size: A4; margin: 18mm 14mm 22mm 14mm; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 12px; line-height: 1.45; }
+  html, body { background: #fff; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 12px; line-height: 1.45; padding: 18mm 14mm 22mm 14mm; }
+  @media print { body { padding: 0; } }
   .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 3px solid ${primary}; }
   .header-left { flex: 1; display: flex; gap: 16px; align-items: center; }
   .logo { max-height: 70px; max-width: 140px; object-fit: contain; }

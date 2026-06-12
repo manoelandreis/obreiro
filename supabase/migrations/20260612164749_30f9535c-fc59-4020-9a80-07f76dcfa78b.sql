@@ -1,0 +1,1 @@
+REVOKE SELECT (pin_hash, pin_salt) ON public.app_user_settings FROM anon, authenticated;

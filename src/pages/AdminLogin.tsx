@@ -22,10 +22,23 @@ export default function AdminLogin() {
     e.preventDefault();
     setLoading(true);
     const { error } = await signIn(email, password);
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast.error('Credenciais inválidas.');
+      return;
     }
+    // Verify admin role
+    const { data: { user: signedInUser } } = await supabase.auth.getUser();
+    if (signedInUser) {
+      const { data: hasAdmin } = await supabase.rpc('has_role', { _user_id: signedInUser.id, _role: 'admin' });
+      if (!hasAdmin) {
+        await supabase.auth.signOut();
+        setLoading(false);
+        toast.error('Esta conta não tem acesso ao backoffice.');
+        return;
+      }
+    }
+    setLoading(false);
   };
 
   return (

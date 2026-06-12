@@ -30,6 +30,7 @@ import AppSettings from "./pages/app/AppSettings";
 import AppQuotes from "./pages/app/AppQuotes";
 import AppQuoteNew from "./pages/app/AppQuoteNew";
 import AppQuoteDetail from "./pages/app/AppQuoteDetail";
+import AppQuotePreview from "./pages/app/AppQuotePreview";
 import AppPlans from "./pages/app/AppPlans";
 import AppBrand from "./pages/app/AppBrand";
 import PublicQuote from "./pages/PublicQuote";

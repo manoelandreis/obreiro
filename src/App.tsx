@@ -77,6 +77,7 @@ const App = () => {
                 <Route path="quotes" element={<AppQuotes />} />
                 <Route path="quotes/new" element={<AppQuoteNew />} />
                 <Route path="quotes/:id" element={<AppQuoteDetail />} />
+                <Route path="quotes/:id/preview" element={<AppQuotePreview />} />
                 <Route path="clients" element={<AppClients />} />
                 <Route path="settings" element={<AppSettings />} />
                 <Route path="brand" element={<AppBrand />} />

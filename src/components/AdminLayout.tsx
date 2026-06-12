@@ -13,7 +13,7 @@ const navItems = [
 ];
 
 export default function AdminLayout() {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
 
   if (loading) {
@@ -23,7 +23,7 @@ export default function AdminLayout() {
       </div>
     );
   }
-  if (!user) return <Navigate to="/admin" replace />;
+  if (!user || !isAdmin) return <Navigate to="/admin" replace />;
 
   return (
     <div className="min-h-screen flex bg-background">

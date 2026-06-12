@@ -6,26 +6,40 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, user } = useAuth();
+  const { signIn, user, isAdmin, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) navigate('/admin/analytics', { replace: true });
-  }, [user, navigate]);
+    if (!authLoading && user && isAdmin) navigate('/admin/dashboard', { replace: true });
+  }, [user, isAdmin, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     const { error } = await signIn(email, password);
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast.error('Credenciais inválidas.');
+      return;
     }
+    // Verify admin role
+    const { data: { user: signedInUser } } = await supabase.auth.getUser();
+    if (signedInUser) {
+      const { data: hasAdmin } = await supabase.rpc('has_role', { _user_id: signedInUser.id, _role: 'admin' });
+      if (!hasAdmin) {
+        await supabase.auth.signOut();
+        setLoading(false);
+        toast.error('Esta conta não tem acesso ao backoffice.');
+        return;
+      }
+    }
+    setLoading(false);
   };
 
   return (

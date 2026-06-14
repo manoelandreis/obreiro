@@ -83,23 +83,6 @@ export default function IndexV2() {
   const hasTrackedCompleted = useRef(false);
 
   useEffect(() => {
-    if (hasTrackedStarted.current) return;
-    const started = company.name || company.email || company.phone || client.name || client.email || client.phone || services.some(s => s.name || s.materials.some(m => m.name)) || notes;
-    if (started) {
-      hasTrackedStarted.current = true;
-      trackEvent('quote_started');
-    }
-  }, [company, client, services, notes, trackEvent]);
-
-  useEffect(() => {
-    if (hasTrackedCompleted.current) return;
-    if (showPreview && allItemsCount > 0) {
-      hasTrackedCompleted.current = true;
-      trackEvent('quote_completed', { metadata: { total } });
-    }
-  }, [showPreview, allItemsCount, total, trackEvent]);
-
-  useEffect(() => {
     supabase.from('landing_content').select('*').then(({ data }) => {
       if (data) {
         const map: Record<string, ContentSection> = {};

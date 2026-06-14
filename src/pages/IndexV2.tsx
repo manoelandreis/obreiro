@@ -200,7 +200,7 @@ export default function IndexV2() {
   };
 
   const handleDirectDownload = async () => {
-    trackEvent('pdf_download_direct', { step_number: 4, metadata: { total } });
+    trackEvent('pdf_download_anonymous', { step_number: 4, metadata: { total } });
     await handleDownloadPDF();
   };
 

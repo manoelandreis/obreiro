@@ -16,6 +16,7 @@ import {
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import mockupTemplate from '@/assets/mockup-template.jpg';
 import mockupTool from '@/assets/mockup-tool.jpg';
+import heroBg from '@/assets/hero.png.asset.json';
 
 // ── Types ──
 interface MaterialItem { id: string; name: string; quantity: number; unit: string; unitPrice: number; }
@@ -240,16 +241,20 @@ export default function IndexV2() {
       </nav>
 
       {/* ─────── HERO ─────── */}
-      <section className="px-6 pt-20 pb-16 md:pt-28 md:pb-20">
-        <div className="mx-auto max-w-[1180px]">
+      <section
+        className="relative px-6 pt-20 pb-16 md:pt-28 md:pb-20 bg-cover bg-center"
+        style={{ backgroundImage: `url(${heroBg.url})` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(212_55%_15%/0.70)] to-[hsl(212_55%_15%/0.55)]" />
+        <div className="relative z-10 mx-auto max-w-[1180px]">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
               <Sparkles className="h-3 w-3" /> Para construtores portugueses
             </div>
-            <h1 className="mt-5 font-heading text-4xl md:text-6xl font-bold leading-[1.05] text-foreground text-balance">
+            <h1 className="mt-5 font-heading text-4xl md:text-6xl font-bold leading-[1.05] text-white text-balance">
               {hero?.title || 'A ferramenta de orçamentos que cabe na obra.'}
             </h1>
-            <p className="mt-5 mx-auto max-w-xl text-lg text-muted-foreground leading-relaxed">
+            <p className="mt-5 mx-auto max-w-xl text-lg text-white/80 leading-relaxed">
               {hero?.subtitle || 'Crie, envie e organize orçamentos profissionais em minutos — do telemóvel, sem complicações.'}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -257,10 +262,10 @@ export default function IndexV2() {
                 Criar Orçamento Agora <ArrowRight className="h-4 w-4" />
               </Button>
               <a href="#conta">
-                <Button size="lg" variant="outline" className="h-12 px-6">Criar conta grátis</Button>
+                <Button size="lg" variant="outline" className="h-12 px-6 bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white">Criar conta grátis</Button>
               </a>
             </div>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-muted-foreground">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-white/70">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />
                 100% seguro · Os seus dados nunca são guardados

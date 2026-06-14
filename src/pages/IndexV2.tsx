@@ -233,9 +233,9 @@ export default function IndexV2() {
             <a href="#sobre" className="hover:text-foreground transition-colors">Sobre</a>
             <a href="#exemplos" className="hover:text-foreground transition-colors">Exemplos</a>
             <a href="#quote-builder" className="hover:text-foreground transition-colors">Orçamento</a>
-            <a href="#conta" className="hover:text-foreground transition-colors">Conta</a>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <Link to="/app/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Entrar</Link>
             <Button size="sm" variant="accent" onClick={scrollToQuote}>Criar orçamento</Button>
           </div>
         </div>

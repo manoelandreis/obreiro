@@ -543,21 +543,27 @@ export default function IndexV2() {
                   <div className="mt-6 border-t border-border pt-6 space-y-5">
                     <div>
                       <h3 className="font-heading text-xl font-semibold text-foreground">O teu orçamento está pronto</h3>
-                      <p className="text-sm text-muted-foreground mt-1">Guarda-o, recebe-o por email ou descarrega já.</p>
+                      <p className="text-sm text-muted-foreground mt-1">Cria conta grátis para o guardar, reutilizar e enviar ao cliente.</p>
                     </div>
 
                     {/* Ação 1 — Criar conta e guardar */}
-                    <div className="bg-accent-soft border border-accent/20 rounded-xl p-6 space-y-3">
+                    <div className="bg-[#FFF6EC] border border-accent/20 rounded-xl p-6 space-y-3">
                       <div className="flex items-center gap-2 text-accent font-heading font-semibold">
                         <BookmarkPlus className="h-5 w-5" strokeWidth={1.75} /> Guardar este orçamento
                       </div>
                       <p className="text-sm text-foreground/80 leading-relaxed">
-                        Cria conta grátis no Obreiro e tem os teus orçamentos, clientes e preços sempre à mão. O próximo começa com 80% feito.
+                        Cria conta grátis no Obreiro e tens os teus orçamentos, clientes e preços sempre à mão. O próximo começa com 80% feito.
                       </p>
-                      <Button variant="accent" onClick={handleCreateAccount} className="w-full gap-2">
+                      <Input
+                        type="email"
+                        placeholder="o.teu@email.pt"
+                        value={signupEmail}
+                        onChange={(e) => setSignupEmail(e.target.value)}
+                      />
+                      <Button variant="accent" onClick={handleCreateAccount} className="w-full gap-2 h-11">
                         Criar conta grátis e guardar <ArrowRight className="h-4 w-4" />
                       </Button>
-                      <p className="text-xs text-muted-foreground text-center">Grátis para começar. Sem cartão.</p>
+                      <p className="text-xs text-muted-foreground text-center">Grátis. Sem cartão.</p>
                     </div>
 
                     {/* Ação 2 — Receber por email */}
@@ -579,9 +585,9 @@ export default function IndexV2() {
 
                     {/* Ação 3 — Download direto */}
                     <div className="text-center">
-                      <Button variant="ghost" onClick={handleDirectDownload} className="gap-2 text-muted-foreground hover:text-foreground">
-                        <Download className="h-4 w-4" /> Ou descarregar o PDF agora
-                      </Button>
+                      <button onClick={handleDirectDownload} className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2">
+                        Ou descarregar o PDF sem guardar
+                      </button>
                     </div>
 
                     <div className="flex items-start justify-center gap-2 text-xs text-muted-foreground pt-2">

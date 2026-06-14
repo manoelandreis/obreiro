@@ -533,27 +533,57 @@ export default function IndexV2() {
                     {notes && <div style={{ marginTop: 24, padding: 16, background: '#FFF2E3', borderRadius: 8, fontSize: 13, color: '#555' }}><strong>Notas:</strong><br />{notes}</div>}
                   </div>
 
-                  {/* Email delivery */}
-                  <div className="mt-6 border-t border-border pt-6 space-y-4">
-                    <div className="bg-accent-soft border border-accent/20 rounded-xl p-5 space-y-4">
+                  {/* Delivery — 3 ações */}
+                  <div className="mt-6 border-t border-border pt-6 space-y-5">
+                    <div>
+                      <h3 className="font-heading text-xl font-semibold text-foreground">O teu orçamento está pronto</h3>
+                      <p className="text-sm text-muted-foreground mt-1">Guarda-o, recebe-o por email ou descarrega já.</p>
+                    </div>
+
+                    {/* Ação 1 — Criar conta e guardar */}
+                    <div className="bg-accent-soft border border-accent/20 rounded-xl p-6 space-y-3">
                       <div className="flex items-center gap-2 text-accent font-heading font-semibold">
-                        <Mail className="h-5 w-5" strokeWidth={1.5} /> Receber orçamento por email
+                        <BookmarkPlus className="h-5 w-5" strokeWidth={1.75} /> Guardar este orçamento
                       </div>
-                      <Input type="email" placeholder="O seu email" value={sendEmail} onChange={(e) => setSendEmail(e.target.value)} />
+                      <p className="text-sm text-foreground/80 leading-relaxed">
+                        Cria conta grátis no Obreiro e tem os teus orçamentos, clientes e preços sempre à mão. O próximo começa com 80% feito.
+                      </p>
+                      <Button variant="accent" onClick={handleCreateAccount} className="w-full gap-2">
+                        Criar conta grátis e guardar <ArrowRight className="h-4 w-4" />
+                      </Button>
+                      <p className="text-xs text-muted-foreground text-center">Grátis para começar. Sem cartão.</p>
+                    </div>
+
+                    {/* Ação 2 — Receber por email */}
+                    <div className="border border-border rounded-xl p-5 space-y-3">
+                      <div className="font-heading font-medium text-foreground">Receber por email</div>
+                      <p className="text-xs text-muted-foreground">Enviamos o teu orçamento para este email.</p>
+                      <Input type="email" placeholder="o.teu@email.pt" value={sendEmail} onChange={(e) => setSendEmail(e.target.value)} />
                       <div className="flex items-start gap-2">
                         <Checkbox id="consent-v2" checked={consentChecked} onCheckedChange={(v) => setConsentChecked(v === true)} />
                         <label htmlFor="consent-v2" className="text-xs text-muted-foreground leading-tight cursor-pointer">
-                          Aceito receber comunicações da Obreiro sobre novidades e funcionalidades. Pode cancelar a qualquer momento.
+                          (opcional) Quero receber dicas e novidades do Obreiro. Pode cancelar a qualquer momento.
                         </label>
                       </div>
-                      <Button variant="accent" onClick={handleSendByEmail} disabled={isSendingEmail} className="w-full gap-2">
-                        <Mail className="h-4 w-4" /> {isSendingEmail ? 'A enviar...' : 'Enviar Orçamento por Email'}
+                      <Button variant="outline" onClick={handleSendByEmail} disabled={isSendingEmail} className="w-full gap-2 border-accent text-accent hover:bg-accent-soft">
+                        <Mail className="h-4 w-4" /> {isSendingEmail ? 'A enviar...' : 'Receber orçamento por email'}
+                      </Button>
+                      <p className="text-xs text-muted-foreground text-center">Sem spam.</p>
+                    </div>
+
+                    {/* Ação 3 — Download direto */}
+                    <div className="text-center">
+                      <Button variant="ghost" onClick={handleDirectDownload} className="gap-2 text-muted-foreground hover:text-foreground">
+                        <Download className="h-4 w-4" /> Ou descarregar o PDF agora
                       </Button>
                     </div>
-                    <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                      <ShieldCheck className="h-4 w-4 text-success" /> Os dados do orçamento não são guardados — processamento 100% local no seu navegador.
+
+                    <div className="flex items-start justify-center gap-2 text-xs text-muted-foreground pt-2">
+                      <ShieldCheck className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                      <span>Por defeito, nada fica guardado — processamento 100% local. Só guardamos o teu orçamento se criares conta.</span>
                     </div>
                   </div>
+
                 </CardContent>
               </Card>
             )}

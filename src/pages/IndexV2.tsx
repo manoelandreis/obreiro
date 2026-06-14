@@ -177,8 +177,11 @@ export default function IndexV2() {
     if (!sendEmail) { toast.error('Por favor insira o seu email.'); return; }
     setIsSendingEmail(true);
     try {
-      if (consentChecked) { await supabase.from('waitlist_leads').insert({ email: sendEmail, name: client.name || null, source: 'quote_email_v2' }); }
-      trackEvent('email_sent', { step_number: 4, metadata: { total, consent: consentChecked } });
+      trackEvent('email_delivery_requested', { step_number: 4, metadata: { total, consent: consentChecked } });
+      if (consentChecked) {
+        trackEvent('newsletter_opt_in', { step_number: 4 });
+        await supabase.from('waitlist_leads').insert({ email: sendEmail, name: client.name || null, source: 'quote_email_v2' });
+      }
       const { error } = await supabase.functions.invoke('send-quote-email', {
         body: {
           templateName: 'quote-delivery', recipientEmail: sendEmail, idempotencyKey: `quote-${sessionIdRef.current}`,
@@ -193,6 +196,12 @@ export default function IndexV2() {
     } catch { toast.error('Não foi possível enviar o email. Faça download do PDF em vez disso.'); }
     finally { setIsSendingEmail(false); }
   };
+
+  const handleDirectDownload = async () => {
+    trackEvent('pdf_download_direct', { step_number: 4, metadata: { total } });
+    await handleDownloadPDF();
+  };
+
 
   const toggleSection = (key: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));

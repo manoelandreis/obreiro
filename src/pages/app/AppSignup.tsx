@@ -33,6 +33,7 @@ export default function AppSignup() {
       return;
     }
     toast.success('Conta criada! Verifique o seu email para confirmar.');
+    supabase.from('quote_events').insert({ event_type: 'account_created', session_id: crypto.randomUUID(), metadata: { email } }).then(() => {});
     navigate('/app/login', { replace: true });
   };
 

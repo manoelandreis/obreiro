@@ -800,32 +800,30 @@ export default function IndexV2() {
         </div>
       </section>
 
-      {/* ─────── WAITLIST CTA ─────── */}
-      <section id="waitlist" className="px-6 py-24 bg-navy-deep text-white relative overflow-hidden scroll-mt-20">
+      {/* ─────── CONTA CTA ─────── */}
+      <section id="conta" className="px-6 py-24 bg-navy-deep text-white relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 opacity-30 pointer-events-none" style={{ background: 'radial-gradient(circle at 80% 20%, hsl(27 92% 47% / 0.4), transparent 50%)' }} />
         <div className="mx-auto max-w-2xl text-center relative">
-          <h2 className="font-heading text-3xl md:text-5xl font-bold mb-4 text-balance">Pronto para o seu próximo orçamento?</h2>
-          <p className="mb-10 text-white/70 text-lg">Junte-se à waitlist e seja dos primeiros a usar o app completo.</p>
-          <form onSubmit={handleWaitlist} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <Input
-              type="email"
-              required
-              placeholder="O seu email"
-              value={waitlistEmail}
-              onChange={(e) => setWaitlistEmail(e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/50 h-12"
-            />
-            <Button type="submit" disabled={waitlistSubmitting} variant="accent" size="lg" className="h-12 shrink-0">
-              {waitlistSubmitting ? 'A submeter...' : 'Entrar'}
+          <h2 className="font-heading text-3xl md:text-5xl font-bold mb-4 text-balance">O orçamento online é só o começo</h2>
+          <p className="mb-10 text-white/70 text-lg">A app Obreiro guarda os teus clientes, templates e histórico — tudo num sítio. Grátis para começar.</p>
+          <div className="flex justify-center">
+            <Button
+              variant="accent"
+              size="lg"
+              className="h-12 px-8 gap-2"
+              onClick={() => { trackEvent('account_signup_started', { metadata: { source: 'cta_final' } }); navigate('/app/signup'); }}
+            >
+              Criar conta grátis <ArrowRight className="h-4 w-4" />
             </Button>
-          </form>
+          </div>
           <div className="mt-6 flex items-center justify-center gap-4 text-xs text-white/60">
-            <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Sem spam</span>
+            <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Sem cartão</span>
             <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Cancele quando quiser</span>
             <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Feito em PT</span>
           </div>
         </div>
       </section>
+
 
       {/* ─────── FOOTER ─────── */}
       <footer className="px-6 py-16 border-t border-border bg-card">

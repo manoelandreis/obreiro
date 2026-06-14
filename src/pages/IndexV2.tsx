@@ -65,6 +65,7 @@ export default function IndexV2() {
   const [sendEmail, setSendEmail] = useState('');
   const [consentChecked, setConsentChecked] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [signupEmail, setSignupEmail] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [expandedSections, setExpandedSections] = useState({ company: true, client: false, services: false, notes: false });
   const printRef = useRef<HTMLDivElement>(null);
@@ -77,6 +78,9 @@ export default function IndexV2() {
     if (extra?.template_id) row.template_id = extra.template_id;
     supabase.from('quote_events').insert(row as never).then(() => {});
   }, []);
+
+  const hasTrackedStarted = useRef(false);
+  const hasTrackedCompleted = useRef(false);
 
   useEffect(() => {
     supabase.from('landing_content').select('*').then(({ data }) => {
@@ -128,11 +132,28 @@ export default function IndexV2() {
   const total = subtotal + iva;
   const allItemsCount = services.length + services.reduce((sum, s) => sum + s.materials.length, 0);
 
+  useEffect(() => {
+    if (hasTrackedStarted.current) return;
+    const started = company.name || company.email || company.phone || client.name || client.email || client.phone || services.some(s => s.name || s.materials.some(m => m.name)) || notes;
+    if (started) {
+      hasTrackedStarted.current = true;
+      trackEvent('quote_started');
+    }
+  }, [company, client, services, notes, trackEvent]);
+
+  useEffect(() => {
+    if (hasTrackedCompleted.current) return;
+    if (showPreview && allItemsCount > 0) {
+      hasTrackedCompleted.current = true;
+      trackEvent('quote_completed', { metadata: { total } });
+    }
+  }, [showPreview, allItemsCount, total, trackEvent]);
+
   // ── Handlers ──
   const persistDraftForSignup = () => {
     try {
       sessionStorage.setItem('obreiro:pending_quote', JSON.stringify({
-        company, client, services, notes, subtotal, iva, total,
+        company, client, services, notes, subtotal, iva, total, signupEmail,
       }));
     } catch { /* ignore */ }
   };
@@ -199,7 +220,7 @@ export default function IndexV2() {
   };
 
   const handleDirectDownload = async () => {
-    trackEvent('pdf_download_direct', { step_number: 4, metadata: { total } });
+    trackEvent('pdf_download_anonymous', { step_number: 4, metadata: { total } });
     await handleDownloadPDF();
   };
 
@@ -232,9 +253,9 @@ export default function IndexV2() {
             <a href="#sobre" className="hover:text-foreground transition-colors">Sobre</a>
             <a href="#exemplos" className="hover:text-foreground transition-colors">Exemplos</a>
             <a href="#quote-builder" className="hover:text-foreground transition-colors">Orçamento</a>
-            <a href="#conta" className="hover:text-foreground transition-colors">Conta</a>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <Link to="/app/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Entrar</Link>
             <Button size="sm" variant="accent" onClick={scrollToQuote}>Criar orçamento</Button>
           </div>
         </div>
@@ -257,18 +278,18 @@ export default function IndexV2() {
             <p className="mt-5 mx-auto max-w-xl text-lg text-foreground/70 leading-relaxed">
               {hero?.subtitle || 'Crie, envie e organize orçamentos profissionais em minutos — do telemóvel, sem complicações.'}
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-8 flex flex-col items-center gap-3">
               <Button size="lg" variant="accent" onClick={scrollToQuote} className="gap-2 h-12 px-6">
-                Criar Orçamento Agora <ArrowRight className="h-4 w-4" />
+                Criar orçamento grátis <ArrowRight className="h-4 w-4" />
               </Button>
-              <a href="#conta">
-                <Button size="lg" variant="outline" className="h-12 px-6 border-foreground/20 bg-white/60 backdrop-blur-sm">Criar conta grátis</Button>
-              </a>
+              <Link to="/app/login" className="text-sm text-foreground/70 hover:text-foreground transition-colors">
+                Já tens conta? Entrar
+              </Link>
             </div>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-foreground/60">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />
-                100% seguro · Os seus dados nunca são guardados
+                Por defeito, nada fica guardado — só guardamos se criares conta.
               </span>
               <span className="flex items-center gap-1.5">
                 <Check className="h-3.5 w-3.5 text-success shrink-0" strokeWidth={2.5} />
@@ -542,21 +563,27 @@ export default function IndexV2() {
                   <div className="mt-6 border-t border-border pt-6 space-y-5">
                     <div>
                       <h3 className="font-heading text-xl font-semibold text-foreground">O teu orçamento está pronto</h3>
-                      <p className="text-sm text-muted-foreground mt-1">Guarda-o, recebe-o por email ou descarrega já.</p>
+                      <p className="text-sm text-muted-foreground mt-1">Cria conta grátis para o guardar, reutilizar e enviar ao cliente.</p>
                     </div>
 
                     {/* Ação 1 — Criar conta e guardar */}
-                    <div className="bg-accent-soft border border-accent/20 rounded-xl p-6 space-y-3">
+                    <div className="bg-[#FFF6EC] border border-accent/20 rounded-xl p-6 space-y-3">
                       <div className="flex items-center gap-2 text-accent font-heading font-semibold">
                         <BookmarkPlus className="h-5 w-5" strokeWidth={1.75} /> Guardar este orçamento
                       </div>
                       <p className="text-sm text-foreground/80 leading-relaxed">
-                        Cria conta grátis no Obreiro e tem os teus orçamentos, clientes e preços sempre à mão. O próximo começa com 80% feito.
+                        Cria conta grátis no Obreiro e tens os teus orçamentos, clientes e preços sempre à mão. O próximo começa com 80% feito.
                       </p>
-                      <Button variant="accent" onClick={handleCreateAccount} className="w-full gap-2">
+                      <Input
+                        type="email"
+                        placeholder="o.teu@email.pt"
+                        value={signupEmail}
+                        onChange={(e) => setSignupEmail(e.target.value)}
+                      />
+                      <Button variant="accent" onClick={handleCreateAccount} className="w-full gap-2 h-11">
                         Criar conta grátis e guardar <ArrowRight className="h-4 w-4" />
                       </Button>
-                      <p className="text-xs text-muted-foreground text-center">Grátis para começar. Sem cartão.</p>
+                      <p className="text-xs text-muted-foreground text-center">Grátis. Sem cartão.</p>
                     </div>
 
                     {/* Ação 2 — Receber por email */}
@@ -578,9 +605,9 @@ export default function IndexV2() {
 
                     {/* Ação 3 — Download direto */}
                     <div className="text-center">
-                      <Button variant="ghost" onClick={handleDirectDownload} className="gap-2 text-muted-foreground hover:text-foreground">
-                        <Download className="h-4 w-4" /> Ou descarregar o PDF agora
-                      </Button>
+                      <button onClick={handleDirectDownload} className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2">
+                        Ou descarregar o PDF sem guardar
+                      </button>
                     </div>
 
                     <div className="flex items-start justify-center gap-2 text-xs text-muted-foreground pt-2">

@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppAuth } from '@/hooks/useAppAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Briefcase } from 'lucide-react';
 
@@ -32,6 +33,7 @@ export default function AppSignup() {
       return;
     }
     toast.success('Conta criada! Verifique o seu email para confirmar.');
+    supabase.from('quote_events').insert({ event_type: 'account_created', session_id: crypto.randomUUID(), metadata: { email } }).then(() => {});
     navigate('/app/login', { replace: true });
   };
 

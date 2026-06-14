@@ -243,7 +243,7 @@ export default function Quote() {
       trackEvent('email_sent', { step_number: 4, metadata: { total, consent: consentChecked } });
 
       // Send email via transactional email
-      const { error } = await supabase.functions.invoke('send-transactional-email', {
+      const { error } = await supabase.functions.invoke('send-quote-email', {
         body: {
           templateName: 'quote-delivery',
           recipientEmail: sendEmail,

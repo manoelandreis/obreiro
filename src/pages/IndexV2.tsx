@@ -768,7 +768,7 @@ export default function IndexV2() {
               },
               {
                 q: 'Preciso de criar conta para usar o gerador de orçamentos?',
-                a: 'Não é necessário registo para criar e descarregar orçamentos. Preencha os dados, gere o PDF e está pronto. Para a app completa com gestão de clientes e histórico, pode juntar-se à waitlist.',
+                a: 'Não é necessário registo para criar e descarregar orçamentos. Preencha os dados, gere o PDF e está pronto. Para guardar histórico, clientes e templates, pode criar conta grátis.',
               },
               {
                 q: 'Os cálculos de IVA estão actualizados com a legislação portuguesa?',
@@ -845,7 +845,7 @@ export default function IndexV2() {
             <div>
               <h4 className="font-heading font-semibold text-sm mb-3">Empresa</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#waitlist" className="hover:text-foreground">Waitlist</a></li>
+                <li><a href="#conta" className="hover:text-foreground">Conta</a></li>
                 <li><Link to="/admin" className="hover:text-foreground">Admin</Link></li>
               </ul>
             </div>

@@ -128,15 +128,21 @@ export default function IndexV2() {
   const allItemsCount = services.length + services.reduce((sum, s) => sum + s.materials.length, 0);
 
   // ── Handlers ──
-  const handleWaitlist = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!waitlistEmail) return;
-    setWaitlistSubmitting(true);
-    const { error } = await supabase.from('waitlist_leads').insert({ email: waitlistEmail, name: waitlistName, source: 'landing_v2' });
-    setWaitlistSubmitting(false);
-    if (error) { toast.error('Erro ao submeter. Tente novamente.'); }
-    else { toast.success('Obrigado! Entrou na lista de espera.'); setWaitlistEmail(''); setWaitlistName(''); }
+  const persistDraftForSignup = () => {
+    try {
+      sessionStorage.setItem('obreiro:pending_quote', JSON.stringify({
+        company, client, services, notes, subtotal, iva, total,
+      }));
+    } catch { /* ignore */ }
   };
+
+  const handleCreateAccount = () => {
+    persistDraftForSignup();
+    trackEvent('account_signup_started', { step_number: 4, metadata: { total } });
+    navigate('/app/signup');
+  };
+
+
 
   const handleDownloadPDF = async () => {
     const servicesSummary = services.map(s => ({ name: s.name, labor: serviceLaborTotal(s), materials: s.materials.map(m => ({ name: m.name, total: m.quantity * m.unitPrice })), total: serviceTotal(s) }));
@@ -216,7 +222,7 @@ export default function IndexV2() {
             <a href="#sobre" className="hover:text-foreground transition-colors">Sobre</a>
             <a href="#exemplos" className="hover:text-foreground transition-colors">Exemplos</a>
             <a href="#quote-builder" className="hover:text-foreground transition-colors">Orçamento</a>
-            <a href="#waitlist" className="hover:text-foreground transition-colors">Waitlist</a>
+            <a href="#conta" className="hover:text-foreground transition-colors">Conta</a>
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="accent" onClick={scrollToQuote}>Criar orçamento</Button>
@@ -241,8 +247,8 @@ export default function IndexV2() {
               <Button size="lg" variant="accent" onClick={scrollToQuote} className="gap-2 h-12 px-6">
                 Criar Orçamento Agora <ArrowRight className="h-4 w-4" />
               </Button>
-              <a href="#waitlist">
-                <Button size="lg" variant="outline" className="h-12 px-6">Juntar-me à Waitlist</Button>
+              <a href="#conta">
+                <Button size="lg" variant="outline" className="h-12 px-6">Criar conta grátis</Button>
               </a>
             </div>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-muted-foreground">

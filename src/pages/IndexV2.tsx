@@ -133,7 +133,7 @@ export default function IndexV2() {
   const persistDraftForSignup = () => {
     try {
       sessionStorage.setItem('obreiro:pending_quote', JSON.stringify({
-        company, client, services, notes, subtotal, iva, total,
+        company, client, services, notes, subtotal, iva, total, signupEmail,
       }));
     } catch { /* ignore */ }
   };

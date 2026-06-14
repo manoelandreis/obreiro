@@ -16,7 +16,7 @@ import {
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import mockupTemplate from '@/assets/mockup-template.jpg';
 import mockupTool from '@/assets/mockup-tool.jpg';
-import heroBg from '@/assets/hero.png.asset.json';
+import heroBg from '@/assets/hero_parede.png.asset.json';
 
 // ── Types ──
 interface MaterialItem { id: string; name: string; quantity: number; unit: string; unitPrice: number; }

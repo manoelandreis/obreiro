@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import {
   FileText, BarChart3, Users, ClipboardList, ArrowRight, ShieldCheck, Eye, Trash2,
   Plus, Download, Building2, Wrench, Package, Mail, ChevronDown, ChevronUp,
-  Zap, Lock, Sparkles, Check, FileCheck, Repeat, HelpCircle,
+  Zap, Lock, Sparkles, Check, FileCheck, Repeat, HelpCircle, BookmarkPlus,
 } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import mockupTemplate from '@/assets/mockup-template.jpg';
@@ -51,11 +51,9 @@ const WordMark = () => (
 
 
 export default function IndexV2() {
+  const navigate = useNavigate();
   // ── Landing content ──
   const [content, setContent] = useState<Record<string, ContentSection>>({});
-  const [waitlistEmail, setWaitlistEmail] = useState('');
-  const [waitlistName, setWaitlistName] = useState('');
-  const [waitlistSubmitting, setWaitlistSubmitting] = useState(false);
 
   // ── Quote builder state ──
   const [company, setCompany] = useState<CompanyInfo>({ name: '', email: '', phone: '', address: '', nif: '' });

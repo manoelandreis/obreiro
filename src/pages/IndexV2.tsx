@@ -245,7 +245,7 @@ export default function IndexV2() {
         className="relative px-6 pt-20 pb-16 md:pt-28 md:pb-20 bg-cover bg-center"
         style={{ backgroundImage: `url(${heroBg.url})` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(212_55%_15%/0.70)] to-[hsl(212_55%_15%/0.55)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(25_50%_18%/0.45)] to-[hsl(25_50%_12%/0.35)]" />
         <div className="relative z-10 mx-auto max-w-[1180px]">
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">

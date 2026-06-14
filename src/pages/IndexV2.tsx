@@ -245,16 +245,16 @@ export default function IndexV2() {
         className="relative px-6 pt-20 pb-16 md:pt-28 md:pb-20 bg-cover bg-center"
         style={{ backgroundImage: `url(${heroBg.url})` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(25_45%_12%/0.85)] via-[hsl(25_45%_12%/0.50)] to-[hsl(25_45%_12%/0.15)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/40 to-white/10" />
         <div className="relative z-10 mx-auto max-w-[1180px]">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent shadow-sm border border-accent/10">
               <Sparkles className="h-3 w-3" /> Para construtores portugueses
             </div>
-            <h1 className="mt-5 font-heading text-4xl md:text-6xl font-bold leading-[1.05] text-white text-balance">
+            <h1 className="mt-5 font-heading text-4xl md:text-6xl font-bold leading-[1.05] text-foreground text-balance">
               {hero?.title || 'A ferramenta de orçamentos que cabe na obra.'}
             </h1>
-            <p className="mt-5 mx-auto max-w-xl text-lg text-white/80 leading-relaxed">
+            <p className="mt-5 mx-auto max-w-xl text-lg text-foreground/70 leading-relaxed">
               {hero?.subtitle || 'Crie, envie e organize orçamentos profissionais em minutos — do telemóvel, sem complicações.'}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -262,10 +262,10 @@ export default function IndexV2() {
                 Criar Orçamento Agora <ArrowRight className="h-4 w-4" />
               </Button>
               <a href="#conta">
-                <Button size="lg" variant="white" className="h-12 px-6">Criar conta grátis</Button>
+                <Button size="lg" variant="outline" className="h-12 px-6 border-foreground/20 bg-white/60 backdrop-blur-sm">Criar conta grátis</Button>
               </a>
             </div>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-white/70">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-foreground/60">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />
                 100% seguro · Os seus dados nunca são guardados

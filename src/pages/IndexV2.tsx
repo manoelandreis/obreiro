@@ -262,7 +262,7 @@ export default function IndexV2() {
                 Criar Orçamento Agora <ArrowRight className="h-4 w-4" />
               </Button>
               <a href="#conta">
-                <Button size="lg" variant="outline" className="h-12 px-6 bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white">Criar conta grátis</Button>
+                <Button size="lg" variant="white" className="h-12 px-6">Criar conta grátis</Button>
               </a>
             </div>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-white/70">

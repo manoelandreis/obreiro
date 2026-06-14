@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import {
   FileText, BarChart3, Users, ClipboardList, ArrowRight, ShieldCheck, Eye, Trash2,
   Plus, Download, Building2, Wrench, Package, Mail, ChevronDown, ChevronUp,
-  Zap, Lock, Sparkles, Check, FileCheck, Repeat, HelpCircle,
+  Zap, Lock, Sparkles, Check, FileCheck, Repeat, HelpCircle, BookmarkPlus,
 } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import mockupTemplate from '@/assets/mockup-template.jpg';
@@ -51,11 +51,9 @@ const WordMark = () => (
 
 
 export default function IndexV2() {
+  const navigate = useNavigate();
   // ── Landing content ──
   const [content, setContent] = useState<Record<string, ContentSection>>({});
-  const [waitlistEmail, setWaitlistEmail] = useState('');
-  const [waitlistName, setWaitlistName] = useState('');
-  const [waitlistSubmitting, setWaitlistSubmitting] = useState(false);
 
   // ── Quote builder state ──
   const [company, setCompany] = useState<CompanyInfo>({ name: '', email: '', phone: '', address: '', nif: '' });
@@ -130,15 +128,21 @@ export default function IndexV2() {
   const allItemsCount = services.length + services.reduce((sum, s) => sum + s.materials.length, 0);
 
   // ── Handlers ──
-  const handleWaitlist = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!waitlistEmail) return;
-    setWaitlistSubmitting(true);
-    const { error } = await supabase.from('waitlist_leads').insert({ email: waitlistEmail, name: waitlistName, source: 'landing_v2' });
-    setWaitlistSubmitting(false);
-    if (error) { toast.error('Erro ao submeter. Tente novamente.'); }
-    else { toast.success('Obrigado! Entrou na lista de espera.'); setWaitlistEmail(''); setWaitlistName(''); }
+  const persistDraftForSignup = () => {
+    try {
+      sessionStorage.setItem('obreiro:pending_quote', JSON.stringify({
+        company, client, services, notes, subtotal, iva, total,
+      }));
+    } catch { /* ignore */ }
   };
+
+  const handleCreateAccount = () => {
+    persistDraftForSignup();
+    trackEvent('account_signup_started', { step_number: 4, metadata: { total } });
+    navigate('/app/signup');
+  };
+
+
 
   const handleDownloadPDF = async () => {
     const servicesSummary = services.map(s => ({ name: s.name, labor: serviceLaborTotal(s), materials: s.materials.map(m => ({ name: m.name, total: m.quantity * m.unitPrice })), total: serviceTotal(s) }));
@@ -173,8 +177,11 @@ export default function IndexV2() {
     if (!sendEmail) { toast.error('Por favor insira o seu email.'); return; }
     setIsSendingEmail(true);
     try {
-      if (consentChecked) { await supabase.from('waitlist_leads').insert({ email: sendEmail, name: client.name || null, source: 'quote_email_v2' }); }
-      trackEvent('email_sent', { step_number: 4, metadata: { total, consent: consentChecked } });
+      trackEvent('email_delivery_requested', { step_number: 4, metadata: { total, consent: consentChecked } });
+      if (consentChecked) {
+        trackEvent('newsletter_opt_in', { step_number: 4 });
+        await supabase.from('waitlist_leads').insert({ email: sendEmail, name: client.name || null, source: 'quote_email_v2' });
+      }
       const { error } = await supabase.functions.invoke('send-quote-email', {
         body: {
           templateName: 'quote-delivery', recipientEmail: sendEmail, idempotencyKey: `quote-${sessionIdRef.current}`,
@@ -189,6 +196,12 @@ export default function IndexV2() {
     } catch { toast.error('Não foi possível enviar o email. Faça download do PDF em vez disso.'); }
     finally { setIsSendingEmail(false); }
   };
+
+  const handleDirectDownload = async () => {
+    trackEvent('pdf_download_direct', { step_number: 4, metadata: { total } });
+    await handleDownloadPDF();
+  };
+
 
   const toggleSection = (key: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
@@ -218,7 +231,7 @@ export default function IndexV2() {
             <a href="#sobre" className="hover:text-foreground transition-colors">Sobre</a>
             <a href="#exemplos" className="hover:text-foreground transition-colors">Exemplos</a>
             <a href="#quote-builder" className="hover:text-foreground transition-colors">Orçamento</a>
-            <a href="#waitlist" className="hover:text-foreground transition-colors">Waitlist</a>
+            <a href="#conta" className="hover:text-foreground transition-colors">Conta</a>
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="accent" onClick={scrollToQuote}>Criar orçamento</Button>
@@ -243,8 +256,8 @@ export default function IndexV2() {
               <Button size="lg" variant="accent" onClick={scrollToQuote} className="gap-2 h-12 px-6">
                 Criar Orçamento Agora <ArrowRight className="h-4 w-4" />
               </Button>
-              <a href="#waitlist">
-                <Button size="lg" variant="outline" className="h-12 px-6">Juntar-me à Waitlist</Button>
+              <a href="#conta">
+                <Button size="lg" variant="outline" className="h-12 px-6">Criar conta grátis</Button>
               </a>
             </div>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-muted-foreground">
@@ -520,27 +533,57 @@ export default function IndexV2() {
                     {notes && <div style={{ marginTop: 24, padding: 16, background: '#FFF2E3', borderRadius: 8, fontSize: 13, color: '#555' }}><strong>Notas:</strong><br />{notes}</div>}
                   </div>
 
-                  {/* Email delivery */}
-                  <div className="mt-6 border-t border-border pt-6 space-y-4">
-                    <div className="bg-accent-soft border border-accent/20 rounded-xl p-5 space-y-4">
+                  {/* Delivery — 3 ações */}
+                  <div className="mt-6 border-t border-border pt-6 space-y-5">
+                    <div>
+                      <h3 className="font-heading text-xl font-semibold text-foreground">O teu orçamento está pronto</h3>
+                      <p className="text-sm text-muted-foreground mt-1">Guarda-o, recebe-o por email ou descarrega já.</p>
+                    </div>
+
+                    {/* Ação 1 — Criar conta e guardar */}
+                    <div className="bg-accent-soft border border-accent/20 rounded-xl p-6 space-y-3">
                       <div className="flex items-center gap-2 text-accent font-heading font-semibold">
-                        <Mail className="h-5 w-5" strokeWidth={1.5} /> Receber orçamento por email
+                        <BookmarkPlus className="h-5 w-5" strokeWidth={1.75} /> Guardar este orçamento
                       </div>
-                      <Input type="email" placeholder="O seu email" value={sendEmail} onChange={(e) => setSendEmail(e.target.value)} />
+                      <p className="text-sm text-foreground/80 leading-relaxed">
+                        Cria conta grátis no Obreiro e tem os teus orçamentos, clientes e preços sempre à mão. O próximo começa com 80% feito.
+                      </p>
+                      <Button variant="accent" onClick={handleCreateAccount} className="w-full gap-2">
+                        Criar conta grátis e guardar <ArrowRight className="h-4 w-4" />
+                      </Button>
+                      <p className="text-xs text-muted-foreground text-center">Grátis para começar. Sem cartão.</p>
+                    </div>
+
+                    {/* Ação 2 — Receber por email */}
+                    <div className="border border-border rounded-xl p-5 space-y-3">
+                      <div className="font-heading font-medium text-foreground">Receber por email</div>
+                      <p className="text-xs text-muted-foreground">Enviamos o teu orçamento para este email.</p>
+                      <Input type="email" placeholder="o.teu@email.pt" value={sendEmail} onChange={(e) => setSendEmail(e.target.value)} />
                       <div className="flex items-start gap-2">
                         <Checkbox id="consent-v2" checked={consentChecked} onCheckedChange={(v) => setConsentChecked(v === true)} />
                         <label htmlFor="consent-v2" className="text-xs text-muted-foreground leading-tight cursor-pointer">
-                          Aceito receber comunicações da Obreiro sobre novidades e funcionalidades. Pode cancelar a qualquer momento.
+                          (opcional) Quero receber dicas e novidades do Obreiro. Pode cancelar a qualquer momento.
                         </label>
                       </div>
-                      <Button variant="accent" onClick={handleSendByEmail} disabled={isSendingEmail} className="w-full gap-2">
-                        <Mail className="h-4 w-4" /> {isSendingEmail ? 'A enviar...' : 'Enviar Orçamento por Email'}
+                      <Button variant="outline" onClick={handleSendByEmail} disabled={isSendingEmail} className="w-full gap-2 border-accent text-accent hover:bg-accent-soft">
+                        <Mail className="h-4 w-4" /> {isSendingEmail ? 'A enviar...' : 'Receber orçamento por email'}
+                      </Button>
+                      <p className="text-xs text-muted-foreground text-center">Sem spam.</p>
+                    </div>
+
+                    {/* Ação 3 — Download direto */}
+                    <div className="text-center">
+                      <Button variant="ghost" onClick={handleDirectDownload} className="gap-2 text-muted-foreground hover:text-foreground">
+                        <Download className="h-4 w-4" /> Ou descarregar o PDF agora
                       </Button>
                     </div>
-                    <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                      <ShieldCheck className="h-4 w-4 text-success" /> Os dados do orçamento não são guardados — processamento 100% local no seu navegador.
+
+                    <div className="flex items-start justify-center gap-2 text-xs text-muted-foreground pt-2">
+                      <ShieldCheck className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                      <span>Por defeito, nada fica guardado — processamento 100% local. Só guardamos o teu orçamento se criares conta.</span>
                     </div>
                   </div>
+
                 </CardContent>
               </Card>
             )}
@@ -725,7 +768,7 @@ export default function IndexV2() {
               },
               {
                 q: 'Preciso de criar conta para usar o gerador de orçamentos?',
-                a: 'Não é necessário registo para criar e descarregar orçamentos. Preencha os dados, gere o PDF e está pronto. Para a app completa com gestão de clientes e histórico, pode juntar-se à waitlist.',
+                a: 'Não é necessário registo para criar e descarregar orçamentos. Preencha os dados, gere o PDF e está pronto. Para guardar histórico, clientes e templates, pode criar conta grátis.',
               },
               {
                 q: 'Os cálculos de IVA estão actualizados com a legislação portuguesa?',
@@ -757,32 +800,30 @@ export default function IndexV2() {
         </div>
       </section>
 
-      {/* ─────── WAITLIST CTA ─────── */}
-      <section id="waitlist" className="px-6 py-24 bg-navy-deep text-white relative overflow-hidden scroll-mt-20">
+      {/* ─────── CONTA CTA ─────── */}
+      <section id="conta" className="px-6 py-24 bg-navy-deep text-white relative overflow-hidden scroll-mt-20">
         <div className="absolute inset-0 opacity-30 pointer-events-none" style={{ background: 'radial-gradient(circle at 80% 20%, hsl(27 92% 47% / 0.4), transparent 50%)' }} />
         <div className="mx-auto max-w-2xl text-center relative">
-          <h2 className="font-heading text-3xl md:text-5xl font-bold mb-4 text-balance">Pronto para o seu próximo orçamento?</h2>
-          <p className="mb-10 text-white/70 text-lg">Junte-se à waitlist e seja dos primeiros a usar o app completo.</p>
-          <form onSubmit={handleWaitlist} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <Input
-              type="email"
-              required
-              placeholder="O seu email"
-              value={waitlistEmail}
-              onChange={(e) => setWaitlistEmail(e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/50 h-12"
-            />
-            <Button type="submit" disabled={waitlistSubmitting} variant="accent" size="lg" className="h-12 shrink-0">
-              {waitlistSubmitting ? 'A submeter...' : 'Entrar'}
+          <h2 className="font-heading text-3xl md:text-5xl font-bold mb-4 text-balance">O orçamento online é só o começo</h2>
+          <p className="mb-10 text-white/70 text-lg">A app Obreiro guarda os teus clientes, templates e histórico — tudo num sítio. Grátis para começar.</p>
+          <div className="flex justify-center">
+            <Button
+              variant="accent"
+              size="lg"
+              className="h-12 px-8 gap-2"
+              onClick={() => { trackEvent('account_signup_started', { metadata: { source: 'cta_final' } }); navigate('/app/signup'); }}
+            >
+              Criar conta grátis <ArrowRight className="h-4 w-4" />
             </Button>
-          </form>
+          </div>
           <div className="mt-6 flex items-center justify-center gap-4 text-xs text-white/60">
-            <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Sem spam</span>
+            <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Sem cartão</span>
             <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Cancele quando quiser</span>
             <span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5" /> Feito em PT</span>
           </div>
         </div>
       </section>
+
 
       {/* ─────── FOOTER ─────── */}
       <footer className="px-6 py-16 border-t border-border bg-card">
@@ -804,7 +845,7 @@ export default function IndexV2() {
             <div>
               <h4 className="font-heading font-semibold text-sm mb-3">Empresa</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#waitlist" className="hover:text-foreground">Waitlist</a></li>
+                <li><a href="#conta" className="hover:text-foreground">Conta</a></li>
                 <li><Link to="/admin" className="hover:text-foreground">Admin</Link></li>
               </ul>
             </div>

@@ -427,6 +427,33 @@ export type Database = {
         }
         Relationships: []
       }
+      public_email_send_log: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          idempotency_key: string | null
+          ip_hash: string
+          template: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          idempotency_key?: string | null
+          ip_hash: string
+          template: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          idempotency_key?: string | null
+          ip_hash?: string
+          template?: string
+        }
+        Relationships: []
+      }
       quote_attachments: {
         Row: {
           caption: string | null

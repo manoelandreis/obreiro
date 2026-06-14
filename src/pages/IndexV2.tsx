@@ -262,20 +262,20 @@ export default function IndexV2() {
                 Criar Orçamento Agora <ArrowRight className="h-4 w-4" />
               </Button>
               <a href="#conta">
-                <Button size="lg" variant="outline" className="h-12 px-6 bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white">Criar conta grátis</Button>
+                <Button size="lg" variant="outline" className="h-12 px-6 bg-white border-white text-foreground hover:bg-white/90 hover:text-foreground font-semibold">Criar conta grátis</Button>
               </a>
             </div>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-white/70">
-              <span className="flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-white/90">
+              <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
+                <ShieldCheck className="h-5 w-5 text-success shrink-0" />
                 100% seguro · Os seus dados nunca são guardados
               </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-success shrink-0" strokeWidth={2.5} />
+              <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
+                <Check className="h-5 w-5 text-success shrink-0" strokeWidth={2.5} />
                 PDF profissional com o teu logo, sempre alinhado
               </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-success shrink-0" strokeWidth={2.5} />
+              <span className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
+                <Check className="h-5 w-5 text-success shrink-0" strokeWidth={2.5} />
                 Templates reutilizáveis. Próximo orçamento em segundos
               </span>
             </div>

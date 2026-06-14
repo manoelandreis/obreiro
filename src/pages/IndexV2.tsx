@@ -175,7 +175,7 @@ export default function IndexV2() {
     try {
       if (consentChecked) { await supabase.from('waitlist_leads').insert({ email: sendEmail, name: client.name || null, source: 'quote_email_v2' }); }
       trackEvent('email_sent', { step_number: 4, metadata: { total, consent: consentChecked } });
-      const { error } = await supabase.functions.invoke('send-transactional-email', {
+      const { error } = await supabase.functions.invoke('send-quote-email', {
         body: {
           templateName: 'quote-delivery', recipientEmail: sendEmail, idempotencyKey: `quote-${sessionIdRef.current}`,
           templateData: {

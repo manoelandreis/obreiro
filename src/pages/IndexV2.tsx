@@ -258,13 +258,13 @@ export default function IndexV2() {
             <p className="mt-5 mx-auto max-w-xl text-lg text-foreground/70 leading-relaxed">
               {hero?.subtitle || 'Crie, envie e organize orçamentos profissionais em minutos — do telemóvel, sem complicações.'}
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-8 flex flex-col items-center gap-3">
               <Button size="lg" variant="accent" onClick={scrollToQuote} className="gap-2 h-12 px-6">
-                Criar Orçamento Agora <ArrowRight className="h-4 w-4" />
+                Criar orçamento grátis <ArrowRight className="h-4 w-4" />
               </Button>
-              <a href="#conta">
-                <Button size="lg" variant="outline" className="h-12 px-6 border-foreground/20 bg-white/60 backdrop-blur-sm">Criar conta grátis</Button>
-              </a>
+              <Link to="/app/login" className="text-sm text-foreground/70 hover:text-foreground transition-colors">
+                Já tens conta? Entrar
+              </Link>
             </div>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-foreground/60">
               <span className="flex items-center gap-1.5">

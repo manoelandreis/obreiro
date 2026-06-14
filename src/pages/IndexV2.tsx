@@ -65,6 +65,7 @@ export default function IndexV2() {
   const [sendEmail, setSendEmail] = useState('');
   const [consentChecked, setConsentChecked] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [signupEmail, setSignupEmail] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [expandedSections, setExpandedSections] = useState({ company: true, client: false, services: false, notes: false });
   const printRef = useRef<HTMLDivElement>(null);

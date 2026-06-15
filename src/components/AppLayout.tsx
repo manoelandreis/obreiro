@@ -77,11 +77,14 @@ export default function AppLayout() {
     <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
       <aside className="w-64 shrink-0 bg-card border-r border-border flex flex-col">
-        <div className="p-5 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
-            <Briefcase className="h-5 w-5 text-primary-foreground" />
+        <div className="p-5 flex items-center gap-2.5">
+          <div
+            className="flex items-center justify-center rounded-[10px] bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white shadow-accent-glow"
+            style={{ width: 36, height: 36 }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 22, lineHeight: 1 }}>handyman</span>
           </div>
-          <span className="font-heading text-lg font-bold text-foreground">Obreiro</span>
+          <span className="font-heading text-lg font-bold tracking-tight text-foreground">Obreiro</span>
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1">

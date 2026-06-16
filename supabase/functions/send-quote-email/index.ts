@@ -140,7 +140,7 @@ Deno.serve(async (req) => {
 
     // Delegate the actual send to the internal transactional sender using service role.
     const { error } = await admin.functions.invoke('send-transactional-email', {
-      body: { templateName, recipientEmail, idempotencyKey, templateData },
+      body: { templateName, recipientEmail, idempotencyKey, templateData: safeTemplateData ?? templateData },
     });
     if (error) {
       console.error('send-quote-email upstream error', error);

@@ -52,8 +52,55 @@ Deno.serve(async (req) => {
     if (idempotencyKey !== undefined && (typeof idempotencyKey !== 'string' || idempotencyKey.length > 128)) {
       return jsonResponse({ error: 'Invalid idempotency key.' }, 400);
     }
-    if (templateData && typeof templateData !== 'object') {
+    if (templateData && (typeof templateData !== 'object' || Array.isArray(templateData))) {
       return jsonResponse({ error: 'Invalid template data.' }, 400);
+    }
+
+    // Strict per-field validation + HTML escaping for quote-delivery template.
+    const MAX_STR = 200;
+    const MAX_SERVICES = 50;
+    const escapeHtml = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const cleanStr = (v: unknown, max = MAX_STR): string | null => {
+      if (v === undefined || v === null || v === '') return '';
+      if (typeof v !== 'string') return null;
+      if (v.length > max) return null;
+      return escapeHtml(v.trim());
+    };
+
+    let safeTemplateData: Record<string, unknown> | undefined;
+    if (templateName === 'quote-delivery' && templateData) {
+      const td = templateData as Record<string, unknown>;
+      const companyName = cleanStr(td.companyName);
+      const clientName = cleanStr(td.clientName);
+      const total = cleanStr(td.total, 40);
+      const subtotal = cleanStr(td.subtotal, 40);
+      const iva = cleanStr(td.iva, 40);
+      if ([companyName, clientName, total, subtotal, iva].some((v) => v === null)) {
+        return jsonResponse({ error: 'Invalid template data fields.' }, 400);
+      }
+      let safeServices: Array<Record<string, string>> = [];
+      if (td.services !== undefined) {
+        if (!Array.isArray(td.services) || td.services.length > MAX_SERVICES) {
+          return jsonResponse({ error: 'Invalid services.' }, 400);
+        }
+        for (const s of td.services as unknown[]) {
+          if (!s || typeof s !== 'object') return jsonResponse({ error: 'Invalid service.' }, 400);
+          const so = s as Record<string, unknown>;
+          const name = cleanStr(so.name);
+          const laborTotal = cleanStr(so.laborTotal, 40);
+          const materialsTotal = cleanStr(so.materialsTotal, 40);
+          const sTotal = cleanStr(so.total, 40);
+          if ([name, laborTotal, materialsTotal, sTotal].some((v) => v === null)) {
+            return jsonResponse({ error: 'Invalid service fields.' }, 400);
+          }
+          safeServices.push({ name: name!, laborTotal: laborTotal!, materialsTotal: materialsTotal!, total: sTotal! });
+        }
+      }
+      safeTemplateData = {
+        companyName, clientName, total, subtotal, iva, services: safeServices,
+      };
     }
 
     const ipRaw = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
@@ -93,7 +140,7 @@ Deno.serve(async (req) => {
 
     // Delegate the actual send to the internal transactional sender using service role.
     const { error } = await admin.functions.invoke('send-transactional-email', {
-      body: { templateName, recipientEmail, idempotencyKey, templateData },
+      body: { templateName, recipientEmail, idempotencyKey, templateData: safeTemplateData ?? templateData },
     });
     if (error) {
       console.error('send-quote-email upstream error', error);

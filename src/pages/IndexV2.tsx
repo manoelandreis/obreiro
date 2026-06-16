@@ -235,6 +235,9 @@ export default function IndexV2() {
             <a href="#conta" className="hover:text-foreground transition-colors">Conta</a>
           </div>
           <div className="flex items-center gap-2">
+            <Button size="sm" variant="secondary" asChild>
+              <Link to="/app/login">Entrar</Link>
+            </Button>
             <Button size="sm" variant="accent" onClick={scrollToQuote}>Criar orçamento</Button>
           </div>
         </div>

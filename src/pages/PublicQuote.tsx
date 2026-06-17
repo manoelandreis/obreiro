@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CheckCircle2, XCircle, FileText, Loader2, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { PaymentTermsCard } from '@/components/app/PaymentTermsCard';
-import type { PaymentTerms } from '@/lib/paymentTerms';
+import { DEFAULT_PAYMENT_TERMS, type PaymentTerms } from '@/lib/paymentTerms';
 
 interface PublicQuote {
   id: string;

@@ -559,7 +559,7 @@ export default function AppQuoteDetail() {
       </Dialog>
 
       {/* Floating action bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-[0_-4px_20px_-8px_rgba(0,0,0,0.15)]">
+      <div className="fixed bottom-0 left-0 right-0 md:left-64 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-[0_-4px_20px_-8px_rgba(0,0,0,0.15)]">
         <div className="mx-auto max-w-5xl px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
           {/* Total */}
           <div className="flex flex-col leading-tight min-w-0">

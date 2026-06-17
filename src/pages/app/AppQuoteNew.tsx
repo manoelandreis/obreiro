@@ -16,8 +16,12 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import {
-  Building2, Users, Wrench, Package, Plus, Trash2, ArrowLeft, FileText, Save, ChevronDown, ChevronUp,
+  Building2, Users, Wrench, Package, Plus, Trash2, ArrowLeft, FileText, Save, ChevronDown, ChevronUp, Wallet,
 } from 'lucide-react';
+import {
+  PAYMENT_PRESETS, DEFAULT_PAYMENT_TERMS, presetById, expandInstallments, totalPercent,
+  type PaymentPreset, type PaymentTerms,
+} from '@/lib/paymentTerms';
 
 interface MaterialItem { id: string; name: string; quantity: number; unit: string; unitPrice: number; }
 interface ServiceItem { id: string; name: string; description: string; pricePerHour: number; hours: number; materials: MaterialItem[]; }
@@ -45,9 +49,10 @@ export default function AppQuoteNew() {
   const [title, setTitle] = useState('Orçamento');
   const [services, setServices] = useState<ServiceItem[]>([emptyService()]);
   const [notes, setNotes] = useState('');
+  const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>(DEFAULT_PAYMENT_TERMS);
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [saving, setSaving] = useState(false);
-  const [expanded, setExpanded] = useState({ client: true, services: true, notes: false });
+  const [expanded, setExpanded] = useState({ client: true, services: true, payment: false, notes: false });
   const [companyConfigured, setCompanyConfigured] = useState(true);
 
   useEffect(() => {
@@ -163,6 +168,7 @@ export default function AppQuoteNew() {
         client_snapshot: selectedClient as any,
         services: services as any,
         notes: notes.trim() || null,
+        payment_terms: paymentTerms as any,
         subtotal,
         iva,
         total,

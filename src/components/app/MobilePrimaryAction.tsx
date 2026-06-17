@@ -69,7 +69,7 @@ export function MobilePrimaryAction({
       <Button
         asChild
         size="lg"
-        className="h-14 rounded-full px-5 gap-2 shadow-lg shadow-primary/30"
+        className="h-16 w-full rounded-2xl px-6 gap-3 text-base shadow-xl shadow-primary/30"
       >
         <Link to={to} aria-label={label}>
           <Icon className="h-5 w-5" /> {label}
@@ -80,7 +80,7 @@ export function MobilePrimaryAction({
         size="lg"
         onClick={handleFab}
         aria-label={label}
-        className="h-14 rounded-full px-5 gap-2 shadow-lg shadow-primary/30"
+        className="h-16 w-full rounded-2xl px-6 gap-3 text-base shadow-xl shadow-primary/30"
       >
         <Icon className="h-5 w-5" /> {label}
       </Button>
@@ -96,12 +96,12 @@ export function MobilePrimaryAction({
       <div
         className={cn(
           'md:hidden fixed left-0 right-0 bottom-0 z-40 pointer-events-none',
-          'px-4 pb-[max(env(safe-area-inset-bottom),1rem)] flex justify-end',
+          'px-4 pb-[max(env(safe-area-inset-bottom),1rem)]',
           'transition-all duration-200',
           showFab ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3 pointer-events-none'
         )}
       >
-        <div className="pointer-events-auto">{fab}</div>
+        <div className="pointer-events-auto w-full">{fab}</div>
       </div>
     </>
   );

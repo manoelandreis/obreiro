@@ -594,16 +594,6 @@ export default function AppQuoteDetail() {
               <div className="h-6 w-px bg-border mx-1" />
             </div>
 
-                variant="ghost"
-                size="sm"
-                onClick={copyLink}
-                className="text-muted-foreground gap-1.5"
-              >
-                <Copy className="h-3.5 w-3.5" /> Copiar link
-              </Button>
-              <div className="h-6 w-px bg-border mx-1" />
-            </div>
-
             {/* Mobile: ⋯ menu */}
             <div className="md:hidden">
               <DropdownMenu>

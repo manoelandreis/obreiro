@@ -30,7 +30,7 @@ import {
 import { toast } from 'sonner';
 import { buildQuoteHtml, loadBrand, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';
 
-import { expandInstallments, presetById, type PaymentTerms } from '@/lib/paymentTerms';
+import { type PaymentTerms, DEFAULT_PAYMENT_TERMS } from '@/lib/paymentTerms';
 
 type Status = 'rascunho' | 'enviado' | 'visto' | 'aceite' | 'rejeitado' | 'expirado';
 
@@ -75,6 +75,7 @@ export default function AppQuoteDetail() {
   const [generating, setGenerating] = useState(false);
   const [inlineHtml, setInlineHtml] = useState<string | null>(null);
   const [showAttachments, setShowAttachments] = useState(false);
+  const [defaultPaymentTerms, setDefaultPaymentTerms] = useState<PaymentTerms | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const publicUrl = useMemo(

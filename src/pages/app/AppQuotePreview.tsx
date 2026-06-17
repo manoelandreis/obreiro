@@ -4,7 +4,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Mail, Loader2, Printer, MessageCircle } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
+import { ArrowLeft, Download, Mail, Loader2, Printer, MessageCircle, MoreHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   buildQuoteHtml,
@@ -151,45 +157,87 @@ export default function AppQuotePreview() {
               <h1 className="font-heading font-bold truncate">{title}</h1>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={handlePrint}
-              disabled={!html}
-              className="hidden min-[380px]:inline-flex h-10 w-10 p-0 md:w-auto md:px-3"
-              title="Imprimir"
-            >
-              <Printer className="h-4 w-4" />
-              <span className="hidden md:inline ml-1.5">Imprimir</span>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handlePrint}
-              disabled={!html}
-              className="hidden min-[380px]:inline-flex h-10 w-10 p-0 md:w-auto md:px-3"
-              title="Descarregar PDF"
-            >
-              <Download className="h-4 w-4" />
-              <span className="hidden md:inline ml-1.5">PDF</span>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate(`/app/quotes/${id}?send=1`)}
-              className="h-10 w-10 p-0 md:w-auto md:px-3"
-              title="Enviar por email"
-            >
-              <Mail className="h-4 w-4" />
-              <span className="hidden md:inline ml-1.5">Email</span>
-            </Button>
-            <Button
-              onClick={handleSendByWhatsApp}
-              disabled={!hasPhone}
-              className="h-10 gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
-              title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
-            >
-              <MessageCircle className="h-4 w-4" />
-              WhatsApp
-            </Button>
+          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+            {/* Mobile layout: menu + Download + WhatsApp (full-width) */}
+            <div className="flex items-center gap-2 w-full sm:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" aria-label="Mais ações" className="h-10 w-10 shrink-0">
+                    <MoreHorizontal className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handlePrint} disabled={!html} className="gap-2">
+                    <Printer className="h-4 w-4" /> Imprimir
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate(`/app/quotes/${id}?send=1`)} className="gap-2">
+                    <Mail className="h-4 w-4" /> Enviar por email
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button
+                variant="outline"
+                onClick={handlePrint}
+                disabled={!html}
+                className="flex-1 h-10 gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Descarregar
+              </Button>
+
+              <Button
+                onClick={handleSendByWhatsApp}
+                disabled={!hasPhone}
+                className="flex-1 h-10 gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+                title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
+              >
+                <MessageCircle className="h-4 w-4" />
+                WhatsApp
+              </Button>
+            </div>
+
+            {/* Desktop layout */}
+            <div className="hidden sm:flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={handlePrint}
+                disabled={!html}
+                className="h-10 w-10 p-0 md:w-auto md:px-3"
+                title="Imprimir"
+              >
+                <Printer className="h-4 w-4" />
+                <span className="hidden md:inline ml-1.5">Imprimir</span>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handlePrint}
+                disabled={!html}
+                className="h-10 w-10 p-0 md:w-auto md:px-3"
+                title="Descarregar PDF"
+              >
+                <Download className="h-4 w-4" />
+                <span className="hidden md:inline ml-1.5">PDF</span>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/app/quotes/${id}?send=1`)}
+                className="h-10 w-10 p-0 md:w-auto md:px-3"
+                title="Enviar por email"
+              >
+                <Mail className="h-4 w-4" />
+                <span className="hidden md:inline ml-1.5">Email</span>
+              </Button>
+              <Button
+                onClick={handleSendByWhatsApp}
+                disabled={!hasPhone}
+                className="h-10 gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+                title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
+              >
+                <MessageCircle className="h-4 w-4" />
+                WhatsApp
+              </Button>
+            </div>
           </div>
         </div>
       </div>

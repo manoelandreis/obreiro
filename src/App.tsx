@@ -83,6 +83,7 @@ const App = () => {
                 <Route path="settings" element={<AppSettings />} />
                 <Route path="brand" element={<AppBrand />} />
                 <Route path="planos" element={<AppPlans />} />
+                <Route path="ajuda" element={<AppHelp />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />

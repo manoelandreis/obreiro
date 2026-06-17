@@ -33,6 +33,7 @@ import AppQuoteDetail from "./pages/app/AppQuoteDetail";
 import AppQuotePreview from "./pages/app/AppQuotePreview";
 import AppPlans from "./pages/app/AppPlans";
 import AppBrand from "./pages/app/AppBrand";
+import AppHelp from "./pages/app/AppHelp";
 import PublicQuote from "./pages/PublicQuote";
 import CookieConsent from "./components/CookieConsent";
 

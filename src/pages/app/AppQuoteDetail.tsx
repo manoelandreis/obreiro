@@ -124,7 +124,7 @@ export default function AppQuoteDetail() {
       .eq('id', quote.id);
   };
 
-  const buildHtml = async (): Promise<string | null> => {
+  const buildHtml = async (inline = false): Promise<string | null> => {
     if (!quote || !user) return null;
     const brand = await loadBrand(user.id, isPro);
     const cs = quote.company_snapshot || {};
@@ -175,6 +175,7 @@ export default function AppQuoteDetail() {
       brand,
       withWatermark: !limits.removeWatermark,
       attachmentUrls,
+      hideTotals: inline,
     });
   };
 

@@ -314,6 +314,7 @@ export type Database = {
           company_phone: string | null
           company_terms: string | null
           created_at: string
+          default_payment_terms: Json | null
           full_name: string | null
           logo_url: string | null
           payment_conditions: string | null
@@ -336,6 +337,7 @@ export type Database = {
           company_phone?: string | null
           company_terms?: string | null
           created_at?: string
+          default_payment_terms?: Json | null
           full_name?: string | null
           logo_url?: string | null
           payment_conditions?: string | null
@@ -358,6 +360,7 @@ export type Database = {
           company_phone?: string | null
           company_terms?: string | null
           created_at?: string
+          default_payment_terms?: Json | null
           full_name?: string | null
           logo_url?: string | null
           payment_conditions?: string | null

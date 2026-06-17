@@ -25,6 +25,12 @@ export default function AppBrand() {
   const [terms, setTerms] = useState('');
   const [paymentConditions, setPaymentConditions] = useState('');
   const [validityDays, setValidityDays] = useState(30);
+  // Company data
+  const [companyName, setCompanyName] = useState('');
+  const [companyNif, setCompanyNif] = useState('');
+  const [companyEmail, setCompanyEmail] = useState('');
+  const [companyPhone, setCompanyPhone] = useState('');
+  const [companyAddress, setCompanyAddress] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -43,7 +49,7 @@ export default function AppBrand() {
       const { data } = await supabase
         .from('app_user_settings')
         .select(
-          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days'
+          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address'
         )
         .eq('user_id', user.id)
         .maybeSingle();
@@ -56,6 +62,11 @@ export default function AppBrand() {
         setTerms(data.company_terms ?? '');
         setPaymentConditions(data.payment_conditions ?? '');
         setValidityDays(data.quote_validity_days ?? 30);
+        setCompanyName((data as any).company_name ?? '');
+        setCompanyNif((data as any).company_nif ?? '');
+        setCompanyEmail((data as any).company_email ?? '');
+        setCompanyPhone((data as any).company_phone ?? '');
+        setCompanyAddress((data as any).company_address ?? '');
       }
       setLoading(false);
     })();

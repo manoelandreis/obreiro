@@ -262,8 +262,8 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
     <p class="grand">Total: ${euro(q.total)}</p>
   </div>`}
 
-  ${q.notes ? `<div class="section"><h3>Notas</h3><div class="prewrap">${esc(q.notes)}</div></div>` : ''}
   ${paymentTermsHtml}
+  ${q.notes ? `<div class="section"><h3>Notas</h3><div class="prewrap">${esc(q.notes)}</div></div>` : ''}
   ${paymentHtml}
   ${attachmentsHtml}
   ${termsHtml}

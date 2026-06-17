@@ -584,21 +584,16 @@ export default function AppQuoteDetail() {
                 </a>
               </Button>
               <Button
-            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">Total (c/ IVA)</span>
-            <span className="font-heading text-xl sm:text-2xl font-bold text-accent">
-              {euroFmt(Number(quote.total))}
-            </span>
-          </div>
-
-          <div className="ml-auto flex items-center gap-2">
-            {/* Desktop: inline secondary links */}
-            <div className="hidden md:flex items-center gap-1">
-              <Button variant="ghost" size="sm" asChild className="text-muted-foreground gap-1.5">
-                <a href={publicUrl} target="_blank" rel="noreferrer">
-                  <ExternalLink className="h-3.5 w-3.5" /> Ver como o cliente vê
-                </a>
+                variant="ghost"
+                size="sm"
+                onClick={copyLink}
+                className="text-muted-foreground gap-1.5"
+              >
+                <Copy className="h-3.5 w-3.5" /> Copiar link
               </Button>
-              <Button
+              <div className="h-6 w-px bg-border mx-1" />
+            </div>
+
                 variant="ghost"
                 size="sm"
                 onClick={copyLink}

@@ -223,6 +223,7 @@ export type Database = {
           iva: number
           job_id: string | null
           notes: string | null
+          payment_terms: Json | null
           public_token: string | null
           responded_at: string | null
           sent_at: string | null
@@ -246,6 +247,7 @@ export type Database = {
           iva?: number
           job_id?: string | null
           notes?: string | null
+          payment_terms?: Json | null
           public_token?: string | null
           responded_at?: string | null
           sent_at?: string | null
@@ -269,6 +271,7 @@ export type Database = {
           iva?: number
           job_id?: string | null
           notes?: string | null
+          payment_terms?: Json | null
           public_token?: string | null
           responded_at?: string | null
           sent_at?: string | null

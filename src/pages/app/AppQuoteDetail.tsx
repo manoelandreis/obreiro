@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAppAuth } from '@/hooks/useAppAuth';
@@ -11,21 +11,31 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
+import {
+  Collapsible, CollapsibleContent, CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { StatusBadge } from '@/components/app/QuoteStatusBadge';
 import { QuoteAttachments } from '@/components/app/QuoteAttachments';
 import { FeatureGate } from '@/components/app/FeatureGate';
 import {
-  ArrowLeft, Download, Mail, Link as LinkIcon, Copy, History, Sparkles, Loader2, FileText,
+  ArrowLeft, Download, Mail, Copy, History, Sparkles, Loader2, ExternalLink,
+  ChevronDown, Eye, EyeOff, MessageCircle, ImagePlus, Check,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { buildQuoteHtml, loadBrand, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';
 
 import { expandInstallments, presetById, type PaymentTerms } from '@/lib/paymentTerms';
 
+type Status = 'rascunho' | 'enviado' | 'visto' | 'aceite' | 'rejeitado' | 'expirado';
+
 interface QuoteRow {
   id: string;
   title: string;
-  status: 'rascunho' | 'enviado' | 'visto' | 'aceite' | 'rejeitado' | 'expirado';
+  status: Status;
   public_token: string;
   company_snapshot: any;
   client_snapshot: any;
@@ -45,6 +55,9 @@ interface QuoteRow {
 
 interface HistoryRow { id: string; status: string; source: string; note: string | null; created_at: string }
 
+const daysSince = (iso: string) =>
+  Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+
 export default function AppQuoteDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -58,11 +71,17 @@ export default function AppQuoteDetail() {
   const [recipient, setRecipient] = useState('');
   const [messageBody, setMessageBody] = useState('');
   const [generating, setGenerating] = useState(false);
+  const [inlineHtml, setInlineHtml] = useState<string | null>(null);
+  const [showAttachments, setShowAttachments] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const publicUrl = useMemo(
     () => (quote ? `${window.location.origin}/q/${quote.public_token}` : ''),
     [quote]
   );
+
+  const clientPhone: string | undefined = (quote?.client_snapshot as any)?.phone;
+  const hasPhone = Boolean(clientPhone && String(clientPhone).replace(/\D/g, '').length >= 6);
 
   const load = async () => {
     if (!id || !user) return;
@@ -91,7 +110,6 @@ export default function AppQuoteDetail() {
   const setExpiry = async () => {
     if (!quote) return;
     if (quote.expires_at) return;
-    // First time -> compute from user's validity setting
     const { data: settings } = await supabase
       .from('app_user_settings')
       .select('quote_validity_days')
@@ -112,7 +130,6 @@ export default function AppQuoteDetail() {
     const cs = quote.company_snapshot || {};
     const cl = quote.client_snapshot || {};
 
-    // Load attachments for Pro users
     let attachmentUrls: { url: string; caption: string | null }[] = [];
     if (limits.attachments) {
       const { data: atts } = await supabase
@@ -161,6 +178,30 @@ export default function AppQuoteDetail() {
     });
   };
 
+  // Build inline preview whenever quote changes
+  useEffect(() => {
+    if (!quote || !user) return;
+    let cancelled = false;
+    void (async () => {
+      const html = await buildHtml();
+      if (!cancelled) setInlineHtml(html);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quote?.id, user?.id, isPro]);
+
+  const autoSizeIframe = () => {
+    const f = iframeRef.current;
+    if (!f) return;
+    try {
+      const doc = f.contentDocument;
+      if (doc) {
+        const h = Math.max(doc.documentElement.scrollHeight, doc.body?.scrollHeight ?? 0);
+        f.style.height = `${h + 32}px`;
+      }
+    } catch { /* ignore */ }
+  };
+
   const handleDownload = async () => {
     setGenerating(true);
     const html = await buildHtml();
@@ -169,18 +210,7 @@ export default function AppQuoteDetail() {
     if (!openPrintWindow(html)) toast.error('Pop-up bloqueado.');
   };
 
-  const handlePreview = async () => {
-    setGenerating(true);
-    const html = await buildHtml();
-    setGenerating(false);
-    if (!html) return;
-    const w = window.open('', '_blank');
-    if (!w) return toast.error('Pop-up bloqueado.');
-    w.document.write(html);
-    w.document.close();
-  };
-
-  const recordSent = async () => {
+  const recordSent = async (channel: 'email' | 'whatsapp') => {
     if (!quote || !user) return;
     await setExpiry();
     if (quote.status === 'rascunho') {
@@ -193,6 +223,7 @@ export default function AppQuoteDetail() {
         user_id: user.id,
         status: 'enviado',
         source: 'owner',
+        note: `Enviado por ${channel === 'email' ? 'email' : 'WhatsApp'}`,
       });
     }
     await load();
@@ -201,7 +232,7 @@ export default function AppQuoteDetail() {
   const handleSendByEmail = async () => {
     if (!recipient) return toast.error('Insira um email.');
     if (!quote) return;
-    await recordSent();
+    await recordSent('email');
     const subject = encodeURIComponent(`${quote.title} — ${(quote.company_snapshot as any)?.name || ''}`);
     const body = encodeURIComponent(
       `${messageBody || `Olá,\n\nSegue em anexo o orçamento solicitado.`}\n\n` +
@@ -213,13 +244,30 @@ export default function AppQuoteDetail() {
     toast.success('Email preparado. O seu cliente de email irá abrir.');
   };
 
+  const handleSendByWhatsApp = async () => {
+    if (!quote) return;
+    if (!hasPhone) return toast.error('Cliente sem telefone preenchido.');
+    const phone = String(clientPhone).replace(/\D/g, '');
+    const clientName = (quote.client_snapshot as any)?.name ?? '';
+    const companyName = (quote.company_snapshot as any)?.name ?? '';
+    const text = encodeURIComponent(
+      `Olá${clientName ? ` ${clientName}` : ''},\n\n` +
+      `Segue o orçamento «${quote.title}»${companyName ? ` da ${companyName}` : ''}.\n` +
+      `Pode ver e responder aqui: ${publicUrl}\n\n` +
+      `Obrigado.`
+    );
+    await recordSent('whatsapp');
+    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+    toast.success('WhatsApp aberto.');
+  };
+
   const copyLink = async () => {
     if (!publicUrl) return;
     await navigator.clipboard.writeText(publicUrl);
     toast.success('Link copiado.');
   };
 
-  const updateStatus = async (status: QuoteRow['status']) => {
+  const updateStatus = async (status: Status) => {
     if (!quote || !user) return;
     await supabase.from('app_quotes').update({ status }).eq('id', quote.id);
     await supabase.from('quote_status_history').insert({
@@ -240,37 +288,90 @@ export default function AppQuoteDetail() {
     );
   }
 
-  const cs = quote.company_snapshot || {};
   const cl = quote.client_snapshot || {};
+
+  // View indicator text (subtle)
+  const viewIndicator = (() => {
+    if (!limits.tracking) return null;
+    if (quote.status === 'rascunho') return null;
+    if (quote.viewed_at) {
+      const d = daysSince(quote.viewed_at);
+      return d === 0 ? 'Visto hoje' : `Visto há ${d} ${d === 1 ? 'dia' : 'dias'}`;
+    }
+    return 'Ainda não visualizado';
+  })();
 
   return (
     <div className="space-y-6 max-w-5xl">
+      {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-3 min-w-0">
           <Button variant="ghost" size="icon" onClick={() => navigate('/app/quotes')}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="font-heading text-2xl font-bold">{quote.title}</h1>
-              <StatusBadge status={quote.status} />
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="font-heading text-2xl font-bold truncate">{quote.title}</h1>
+
+              {/* Compact status selector */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 rounded-md hover:bg-muted/60 px-1 -mx-1 py-0.5 transition-colors"
+                    aria-label="Alterar estado"
+                  >
+                    <StatusBadge status={quote.status} />
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+                    Automático: Enviado / Visto
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs">Marcar manualmente</DropdownMenuLabel>
+                  {(['rascunho', 'aceite', 'rejeitado', 'expirado'] as const).map((s) => (
+                    <DropdownMenuItem key={s} onClick={() => updateStatus(s)} className="gap-2">
+                      {quote.status === s && <Check className="h-3.5 w-3.5" />}
+                      <span className={quote.status === s ? 'font-medium' : ''}>
+                        {s === 'rascunho' ? 'Rascunho' : s === 'aceite' ? 'Aceite' : s === 'rejeitado' ? 'Rejeitado' : 'Expirado'}
+                      </span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {viewIndicator && (
+                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                  {quote.viewed_at ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                  {viewIndicator}
+                </span>
+              )}
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mt-1">
               Criado em {new Date(quote.created_at).toLocaleDateString('pt-PT')}
-              {cl.name ? ` • ${cl.name}` : ''}
+              {cl.name ? ` · ${cl.name}` : ''}
               {quote.expires_at
-                ? ` • Válido até ${new Date(quote.expires_at).toLocaleDateString('pt-PT')}`
+                ? ` · Válido até ${new Date(quote.expires_at).toLocaleDateString('pt-PT')}`
                 : ''}
             </p>
           </div>
         </div>
+
         <div className="flex items-center gap-2 flex-wrap">
-          <Button variant="outline" onClick={() => navigate(`/app/quotes/${quote.id}/preview`)} className="gap-2">
-            <FileText className="h-4 w-4" /> Pré-visualizar
-          </Button>
-          <Button onClick={handleDownload} disabled={generating} className="gap-2">
+          <Button variant="outline" onClick={handleDownload} disabled={generating} className="gap-2">
             {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
             PDF
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleSendByWhatsApp}
+            disabled={!hasPhone}
+            className="gap-2"
+            title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
+          >
+            <MessageCircle className="h-4 w-4" /> WhatsApp
           </Button>
           <Button onClick={() => setSendOpen(true)} className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground">
             <Mail className="h-4 w-4" /> Enviar
@@ -278,79 +379,45 @@ export default function AppQuoteDetail() {
         </div>
       </div>
 
-      {/* Public link */}
-      <Card>
-        <CardContent className="pt-5 flex items-center gap-3 flex-wrap">
-          <LinkIcon className="h-4 w-4 text-primary" />
-          <div className="flex-1 min-w-[220px]">
-            <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">
-              Link público para o cliente
-            </div>
-            <code className="text-xs break-all">{publicUrl}</code>
-          </div>
-          <Button variant="outline" size="sm" onClick={copyLink} className="gap-2">
-            <Copy className="h-3.5 w-3.5" /> Copiar
-          </Button>
-          {limits.tracking && (
-            <div className="text-xs text-muted-foreground">
-              {quote.viewed_at
-                ? `👁 Visto em ${new Date(quote.viewed_at).toLocaleDateString('pt-PT')}`
-                : '⏳ Ainda não visualizado'}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Secondary row: view as client + copy link (discreet) */}
+      <div className="flex items-center gap-3 flex-wrap text-sm">
+        <Button
+          variant="ghost"
+          size="sm"
+          asChild
+          className="text-muted-foreground gap-1.5 h-auto px-2 py-1"
+        >
+          <a href={publicUrl} target="_blank" rel="noreferrer">
+            <ExternalLink className="h-3.5 w-3.5" /> Ver como o cliente vê
+          </a>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={copyLink}
+          className="text-muted-foreground gap-1.5 h-auto px-2 py-1"
+        >
+          <Copy className="h-3.5 w-3.5" /> Copiar link
+        </Button>
+      </div>
 
-      {/* Status controls */}
-      <Card>
-        <CardContent className="pt-5">
-          <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-3">
-            Atualizar estado
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {(['enviado', 'aceite', 'rejeitado', 'expirado'] as const).map((s) => (
-              <Button
-                key={s}
-                variant={quote.status === s ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => updateStatus(s)}
-              >
-                Marcar como {s}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Attachments */}
-      <Card>
-        <CardContent className="pt-6">
-          {limits.attachments ? (
-            <QuoteAttachments quoteId={quote.id} />
+      {/* Inline quote preview (same as PDF) */}
+      <Card className="overflow-hidden">
+        <CardContent className="p-0 bg-muted/30">
+          {inlineHtml ? (
+            <iframe
+              ref={iframeRef}
+              title="Pré-visualização do orçamento"
+              srcDoc={inlineHtml}
+              onLoad={autoSizeIframe}
+              className="w-full bg-white"
+              style={{ minHeight: 600, border: 0 }}
+            />
           ) : (
-            <FeatureGate
-              feature="attachments"
-              title="Galeria de fotos e anexos"
-              description="Adicione fotos antes/depois, referências e documentos. Disponível no plano Pro."
-            >
-              <div />
-            </FeatureGate>
+            <div className="flex items-center justify-center py-20 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin mr-2" /> A preparar pré-visualização…
+            </div>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Totals snapshot */}
-      <Card>
-        <CardContent className="pt-6 space-y-1 text-right">
-          <div className="text-sm text-muted-foreground">
-            Subtotal: {Number(quote.subtotal).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
-          </div>
-          <div className="text-sm text-muted-foreground">
-            IVA: {Number(quote.iva).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
-          </div>
-          <div className="text-2xl font-bold text-primary border-t pt-2">
-            Total: {Number(quote.total).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
-          </div>
         </CardContent>
       </Card>
 
@@ -380,6 +447,36 @@ export default function AppQuoteDetail() {
         </Card>
       )}
 
+      {/* Attachments (collapsed by default) */}
+      <Collapsible open={showAttachments} onOpenChange={setShowAttachments}>
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ImagePlus className="h-4 w-4" />
+            {showAttachments ? 'Ocultar fotos' : 'Adicionar fotos (opcional)'}
+            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showAttachments ? 'rotate-180' : ''}`} />
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="mt-3">
+          <Card>
+            <CardContent className="pt-6">
+              {limits.attachments ? (
+                <QuoteAttachments quoteId={quote.id} />
+              ) : (
+                <FeatureGate
+                  feature="attachments"
+                  title="Galeria de fotos e anexos"
+                  description="Adicione fotos antes/depois, referências e documentos. Disponível no plano Pro."
+                >
+                  <div />
+                </FeatureGate>
+              )}
+            </CardContent>
+          </Card>
+        </CollapsibleContent>
+      </Collapsible>
 
       {/* History */}
       {limits.tracking && history.length > 0 && (
@@ -395,6 +492,7 @@ export default function AppQuoteDetail() {
                   <span className="text-muted-foreground">
                     {h.source === 'client' ? 'pelo cliente' : 'por si'}
                   </span>
+                  {h.note && <span className="text-muted-foreground text-xs">· {h.note}</span>}
                   <span className="text-muted-foreground ml-auto">
                     {new Date(h.created_at).toLocaleString('pt-PT')}
                   </span>
@@ -435,7 +533,7 @@ export default function AppQuoteDetail() {
       <Dialog open={sendOpen} onOpenChange={setSendOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Enviar orçamento</DialogTitle>
+            <DialogTitle>Enviar orçamento por email</DialogTitle>
             <DialogDescription>
               Abrimos o seu cliente de email com o link público do orçamento já incluído.
               O cliente pode visualizar, aceitar ou rejeitar diretamente no navegador.
@@ -459,6 +557,12 @@ export default function AppQuoteDetail() {
                 onChange={(e) => setMessageBody(e.target.value)}
                 placeholder="Olá, segue o orçamento que falámos..."
               />
+            </div>
+            <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2 text-xs">
+              <span className="text-muted-foreground truncate">{publicUrl}</span>
+              <Button variant="ghost" size="sm" onClick={copyLink} className="gap-1 h-7">
+                <Copy className="h-3.5 w-3.5" /> Copiar
+              </Button>
             </div>
           </div>
           <DialogFooter>

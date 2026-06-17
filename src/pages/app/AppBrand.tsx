@@ -67,23 +67,22 @@ export default function AppBrand() {
         )
         .eq('user_id', user.id)
         .maybeSingle();
-
-        .eq('user_id', user.id)
-        .maybeSingle();
       if (data) {
-        setLogoUrl(data.logo_url ?? null);
-        if (data.logo_url) setLogoPreview(await loadSignedUrl(data.logo_url));
-        setColorPrimary(data.brand_color_primary ?? '#1B3A5C');
-        setColorAccent(data.brand_color_accent ?? '#E8730A');
-        setDescription(data.company_description ?? '');
-        setTerms(data.company_terms ?? '');
-        setPaymentConditions(data.payment_conditions ?? '');
-        setValidityDays(data.quote_validity_days ?? 30);
-        setCompanyName((data as any).company_name ?? '');
-        setCompanyNif((data as any).company_nif ?? '');
-        setCompanyEmail((data as any).company_email ?? '');
-        setCompanyPhone((data as any).company_phone ?? '');
-        setCompanyAddress((data as any).company_address ?? '');
+        const d: any = data;
+        setLogoUrl(d.logo_url ?? null);
+        if (d.logo_url) setLogoPreview(await loadSignedUrl(d.logo_url));
+        setColorPrimary(d.brand_color_primary ?? '#1B3A5C');
+        setColorAccent(d.brand_color_accent ?? '#E8730A');
+        setDescription(d.company_description ?? '');
+        setTerms(d.company_terms ?? '');
+        setPaymentConditions(d.payment_conditions ?? '');
+        setValidityDays(d.quote_validity_days ?? 30);
+        setCompanyName(d.company_name ?? '');
+        setCompanyNif(d.company_nif ?? '');
+        setCompanyEmail(d.company_email ?? '');
+        setCompanyPhone(d.company_phone ?? '');
+        setCompanyAddress(d.company_address ?? '');
+        if (d.default_payment_terms) setPaymentTerms(d.default_payment_terms as PaymentTerms);
       }
       setLoading(false);
     })();

@@ -33,6 +33,7 @@ import AppQuoteDetail from "./pages/app/AppQuoteDetail";
 import AppQuotePreview from "./pages/app/AppQuotePreview";
 import AppPlans from "./pages/app/AppPlans";
 import AppBrand from "./pages/app/AppBrand";
+import AppHelp from "./pages/app/AppHelp";
 import PublicQuote from "./pages/PublicQuote";
 import CookieConsent from "./components/CookieConsent";
 
@@ -82,6 +83,7 @@ const App = () => {
                 <Route path="settings" element={<AppSettings />} />
                 <Route path="brand" element={<AppBrand />} />
                 <Route path="planos" element={<AppPlans />} />
+                <Route path="ajuda" element={<AppHelp />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />

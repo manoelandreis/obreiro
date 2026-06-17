@@ -2,7 +2,7 @@ import { Navigate, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { LayoutGrid, Users, LogOut, Lock, FileText, Building2, CircleUser, Sparkles, Menu } from 'lucide-react';
+import { LayoutGrid, Users, LogOut, Lock, FileText, Building2, CircleUser, Sparkles, Menu, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
@@ -19,6 +19,7 @@ const nav = [
   { to: '/app/brand', label: 'Definições', icon: Building2 },
   { to: '/app/settings', label: 'Conta', icon: CircleUser },
   { to: '/app/planos', label: 'Planos', icon: Sparkles },
+  { to: '/app/ajuda', label: 'Ajuda', icon: HelpCircle },
 ];
 
 export default function AppLayout() {

@@ -39,6 +39,7 @@ export default function AppQuotePreview() {
         return;
       }
       setTitle(q.title);
+      setQuote(q);
 
       const brand = await loadBrand(user.id, isPro);
       const cs = (q.company_snapshot as any) || {};

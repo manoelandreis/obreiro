@@ -16,8 +16,12 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import {
-  Building2, Users, Wrench, Package, Plus, Trash2, ArrowLeft, FileText, Save, ChevronDown, ChevronUp,
+  Building2, Users, Wrench, Package, Plus, Trash2, ArrowLeft, FileText, Save, ChevronDown, ChevronUp, Wallet,
 } from 'lucide-react';
+import {
+  PAYMENT_PRESETS, DEFAULT_PAYMENT_TERMS, presetById, expandInstallments, totalPercent,
+  type PaymentPreset, type PaymentTerms,
+} from '@/lib/paymentTerms';
 
 interface MaterialItem { id: string; name: string; quantity: number; unit: string; unitPrice: number; }
 interface ServiceItem { id: string; name: string; description: string; pricePerHour: number; hours: number; materials: MaterialItem[]; }
@@ -45,9 +49,10 @@ export default function AppQuoteNew() {
   const [title, setTitle] = useState('Orçamento');
   const [services, setServices] = useState<ServiceItem[]>([emptyService()]);
   const [notes, setNotes] = useState('');
+  const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>(DEFAULT_PAYMENT_TERMS);
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [saving, setSaving] = useState(false);
-  const [expanded, setExpanded] = useState({ client: true, services: true, notes: false });
+  const [expanded, setExpanded] = useState({ client: true, services: true, payment: false, notes: false });
   const [companyConfigured, setCompanyConfigured] = useState(true);
 
   useEffect(() => {
@@ -163,6 +168,7 @@ export default function AppQuoteNew() {
         client_snapshot: selectedClient as any,
         services: services as any,
         notes: notes.trim() || null,
+        payment_terms: paymentTerms as any,
         subtotal,
         iva,
         total,
@@ -384,6 +390,106 @@ export default function AppQuoteNew() {
             <Button variant="outline" onClick={addService} className="w-full gap-2">
               <Plus className="h-4 w-4" /> Adicionar Serviço
             </Button>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Payment terms */}
+      <Card>
+        <button onClick={() => toggle('payment')} className="w-full">
+          <CardHeader className="flex flex-row items-center justify-between cursor-pointer">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Wallet className="h-5 w-5" /> Formato de Pagamento
+              <span className="ml-2 text-sm font-normal text-muted-foreground">— {presetById(paymentTerms.preset).label}</span>
+            </CardTitle>
+            {expanded.payment ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </CardHeader>
+        </button>
+        {expanded.payment && (
+          <CardContent className="space-y-4 pt-0">
+            <div>
+              <Label>Modelo</Label>
+              <Select
+                value={paymentTerms.preset}
+                onValueChange={(v) => {
+                  const p = presetById(v as PaymentPreset);
+                  setPaymentTerms({ preset: p.id, installments: p.installments.map((i) => ({ ...i })) });
+                }}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_PRESETS.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {paymentTerms.preset === 'custom' && (
+              <div className="space-y-2">
+                {paymentTerms.installments.map((i, idx) => (
+                  <div key={idx} className="grid grid-cols-12 gap-2 items-end">
+                    <div className="col-span-5"><Label className="text-xs">Descrição</Label>
+                      <Input value={i.label} onChange={(e) => {
+                        const next = [...paymentTerms.installments];
+                        next[idx] = { ...next[idx], label: e.target.value };
+                        setPaymentTerms({ ...paymentTerms, installments: next });
+                      }} />
+                    </div>
+                    <div className="col-span-3"><Label className="text-xs">%</Label>
+                      <Input type="number" min={0} max={100} value={i.percent} onChange={(e) => {
+                        const next = [...paymentTerms.installments];
+                        next[idx] = { ...next[idx], percent: Number(e.target.value) };
+                        setPaymentTerms({ ...paymentTerms, installments: next });
+                      }} />
+                    </div>
+                    <div className="col-span-3"><Label className="text-xs">Dias após aceitação</Label>
+                      <Input type="number" min={0} value={i.due_offset_days} onChange={(e) => {
+                        const next = [...paymentTerms.installments];
+                        next[idx] = { ...next[idx], due_offset_days: Number(e.target.value) };
+                        setPaymentTerms({ ...paymentTerms, installments: next });
+                      }} />
+                    </div>
+                    <div className="col-span-1 flex justify-end">
+                      {paymentTerms.installments.length > 1 && (
+                        <Button variant="ghost" size="icon" onClick={() => {
+                          const next = paymentTerms.installments.filter((_, n) => n !== idx);
+                          setPaymentTerms({ ...paymentTerms, installments: next });
+                        }}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                <Button variant="outline" size="sm" className="gap-2" onClick={() => {
+                  setPaymentTerms({
+                    ...paymentTerms,
+                    installments: [...paymentTerms.installments, { label: `Parcela ${paymentTerms.installments.length + 1}`, percent: 0, due_offset_days: 30 }],
+                  });
+                }}>
+                  <Plus className="h-4 w-4" /> Adicionar parcela
+                </Button>
+                {totalPercent(paymentTerms) !== 100 && (
+                  <p className="text-xs text-destructive">Soma das percentagens: {totalPercent(paymentTerms)}% (deve ser 100%).</p>
+                )}
+              </div>
+            )}
+
+            <div className="rounded-lg border bg-muted/30 p-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Pré-visualização</div>
+              <div className="space-y-1">
+                {expandInstallments(paymentTerms, total, new Date()).map((p, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-sm">
+                    <span>{p.label} <span className="text-muted-foreground">({p.percent}%)</span></span>
+                    <span className="text-muted-foreground">
+                      vence {p.dueDate.toLocaleDateString('pt-PT')}
+                    </span>
+                    <span className="font-semibold text-primary w-28 text-right">{fmt(p.amount)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </CardContent>
         )}
       </Card>

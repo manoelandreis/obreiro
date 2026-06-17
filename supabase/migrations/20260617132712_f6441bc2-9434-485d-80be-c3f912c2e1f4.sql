@@ -1,0 +1,1 @@
+ALTER TABLE public.app_quotes ADD COLUMN IF NOT EXISTS payment_terms jsonb;

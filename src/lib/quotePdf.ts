@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { expandInstallments, presetById, type PaymentTerms } from '@/lib/paymentTerms';
 
 interface MaterialItem { name: string; quantity: number; unit: string; unitPrice: number }
 interface ServiceItem { name: string; description?: string; pricePerHour: number; hours: number; materials: MaterialItem[] }
@@ -16,6 +17,8 @@ export interface QuoteRenderData {
   createdAt: string;
   expiresAt?: string | null;
   status?: string;
+  paymentTerms?: PaymentTerms | null;
+  paymentAnchor?: string | null;
 }
 
 export interface BrandSnapshot {
@@ -112,6 +115,25 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   const validityHtml = q.expiresAt
     ? `<div class="validity">Válido até <strong>${new Date(q.expiresAt).toLocaleDateString('pt-PT')}</strong></div>`
     : '';
+
+  const paymentTermsHtml = (() => {
+    if (!q.paymentTerms) return '';
+    const parts = expandInstallments(q.paymentTerms, q.total, q.paymentAnchor ?? q.createdAt);
+    const presetLabel = presetById(q.paymentTerms.preset).label;
+    return `<div class="section"><h3>Formato de pagamento — ${esc(presetLabel)}</h3>
+      <table>
+        <thead><tr><th>Parcela</th><th class="num">%</th><th class="center">Vencimento</th><th class="num">Valor</th></tr></thead>
+        <tbody>
+          ${parts.map((p) => `<tr>
+            <td>${esc(p.label)}</td>
+            <td class="num">${p.percent}%</td>
+            <td class="center">${p.dueDate.toLocaleDateString('pt-PT')}</td>
+            <td class="num strong">${euro(p.amount)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  })();
 
   const paymentHtml = payment
     ? `<div class="section"><h3>Condições de pagamento</h3><div class="prewrap">${esc(payment)}</div></div>`
@@ -226,6 +248,7 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   </div>
 
   ${q.notes ? `<div class="section"><h3>Notas</h3><div class="prewrap">${esc(q.notes)}</div></div>` : ''}
+  ${paymentTermsHtml}
   ${paymentHtml}
   ${attachmentsHtml}
   ${termsHtml}

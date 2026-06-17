@@ -20,6 +20,8 @@ import {
 import { toast } from 'sonner';
 import { buildQuoteHtml, loadBrand, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';
 
+import { expandInstallments, presetById, type PaymentTerms } from '@/lib/paymentTerms';
+
 interface QuoteRow {
   id: string;
   title: string;
@@ -38,6 +40,7 @@ interface QuoteRow {
   responded_at: string | null;
   expires_at: string | null;
   client_message: string | null;
+  payment_terms: PaymentTerms | null;
 }
 
 interface HistoryRow { id: string; status: string; source: string; note: string | null; created_at: string }
@@ -148,6 +151,8 @@ export default function AppQuoteDetail() {
       createdAt: quote.created_at,
       expiresAt: quote.expires_at,
       status: quote.status,
+      paymentTerms: quote.payment_terms ?? null,
+      paymentAnchor: quote.responded_at ?? quote.sent_at ?? quote.created_at,
     };
     return buildQuoteHtml(data, {
       brand,
@@ -348,6 +353,33 @@ export default function AppQuoteDetail() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Payment terms snapshot */}
+      {quote.payment_terms && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-3">
+              Formato de pagamento — {presetById(quote.payment_terms.preset).label}
+            </div>
+            <div className="space-y-1.5">
+              {expandInstallments(
+                quote.payment_terms,
+                Number(quote.total),
+                quote.responded_at ?? quote.sent_at ?? quote.created_at,
+              ).map((p, idx) => (
+                <div key={idx} className="flex items-center justify-between text-sm">
+                  <span>{p.label} <span className="text-muted-foreground">({p.percent}%)</span></span>
+                  <span className="text-muted-foreground">vence {p.dueDate.toLocaleDateString('pt-PT')}</span>
+                  <span className="font-semibold text-primary w-28 text-right">
+                    {p.amount.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
 
       {/* History */}
       {limits.tracking && history.length > 0 && (

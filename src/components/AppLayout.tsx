@@ -19,6 +19,7 @@ const nav = [
   { to: '/app/brand', label: 'Definições', icon: Building2 },
   { to: '/app/settings', label: 'Conta', icon: CircleUser },
   { to: '/app/planos', label: 'Planos', icon: Sparkles },
+  { to: '/app/ajuda', label: 'Ajuda', icon: HelpCircle },
 ];
 
 export default function AppLayout() {

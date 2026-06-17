@@ -20,7 +20,9 @@ import {
 } from '@/components/ui/collapsible';
 import { StatusBadge } from '@/components/app/QuoteStatusBadge';
 import { QuoteAttachments } from '@/components/app/QuoteAttachments';
+import { QuoteWorkView } from '@/components/app/QuoteWorkView';
 import { FeatureGate } from '@/components/app/FeatureGate';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   ArrowLeft, Download, Mail, Copy, History, Sparkles, Loader2, ExternalLink,
   ChevronDown, Eye, EyeOff, MessageCircle, ImagePlus, Check, MoreHorizontal,
@@ -365,25 +367,47 @@ export default function AppQuoteDetail() {
       </div>
 
 
-      {/* Inline quote preview (same as PDF) */}
-      <Card className="overflow-hidden">
-        <CardContent className="p-0 bg-muted/30">
-          {inlineHtml ? (
-            <iframe
-              ref={iframeRef}
-              title="Pré-visualização do orçamento"
-              srcDoc={inlineHtml}
-              onLoad={autoSizeIframe}
-              className="w-full bg-white"
-              style={{ minHeight: 600, border: 0 }}
-            />
-          ) : (
-            <div className="flex items-center justify-center py-20 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" /> A preparar pré-visualização…
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* View toggle: Work view vs Document preview */}
+      <Tabs defaultValue="work" className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="work">Vista de trabalho</TabsTrigger>
+          <TabsTrigger value="doc">Pré-visualizar documento</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="work" className="mt-4">
+          <QuoteWorkView
+            quoteId={quote.id}
+            services={(quote.services as any) || []}
+            client={{ name: cl.name, email: cl.email, phone: cl.phone }}
+            subtotal={Number(quote.subtotal)}
+            iva={Number(quote.iva)}
+            notes={quote.notes}
+            onClientUpdated={load}
+          />
+        </TabsContent>
+
+        <TabsContent value="doc" className="mt-4">
+          <Card className="overflow-hidden">
+            <CardContent className="p-0 bg-muted/30">
+              {inlineHtml ? (
+                <iframe
+                  ref={iframeRef}
+                  title="Pré-visualização do orçamento"
+                  srcDoc={inlineHtml}
+                  onLoad={autoSizeIframe}
+                  className="w-full bg-white"
+                  style={{ minHeight: 600, border: 0 }}
+                />
+              ) : (
+                <div className="flex items-center justify-center py-20 text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" /> A preparar pré-visualização…
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
 
       {/* Payment terms snapshot */}
       {quote.payment_terms && (
@@ -542,7 +566,7 @@ export default function AppQuoteDetail() {
 
       {/* Floating action bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-[0_-4px_20px_-8px_rgba(0,0,0,0.15)]">
-        <div className="mx-auto max-w-5xl px-4 py-3 flex items-center gap-3">
+        <div className="mx-auto max-w-5xl px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
           {/* Total */}
           <div className="flex flex-col leading-tight min-w-0">
             <span className="text-[11px] uppercase tracking-wide text-muted-foreground">Total (c/ IVA)</span>
@@ -551,7 +575,7 @@ export default function AppQuoteDetail() {
             </span>
           </div>
 
-          <div className="ml-auto flex items-center gap-2">
+          <div className="sm:ml-auto flex items-center gap-2 flex-wrap">
             {/* Desktop: inline secondary links */}
             <div className="hidden md:flex items-center gap-1">
               <Button variant="ghost" size="sm" asChild className="text-muted-foreground gap-1.5">

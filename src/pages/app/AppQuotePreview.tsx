@@ -4,6 +4,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
 import { ArrowLeft, Download, Mail, Loader2, Printer, MessageCircle, MoreHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
 import {

@@ -367,25 +367,47 @@ export default function AppQuoteDetail() {
       </div>
 
 
-      {/* Inline quote preview (same as PDF) */}
-      <Card className="overflow-hidden">
-        <CardContent className="p-0 bg-muted/30">
-          {inlineHtml ? (
-            <iframe
-              ref={iframeRef}
-              title="Pré-visualização do orçamento"
-              srcDoc={inlineHtml}
-              onLoad={autoSizeIframe}
-              className="w-full bg-white"
-              style={{ minHeight: 600, border: 0 }}
-            />
-          ) : (
-            <div className="flex items-center justify-center py-20 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" /> A preparar pré-visualização…
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* View toggle: Work view vs Document preview */}
+      <Tabs defaultValue="work" className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="work">Vista de trabalho</TabsTrigger>
+          <TabsTrigger value="doc">Pré-visualizar documento</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="work" className="mt-4">
+          <QuoteWorkView
+            quoteId={quote.id}
+            services={(quote.services as any) || []}
+            client={{ name: cl.name, email: cl.email, phone: cl.phone }}
+            subtotal={Number(quote.subtotal)}
+            iva={Number(quote.iva)}
+            notes={quote.notes}
+            onClientUpdated={load}
+          />
+        </TabsContent>
+
+        <TabsContent value="doc" className="mt-4">
+          <Card className="overflow-hidden">
+            <CardContent className="p-0 bg-muted/30">
+              {inlineHtml ? (
+                <iframe
+                  ref={iframeRef}
+                  title="Pré-visualização do orçamento"
+                  srcDoc={inlineHtml}
+                  onLoad={autoSizeIframe}
+                  className="w-full bg-white"
+                  style={{ minHeight: 600, border: 0 }}
+                />
+              ) : (
+                <div className="flex items-center justify-center py-20 text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" /> A preparar pré-visualização…
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
 
       {/* Payment terms snapshot */}
       {quote.payment_terms && (

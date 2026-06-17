@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import { MobilePrimaryAction } from '@/components/app/MobilePrimaryAction';
 
 interface Client {
   id: string;
@@ -79,15 +80,20 @@ export default function AppClients() {
 
   return (
     <div className="space-y-6 max-w-7xl">
-      <div className="flex items-start justify-between flex-wrap gap-4">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
           <h1 className="font-heading text-3xl font-bold">Clientes</h1>
           <p className="text-muted-foreground">Gerir contactos e conformidade RGPD.</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2"><Plus className="h-4 w-4" /> Novo Cliente</Button>
-          </DialogTrigger>
+          <MobilePrimaryAction
+            label="Novo Cliente"
+            onFloatingClick={() => setOpen(true)}
+          >
+            <DialogTrigger asChild>
+              <Button className="gap-2 w-full md:w-auto"><Plus className="h-4 w-4" /> Novo Cliente</Button>
+            </DialogTrigger>
+          </MobilePrimaryAction>
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle className="font-heading text-xl">Novo Cliente</DialogTitle>

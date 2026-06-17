@@ -20,6 +20,8 @@ import {
 import { toast } from 'sonner';
 import { buildQuoteHtml, loadBrand, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';
 
+import { expandInstallments, presetById, type PaymentTerms } from '@/lib/paymentTerms';
+
 interface QuoteRow {
   id: string;
   title: string;
@@ -38,6 +40,7 @@ interface QuoteRow {
   responded_at: string | null;
   expires_at: string | null;
   client_message: string | null;
+  payment_terms: PaymentTerms | null;
 }
 
 interface HistoryRow { id: string; status: string; source: string; note: string | null; created_at: string }
@@ -148,6 +151,8 @@ export default function AppQuoteDetail() {
       createdAt: quote.created_at,
       expiresAt: quote.expires_at,
       status: quote.status,
+      paymentTerms: quote.payment_terms ?? null,
+      paymentAnchor: quote.responded_at ?? quote.sent_at ?? quote.created_at,
     };
     return buildQuoteHtml(data, {
       brand,

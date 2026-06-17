@@ -161,11 +161,6 @@ export default function AppSettings() {
     const payload: any = {
       user_id: user.id,
       full_name: fullName.trim() || null,
-      company_name: companyName.trim() || null,
-      company_nif: companyNif.trim() || null,
-      company_email: companyEmail.trim() || null,
-      company_phone: companyPhone.trim() || null,
-      company_address: companyAddress.trim() || null,
     };
     const { error } = await supabase.from('app_user_settings').upsert(payload, { onConflict: 'user_id' });
     if (error) {

@@ -184,7 +184,7 @@ export default function AppQuoteDetail() {
     if (!quote || !user) return;
     let cancelled = false;
     void (async () => {
-      const html = await buildHtml();
+      const html = await buildHtml(true);
       if (!cancelled) setInlineHtml(html);
     })();
     return () => { cancelled = true; };
@@ -205,7 +205,7 @@ export default function AppQuoteDetail() {
 
   const handleDownload = async () => {
     setGenerating(true);
-    const html = await buildHtml();
+    const html = await buildHtml(false);
     setGenerating(false);
     if (!html) return toast.error('Não foi possível gerar o PDF.');
     if (!openPrintWindow(html)) toast.error('Pop-up bloqueado.');

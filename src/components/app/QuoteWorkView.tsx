@@ -10,6 +10,8 @@ import {
 import { Pencil, Mail, Phone } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import type { PaymentTerms } from '@/lib/paymentTerms';
+import { PaymentTermsCard } from '@/components/app/PaymentTermsCard';
 
 interface MaterialItem { name: string; quantity: number; unit?: string; unitPrice: number }
 interface ServiceItem {
@@ -27,6 +29,8 @@ interface Props {
   subtotal: number;
   iva: number;
   notes?: string | null;
+  paymentTerms?: PaymentTerms | null;
+  paymentAnchor?: string | null;
   onClientUpdated?: () => void;
 }
 
@@ -40,7 +44,7 @@ const initialsOf = (name?: string) => {
 };
 
 export function QuoteWorkView({
-  quoteId, services, client, subtotal, iva, notes, onClientUpdated,
+  quoteId, services, client, subtotal, iva, notes, paymentTerms, paymentAnchor, onClientUpdated,
 }: Props) {
   const [editOpen, setEditOpen] = useState(false);
   const [form, setForm] = useState({
@@ -188,6 +192,13 @@ export function QuoteWorkView({
           </div>
         </CardContent>
       </Card>
+
+      <PaymentTermsCard
+        paymentTerms={paymentTerms ?? null}
+        total={subtotal + iva}
+        anchor={paymentAnchor ?? null}
+      />
+
 
       {notes && (
         <Card>

@@ -43,6 +43,14 @@ export default function AppQuotePreview() {
       const cs = (q.company_snapshot as any) || {};
       const cl = (q.client_snapshot as any) || {};
 
+      // Fallback to user's default payment terms when quote has none
+      const { data: settings } = await supabase
+        .from('app_user_settings')
+        .select('default_payment_terms' as any)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const defaultTerms = (settings as any)?.default_payment_terms ?? null;
+
       let attachmentUrls: { url: string; caption: string | null }[] = [];
       if (limits.attachments) {
         const { data: atts } = await supabase
@@ -81,6 +89,8 @@ export default function AppQuotePreview() {
         createdAt: q.created_at,
         expiresAt: q.expires_at,
         status: q.status,
+        paymentTerms: (q as any).payment_terms ?? defaultTerms,
+        paymentAnchor: (q as any).responded_at ?? (q as any).sent_at ?? q.created_at,
       };
 
       const generated = buildQuoteHtml(data, {

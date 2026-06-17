@@ -30,7 +30,7 @@ import {
 import { toast } from 'sonner';
 import { buildQuoteHtml, loadBrand, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';
 
-import { expandInstallments, presetById, type PaymentTerms } from '@/lib/paymentTerms';
+import { type PaymentTerms, DEFAULT_PAYMENT_TERMS } from '@/lib/paymentTerms';
 
 type Status = 'rascunho' | 'enviado' | 'visto' | 'aceite' | 'rejeitado' | 'expirado';
 
@@ -75,6 +75,7 @@ export default function AppQuoteDetail() {
   const [generating, setGenerating] = useState(false);
   const [inlineHtml, setInlineHtml] = useState<string | null>(null);
   const [showAttachments, setShowAttachments] = useState(false);
+  const [defaultPaymentTerms, setDefaultPaymentTerms] = useState<PaymentTerms | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const publicUrl = useMemo(
@@ -108,6 +109,20 @@ export default function AppQuoteDetail() {
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, user]);
+
+  // Load user's default payment terms (used as fallback for older quotes)
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase
+        .from('app_user_settings')
+        .select('default_payment_terms' as any)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const dpt = (data as any)?.default_payment_terms as PaymentTerms | null | undefined;
+      setDefaultPaymentTerms(dpt ?? DEFAULT_PAYMENT_TERMS);
+    })();
+  }, [user]);
 
   const setExpiry = async () => {
     if (!quote) return;
@@ -170,7 +185,7 @@ export default function AppQuoteDetail() {
       createdAt: quote.created_at,
       expiresAt: quote.expires_at,
       status: quote.status,
-      paymentTerms: quote.payment_terms ?? null,
+      paymentTerms: quote.payment_terms ?? defaultPaymentTerms ?? null,
       paymentAnchor: quote.responded_at ?? quote.sent_at ?? quote.created_at,
     };
     return buildQuoteHtml(data, {
@@ -191,7 +206,7 @@ export default function AppQuoteDetail() {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quote?.id, user?.id, isPro]);
+  }, [quote?.id, user?.id, isPro, defaultPaymentTerms]);
 
   const autoSizeIframe = () => {
     const f = iframeRef.current;
@@ -382,6 +397,8 @@ export default function AppQuoteDetail() {
             subtotal={Number(quote.subtotal)}
             iva={Number(quote.iva)}
             notes={quote.notes}
+            paymentTerms={quote.payment_terms ?? defaultPaymentTerms}
+            paymentAnchor={quote.responded_at ?? quote.sent_at ?? quote.created_at}
             onClientUpdated={load}
           />
         </TabsContent>
@@ -409,31 +426,8 @@ export default function AppQuoteDetail() {
       </Tabs>
 
 
-      {/* Payment terms snapshot */}
-      {quote.payment_terms && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-3">
-              Formato de pagamento — {presetById(quote.payment_terms.preset).label}
-            </div>
-            <div className="space-y-1.5">
-              {expandInstallments(
-                quote.payment_terms,
-                Number(quote.total),
-                quote.responded_at ?? quote.sent_at ?? quote.created_at,
-              ).map((p, idx) => (
-                <div key={idx} className="flex items-center justify-between text-sm">
-                  <span>{p.label} <span className="text-muted-foreground">({p.percent}%)</span></span>
-                  <span className="text-muted-foreground">vence {p.dueDate.toLocaleDateString('pt-PT')}</span>
-                  <span className="font-semibold text-primary w-28 text-right">
-                    {p.amount.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+
+
 
       {/* Attachments (collapsed by default) */}
       <Collapsible open={showAttachments} onOpenChange={setShowAttachments}>

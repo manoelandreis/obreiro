@@ -6,6 +6,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { CheckCircle2, XCircle, FileText, Loader2, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
+import { PaymentTermsCard } from '@/components/app/PaymentTermsCard';
+import type { PaymentTerms } from '@/lib/paymentTerms';
 
 interface PublicQuote {
   id: string;
@@ -20,6 +22,9 @@ interface PublicQuote {
   notes: string | null;
   expires_at: string | null;
   created_at: string;
+  sent_at: string | null;
+  responded_at: string | null;
+  payment_terms: PaymentTerms | null;
 }
 
 const fmt = (v: number) => Number(v).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
@@ -186,6 +191,14 @@ export default function PublicQuote() {
               <div className="text-sm text-muted-foreground">IVA (23%): {fmt(quote.iva)}</div>
               <div className="text-2xl font-bold text-primary">Total: {fmt(quote.total)}</div>
             </div>
+
+            {quote.payment_terms && (
+              <PaymentTermsCard
+                paymentTerms={quote.payment_terms}
+                total={Number(quote.total)}
+                anchor={quote.responded_at ?? quote.sent_at ?? quote.created_at}
+              />
+            )}
 
             {quote.notes && (
               <div className="border-t pt-4">

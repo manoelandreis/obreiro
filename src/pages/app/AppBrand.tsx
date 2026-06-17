@@ -129,31 +129,34 @@ export default function AppBrand() {
 
   const save = async () => {
     if (!user) return;
+    if (paymentTerms.preset === 'custom' && totalPercent(paymentTerms) !== 100) {
+      return toast.error('Soma das percentagens deve ser 100%.');
+    }
     setSaving(true);
+    const payload: any = {
+      user_id: user.id,
+      logo_url: logoUrl,
+      brand_color_primary: colorPrimary,
+      brand_color_accent: colorAccent,
+      company_description: description.trim() || null,
+      company_terms: terms.trim() || null,
+      payment_conditions: paymentConditions.trim() || null,
+      quote_validity_days: validityDays,
+      company_name: companyName.trim() || null,
+      company_nif: companyNif.trim() || null,
+      company_email: companyEmail.trim() || null,
+      company_phone: companyPhone.trim() || null,
+      company_address: companyAddress.trim() || null,
+      default_payment_terms: paymentTerms,
+    };
     const { error } = await supabase
       .from('app_user_settings')
-      .upsert(
-        {
-          user_id: user.id,
-          logo_url: logoUrl,
-          brand_color_primary: colorPrimary,
-          brand_color_accent: colorAccent,
-          company_description: description.trim() || null,
-          company_terms: terms.trim() || null,
-          payment_conditions: paymentConditions.trim() || null,
-          quote_validity_days: validityDays,
-          company_name: companyName.trim() || null,
-          company_nif: companyNif.trim() || null,
-          company_email: companyEmail.trim() || null,
-          company_phone: companyPhone.trim() || null,
-          company_address: companyAddress.trim() || null,
-        },
-        { onConflict: 'user_id' }
-      );
+      .upsert(payload, { onConflict: 'user_id' });
     setSaving(false);
     if (error) return toast.error('Erro a guardar.');
     toast.success('Definições atualizadas.');
   };
+
 
   if (loading) {
     return (

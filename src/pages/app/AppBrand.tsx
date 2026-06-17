@@ -63,8 +63,11 @@ export default function AppBrand() {
       const { data } = await supabase
         .from('app_user_settings')
         .select(
-          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address'
+          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address, default_payment_terms' as any
         )
+        .eq('user_id', user.id)
+        .maybeSingle();
+
         .eq('user_id', user.id)
         .maybeSingle();
       if (data) {

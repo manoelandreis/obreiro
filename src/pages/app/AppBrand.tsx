@@ -126,12 +126,17 @@ export default function AppBrand() {
           company_terms: terms.trim() || null,
           payment_conditions: paymentConditions.trim() || null,
           quote_validity_days: validityDays,
+          company_name: companyName.trim() || null,
+          company_nif: companyNif.trim() || null,
+          company_email: companyEmail.trim() || null,
+          company_phone: companyPhone.trim() || null,
+          company_address: companyAddress.trim() || null,
         },
         { onConflict: 'user_id' }
       );
     setSaving(false);
     if (error) return toast.error('Erro a guardar.');
-    toast.success('Marca atualizada.');
+    toast.success('Definições atualizadas.');
   };
 
   if (loading) {

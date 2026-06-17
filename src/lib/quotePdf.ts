@@ -121,18 +121,21 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
     if (!q.paymentTerms) return '';
     const parts = expandInstallments(q.paymentTerms, q.total, q.paymentAnchor ?? q.createdAt);
     const presetLabel = presetById(q.paymentTerms.preset).label;
-    return `<div class="section"><h3>Formato de pagamento — ${esc(presetLabel)}</h3>
-      <table>
-        <thead><tr><th>Parcela</th><th class="num">%</th><th class="center">Vencimento</th><th class="num">Valor</th></tr></thead>
-        <tbody>
-          ${parts.map((p) => `<tr>
-            <td>${esc(p.label)}</td>
-            <td class="num">${p.percent}%</td>
-            <td class="center">${p.dueDate.toLocaleDateString('pt-PT')}</td>
-            <td class="num strong">${euro(p.amount)}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
+    return `<div class="payment-block">
+      <div class="payment-header">
+        <div class="payment-label">Formato de pagamento</div>
+        <div class="payment-preset">${esc(presetLabel)}</div>
+      </div>
+      <div class="payment-cards">
+        ${parts.map((p, i) => `<div class="payment-card">
+          <div class="payment-card-top">
+            <span class="payment-pill">${i + 1}ª · ${p.percent}%</span>
+            <span class="payment-due">${p.dueDate.toLocaleDateString('pt-PT')}</span>
+          </div>
+          <div class="payment-card-label">${esc(p.label)}</div>
+          <div class="payment-card-amount">${euro(p.amount)}</div>
+        </div>`).join('')}
+      </div>
     </div>`;
   })();
 
@@ -198,6 +201,17 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   .grid-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .photo img { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; }
   .photo .caption { font-size: 10px; color: #555; margin-top: 3px; text-align: center; }
+  .payment-block { margin-top: 22px; padding: 14px 16px; border: 1px solid ${accent}55; border-left: 4px solid ${accent}; border-radius: 8px; background: ${accent}0d; page-break-inside: avoid; }
+  .payment-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed ${accent}66; }
+  .payment-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: ${primary}; font-weight: 700; }
+  .payment-preset { font-size: 12px; color: ${accent}; font-weight: 600; }
+  .payment-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  .payment-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; }
+  .payment-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .payment-pill { background: ${primary}; color: #fff; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; }
+  .payment-due { font-size: 10px; color: #64748b; }
+  .payment-card-label { font-size: 11px; color: #475569; margin-bottom: 3px; }
+  .payment-card-amount { font-size: 14px; font-weight: 700; color: ${primary}; }
   .watermark { position: fixed; bottom: 8mm; left: 0; right: 0; text-align: center; font-size: 9px; color: #9ca3af; }
   .watermark a { color: ${accent}; text-decoration: none; }
   @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
@@ -248,8 +262,8 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
     <p class="grand">Total: ${euro(q.total)}</p>
   </div>`}
 
-  ${q.notes ? `<div class="section"><h3>Notas</h3><div class="prewrap">${esc(q.notes)}</div></div>` : ''}
   ${paymentTermsHtml}
+  ${q.notes ? `<div class="section"><h3>Notas</h3><div class="prewrap">${esc(q.notes)}</div></div>` : ''}
   ${paymentHtml}
   ${attachmentsHtml}
   ${termsHtml}

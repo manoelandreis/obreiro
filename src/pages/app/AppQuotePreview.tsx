@@ -89,6 +89,8 @@ export default function AppQuotePreview() {
         createdAt: q.created_at,
         expiresAt: q.expires_at,
         status: q.status,
+        paymentTerms: (q as any).payment_terms ?? defaultTerms,
+        paymentAnchor: (q as any).responded_at ?? (q as any).sent_at ?? q.created_at,
       };
 
       const generated = buildQuoteHtml(data, {

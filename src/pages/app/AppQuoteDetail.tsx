@@ -23,7 +23,7 @@ import { QuoteAttachments } from '@/components/app/QuoteAttachments';
 import { FeatureGate } from '@/components/app/FeatureGate';
 import {
   ArrowLeft, Download, Mail, Copy, History, Sparkles, Loader2, ExternalLink,
-  ChevronDown, Eye, EyeOff, MessageCircle, ImagePlus, Check,
+  ChevronDown, Eye, EyeOff, MessageCircle, ImagePlus, Check, MoreHorizontal,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { buildQuoteHtml, loadBrand, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';

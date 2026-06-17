@@ -570,29 +570,11 @@ export default function AppQuoteDetail() {
           </div>
 
           <div className="sm:ml-auto flex items-center gap-2 flex-wrap">
-            {/* Desktop: inline secondary links */}
-            <div className="hidden md:flex items-center gap-1">
-              <Button variant="ghost" size="sm" asChild className="text-muted-foreground gap-1.5">
-                <a href={publicUrl} target="_blank" rel="noreferrer">
-                  <ExternalLink className="h-3.5 w-3.5" /> Ver como o cliente vê
-                </a>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={copyLink}
-                className="text-muted-foreground gap-1.5"
-              >
-                <Copy className="h-3.5 w-3.5" /> Copiar link
-              </Button>
-              <div className="h-6 w-px bg-border mx-1" />
-            </div>
-
-            {/* Mobile: ⋯ menu */}
-            <div className="md:hidden">
+            {/* ⋯ menu: only on very small mobile (<380px), holds the secondary actions */}
+            <div className="min-[380px]:hidden">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" aria-label="Mais ações">
+                  <Button variant="ghost" size="icon" aria-label="Mais ações" className="h-10 w-10">
                     <MoreHorizontal className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -605,37 +587,66 @@ export default function AppQuoteDetail() {
                   <DropdownMenuItem onClick={copyLink} className="gap-2">
                     <Copy className="h-4 w-4" /> Copiar link
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDownload} disabled={generating} className="gap-2">
+                    {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                    Descarregar PDF
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
 
-            {/* PDF - icon only on mobile, text on desktop */}
+            {/* Ver como cliente vê — inline from 380px, text label from md */}
+            <Button
+              variant="outline"
+              asChild
+              className="hidden min-[380px]:inline-flex h-10 w-10 p-0 md:w-auto md:px-3"
+              title="Ver como o cliente vê"
+            >
+              <a href={publicUrl} target="_blank" rel="noreferrer">
+                <ExternalLink className="h-4 w-4" />
+                <span className="hidden md:inline ml-1.5">Ver como o cliente vê</span>
+              </a>
+            </Button>
+
+            {/* Copiar link */}
+            <Button
+              variant="outline"
+              onClick={copyLink}
+              className="hidden min-[380px]:inline-flex h-10 w-10 p-0 md:w-auto md:px-3"
+              title="Copiar link"
+            >
+              <Copy className="h-4 w-4" />
+              <span className="hidden md:inline ml-1.5">Copiar link</span>
+            </Button>
+
+            {/* PDF */}
             <Button
               variant="outline"
               onClick={handleDownload}
               disabled={generating}
-              className="h-9 w-9 p-0 sm:h-auto sm:w-auto sm:px-3 sm:py-2"
+              className="hidden min-[380px]:inline-flex h-10 w-10 p-0 md:w-auto md:px-3"
+              title="Descarregar PDF"
             >
               {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-              <span className="hidden sm:inline ml-1.5">PDF</span>
+              <span className="hidden md:inline ml-1.5">PDF</span>
             </Button>
 
-            {/* Email - icon only on mobile, text on desktop */}
+            {/* Email — always visible */}
             <Button
               variant="outline"
               onClick={() => setSendOpen(true)}
-              className="h-9 w-9 p-0 sm:h-auto sm:w-auto sm:px-3 sm:py-2"
+              className="h-10 w-10 p-0 md:w-auto md:px-3"
+              title="Enviar por email"
             >
               <Mail className="h-4 w-4" />
-              <span className="hidden sm:inline ml-1.5">Email</span>
+              <span className="hidden md:inline ml-1.5">Email</span>
             </Button>
 
             {/* WhatsApp - primary action, always with text */}
             <Button
-              size="sm"
               onClick={handleSendByWhatsApp}
               disabled={!hasPhone}
-              className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+              className="h-10 gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
               title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
             >
               <MessageCircle className="h-4 w-4" />

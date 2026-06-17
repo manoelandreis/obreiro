@@ -58,7 +58,7 @@ export default function AppDashboard() {
     const accepted = quotes.filter((q) => q.status === 'aceite');
 
     const acceptedThisMonth = accepted.filter((q) => {
-      const ref = q.responded_at ?? q.updated_at_fallback ?? q.created_at;
+      const ref = q.responded_at ?? q.created_at;
       return ref && isWithinMonth(new Date(ref), now);
     });
     const acceptedTotalAllTime = accepted.reduce((a, q) => a + Number(q.total || 0), 0);

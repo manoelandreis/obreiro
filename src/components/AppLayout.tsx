@@ -29,6 +29,7 @@ export default function AppLayout() {
   const [locked, setLocked] = useState(false);
   const [pinInput, setPinInput] = useState('');
   const [verifying, setVerifying] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;

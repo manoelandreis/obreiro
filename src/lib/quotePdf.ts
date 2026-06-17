@@ -36,6 +36,7 @@ export interface RenderOptions {
   withWatermark: boolean;
   attachmentUrls?: { url: string; caption?: string | null }[];
   publicLink?: string | null;
+  hideTotals?: boolean;
 }
 
 const euro = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });

@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import { MobilePrimaryAction } from '@/components/app/MobilePrimaryAction';
 
 interface Client {
   id: string;

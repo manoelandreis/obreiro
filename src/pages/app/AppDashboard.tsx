@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/app/QuoteStatusBadge';
+import { MobilePrimaryAction } from '@/components/app/MobilePrimaryAction';
 import { Plus, FileText, Wallet, Coins, Bell, Mail, Receipt, Share2 } from 'lucide-react';
 import { expandInstallments, isWithinMonth, type PaymentTerms } from '@/lib/paymentTerms';
 

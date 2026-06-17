@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Plus, Search, FileText, Trash2, Calendar } from 'lucide-react';
 import { StatusBadge } from '@/components/app/QuoteStatusBadge';
+import { MobilePrimaryAction } from '@/components/app/MobilePrimaryAction';
 import { toast } from 'sonner';
 
 interface QuoteRow {

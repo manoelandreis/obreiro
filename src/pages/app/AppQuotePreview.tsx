@@ -110,6 +110,26 @@ export default function AppQuotePreview() {
     if (!openPrintWindow(html)) toast.error('Pop-up bloqueado.');
   };
 
+  const clientPhone = (quote?.client_snapshot as any)?.phone;
+  const hasPhone = Boolean(clientPhone && String(clientPhone).replace(/\D/g, '').length >= 6);
+  const publicUrl = quote ? `${window.location.origin}/q/${quote.public_token}` : '';
+
+  const handleSendByWhatsApp = () => {
+    if (!quote) return;
+    if (!hasPhone) return toast.error('Cliente sem telefone preenchido.');
+    const phone = String(clientPhone).replace(/\D/g, '');
+    const cl = (quote.client_snapshot as any) || {};
+    const cs = (quote.company_snapshot as any) || {};
+    const text = encodeURIComponent(
+      `Olá${cl.name ? ` ${cl.name}` : ''},\n\n` +
+      `Segue o orçamento «${quote.title}»${cs.name ? ` da ${cs.name}` : ''}.\n` +
+      `Pode ver e responder aqui: ${publicUrl}\n\n` +
+      `Obrigado.`
+    );
+    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+    toast.success('WhatsApp aberto.');
+  };
+
   return (
     <div className="space-y-4 -mx-4 sm:-mx-6 -my-4 sm:-my-6">
       {/* Toolbar */}

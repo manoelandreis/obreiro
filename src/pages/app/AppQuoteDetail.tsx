@@ -539,6 +539,90 @@ export default function AppQuoteDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Floating action bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-[0_-4px_20px_-8px_rgba(0,0,0,0.15)]">
+        <div className="mx-auto max-w-5xl px-4 py-3 flex items-center gap-3">
+          {/* Total */}
+          <div className="flex flex-col leading-tight min-w-0">
+            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">Total (c/ IVA)</span>
+            <span className="font-heading text-xl sm:text-2xl font-bold text-accent">
+              {euroFmt(Number(quote.total))}
+            </span>
+          </div>
+
+          <div className="ml-auto flex items-center gap-2">
+            {/* Desktop: inline secondary links */}
+            <div className="hidden md:flex items-center gap-1">
+              <Button variant="ghost" size="sm" asChild className="text-muted-foreground gap-1.5">
+                <a href={publicUrl} target="_blank" rel="noreferrer">
+                  <ExternalLink className="h-3.5 w-3.5" /> Ver como o cliente vê
+                </a>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={copyLink}
+                className="text-muted-foreground gap-1.5"
+              >
+                <Copy className="h-3.5 w-3.5" /> Copiar link
+              </Button>
+              <div className="h-6 w-px bg-border mx-1" />
+            </div>
+
+            {/* Mobile: ⋯ menu */}
+            <div className="md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="Mais ações">
+                    <MoreHorizontal className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <a href={publicUrl} target="_blank" rel="noreferrer" className="gap-2">
+                      <ExternalLink className="h-4 w-4" /> Ver como o cliente vê
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={copyLink} className="gap-2">
+                    <Copy className="h-4 w-4" /> Copiar link
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownload}
+              disabled={generating}
+              className="gap-2"
+            >
+              {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+              <span className="hidden sm:inline">PDF</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSendByWhatsApp}
+              disabled={!hasPhone}
+              className="gap-2"
+              title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span className="hidden sm:inline">WhatsApp</span>
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setSendOpen(true)}
+              className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+            >
+              <Mail className="h-4 w-4" />
+              <span className="hidden sm:inline">Enviar</span>
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

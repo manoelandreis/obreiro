@@ -302,8 +302,11 @@ export default function AppQuoteDetail() {
     return 'Ainda não visualizado';
   })();
 
+  const euroFmt = (v: number) =>
+    Number(v).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
+
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-6 max-w-5xl pb-32">
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div className="flex items-start gap-3 min-w-0">
@@ -359,48 +362,8 @@ export default function AppQuoteDetail() {
             </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button variant="outline" onClick={handleDownload} disabled={generating} className="gap-2">
-            {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-            PDF
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleSendByWhatsApp}
-            disabled={!hasPhone}
-            className="gap-2"
-            title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
-          >
-            <MessageCircle className="h-4 w-4" /> WhatsApp
-          </Button>
-          <Button onClick={() => setSendOpen(true)} className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground">
-            <Mail className="h-4 w-4" /> Enviar
-          </Button>
-        </div>
       </div>
 
-      {/* Secondary row: view as client + copy link (discreet) */}
-      <div className="flex items-center gap-3 flex-wrap text-sm">
-        <Button
-          variant="ghost"
-          size="sm"
-          asChild
-          className="text-muted-foreground gap-1.5 h-auto px-2 py-1"
-        >
-          <a href={publicUrl} target="_blank" rel="noreferrer">
-            <ExternalLink className="h-3.5 w-3.5" /> Ver como o cliente vê
-          </a>
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={copyLink}
-          className="text-muted-foreground gap-1.5 h-auto px-2 py-1"
-        >
-          <Copy className="h-3.5 w-3.5" /> Copiar link
-        </Button>
-      </div>
 
       {/* Inline quote preview (same as PDF) */}
       <Card className="overflow-hidden">

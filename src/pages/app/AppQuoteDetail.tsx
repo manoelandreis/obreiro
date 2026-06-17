@@ -110,6 +110,20 @@ export default function AppQuoteDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, user]);
 
+  // Load user's default payment terms (used as fallback for older quotes)
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase
+        .from('app_user_settings')
+        .select('default_payment_terms' as any)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const dpt = (data as any)?.default_payment_terms as PaymentTerms | null | undefined;
+      setDefaultPaymentTerms(dpt ?? DEFAULT_PAYMENT_TERMS);
+    })();
+  }, [user]);
+
   const setExpiry = async () => {
     if (!quote) return;
     if (quote.expires_at) return;
@@ -171,7 +185,7 @@ export default function AppQuoteDetail() {
       createdAt: quote.created_at,
       expiresAt: quote.expires_at,
       status: quote.status,
-      paymentTerms: quote.payment_terms ?? null,
+      paymentTerms: quote.payment_terms ?? defaultPaymentTerms ?? null,
       paymentAnchor: quote.responded_at ?? quote.sent_at ?? quote.created_at,
     };
     return buildQuoteHtml(data, {

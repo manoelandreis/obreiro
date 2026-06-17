@@ -8,10 +8,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Upload, Image as ImageIcon, Trash2, Loader2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Upload, Image as ImageIcon, Trash2, Loader2, Wallet, Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  DEFAULT_PAYMENT_TERMS,
+  PAYMENT_PRESETS,
+  PaymentPreset,
+  PaymentTerms,
+  expandInstallments,
+  presetById,
+  totalPercent,
+} from '@/lib/paymentTerms';
 
 const MAX_LOGO_BYTES = 5 * 1024 * 1024;
+const fmt = (n: number) => new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(n);
+
 
 export default function AppBrand() {
   const { user } = useAppAuth();

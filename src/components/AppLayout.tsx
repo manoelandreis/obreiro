@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 const nav = [
   { to: '/app', label: 'Dashboard', icon: LayoutGrid, end: true },
   { to: '/app/quotes', label: 'Orçamentos', icon: FileText },
-  { to: '/app/jobs', label: 'Trabalhos', icon: Briefcase },
+  // { to: '/app/jobs', label: 'Trabalhos', icon: Briefcase }, // hidden for now
   { to: '/app/clients', label: 'Clientes', icon: Users },
   { to: '/app/brand', label: 'Marca', icon: Palette },
   { to: '/app/settings', label: 'Definições', icon: Settings },

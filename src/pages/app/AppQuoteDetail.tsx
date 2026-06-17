@@ -184,7 +184,7 @@ export default function AppQuoteDetail() {
     if (!quote || !user) return;
     let cancelled = false;
     void (async () => {
-      const html = await buildHtml(true);
+      const html = await buildHtml(false);
       if (!cancelled) setInlineHtml(html);
     })();
     return () => { cancelled = true; };

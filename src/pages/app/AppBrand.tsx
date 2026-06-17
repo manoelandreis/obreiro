@@ -46,7 +46,9 @@ export default function AppBrand() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>(DEFAULT_PAYMENT_TERMS);
   const fileRef = useRef<HTMLInputElement>(null);
+
 
   const loadSignedUrl = async (path: string) => {
     const { data } = await supabase.storage

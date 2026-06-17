@@ -242,11 +242,11 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 
   ${servicesHtml}
 
-  <div class="totals">
+  ${opts.hideTotals ? '' : `<div class="totals">
     <p>Subtotal: ${euro(q.subtotal)}</p>
     <p>IVA (23%): ${euro(q.iva)}</p>
     <p class="grand">Total: ${euro(q.total)}</p>
-  </div>
+  </div>`}
 
   ${q.notes ? `<div class="section"><h3>Notas</h3><div class="prewrap">${esc(q.notes)}</div></div>` : ''}
   ${paymentTermsHtml}

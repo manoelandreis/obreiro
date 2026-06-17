@@ -149,11 +149,10 @@ export default function AppLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile top bar */}
         <header className="md:hidden flex items-center gap-3 px-4 h-14 border-b border-border bg-card sticky top-0 z-30">
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" onClick={() => setMobileOpen(true)} aria-label="Abrir menu">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
+          <Button variant="ghost" size="icon" onClick={() => setMobileOpen(true)} aria-label="Abrir menu">
+            <Menu className="h-5 w-5" />
+          </Button>
+
           <div className="flex items-center gap-2">
             <div
               className="flex items-center justify-center rounded-md bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white"

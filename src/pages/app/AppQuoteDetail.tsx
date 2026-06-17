@@ -206,7 +206,7 @@ export default function AppQuoteDetail() {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quote?.id, user?.id, isPro]);
+  }, [quote?.id, user?.id, isPro, defaultPaymentTerms]);
 
   const autoSizeIframe = () => {
     const f = iframeRef.current;

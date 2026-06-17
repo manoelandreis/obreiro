@@ -23,7 +23,7 @@ import { QuoteAttachments } from '@/components/app/QuoteAttachments';
 import { FeatureGate } from '@/components/app/FeatureGate';
 import {
   ArrowLeft, Download, Mail, Copy, History, Sparkles, Loader2, ExternalLink,
-  ChevronDown, Eye, EyeOff, MessageCircle, ImagePlus, Check,
+  ChevronDown, Eye, EyeOff, MessageCircle, ImagePlus, Check, MoreHorizontal,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { buildQuoteHtml, loadBrand, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';
@@ -124,7 +124,7 @@ export default function AppQuoteDetail() {
       .eq('id', quote.id);
   };
 
-  const buildHtml = async (): Promise<string | null> => {
+  const buildHtml = async (inline = false): Promise<string | null> => {
     if (!quote || !user) return null;
     const brand = await loadBrand(user.id, isPro);
     const cs = quote.company_snapshot || {};
@@ -175,6 +175,7 @@ export default function AppQuoteDetail() {
       brand,
       withWatermark: !limits.removeWatermark,
       attachmentUrls,
+      hideTotals: inline,
     });
   };
 
@@ -183,7 +184,7 @@ export default function AppQuoteDetail() {
     if (!quote || !user) return;
     let cancelled = false;
     void (async () => {
-      const html = await buildHtml();
+      const html = await buildHtml(true);
       if (!cancelled) setInlineHtml(html);
     })();
     return () => { cancelled = true; };
@@ -204,7 +205,7 @@ export default function AppQuoteDetail() {
 
   const handleDownload = async () => {
     setGenerating(true);
-    const html = await buildHtml();
+    const html = await buildHtml(false);
     setGenerating(false);
     if (!html) return toast.error('Não foi possível gerar o PDF.');
     if (!openPrintWindow(html)) toast.error('Pop-up bloqueado.');
@@ -301,8 +302,11 @@ export default function AppQuoteDetail() {
     return 'Ainda não visualizado';
   })();
 
+  const euroFmt = (v: number) =>
+    Number(v).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
+
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-6 max-w-5xl pb-32">
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div className="flex items-start gap-3 min-w-0">
@@ -358,48 +362,8 @@ export default function AppQuoteDetail() {
             </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button variant="outline" onClick={handleDownload} disabled={generating} className="gap-2">
-            {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-            PDF
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleSendByWhatsApp}
-            disabled={!hasPhone}
-            className="gap-2"
-            title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
-          >
-            <MessageCircle className="h-4 w-4" /> WhatsApp
-          </Button>
-          <Button onClick={() => setSendOpen(true)} className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground">
-            <Mail className="h-4 w-4" /> Enviar
-          </Button>
-        </div>
       </div>
 
-      {/* Secondary row: view as client + copy link (discreet) */}
-      <div className="flex items-center gap-3 flex-wrap text-sm">
-        <Button
-          variant="ghost"
-          size="sm"
-          asChild
-          className="text-muted-foreground gap-1.5 h-auto px-2 py-1"
-        >
-          <a href={publicUrl} target="_blank" rel="noreferrer">
-            <ExternalLink className="h-3.5 w-3.5" /> Ver como o cliente vê
-          </a>
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={copyLink}
-          className="text-muted-foreground gap-1.5 h-auto px-2 py-1"
-        >
-          <Copy className="h-3.5 w-3.5" /> Copiar link
-        </Button>
-      </div>
 
       {/* Inline quote preview (same as PDF) */}
       <Card className="overflow-hidden">
@@ -575,6 +539,90 @@ export default function AppQuoteDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Floating action bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-[0_-4px_20px_-8px_rgba(0,0,0,0.15)]">
+        <div className="mx-auto max-w-5xl px-4 py-3 flex items-center gap-3">
+          {/* Total */}
+          <div className="flex flex-col leading-tight min-w-0">
+            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">Total (c/ IVA)</span>
+            <span className="font-heading text-xl sm:text-2xl font-bold text-accent">
+              {euroFmt(Number(quote.total))}
+            </span>
+          </div>
+
+          <div className="ml-auto flex items-center gap-2">
+            {/* Desktop: inline secondary links */}
+            <div className="hidden md:flex items-center gap-1">
+              <Button variant="ghost" size="sm" asChild className="text-muted-foreground gap-1.5">
+                <a href={publicUrl} target="_blank" rel="noreferrer">
+                  <ExternalLink className="h-3.5 w-3.5" /> Ver como o cliente vê
+                </a>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={copyLink}
+                className="text-muted-foreground gap-1.5"
+              >
+                <Copy className="h-3.5 w-3.5" /> Copiar link
+              </Button>
+              <div className="h-6 w-px bg-border mx-1" />
+            </div>
+
+            {/* Mobile: ⋯ menu */}
+            <div className="md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="Mais ações">
+                    <MoreHorizontal className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <a href={publicUrl} target="_blank" rel="noreferrer" className="gap-2">
+                      <ExternalLink className="h-4 w-4" /> Ver como o cliente vê
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={copyLink} className="gap-2">
+                    <Copy className="h-4 w-4" /> Copiar link
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownload}
+              disabled={generating}
+              className="gap-2"
+            >
+              {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+              <span className="hidden sm:inline">PDF</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSendByWhatsApp}
+              disabled={!hasPhone}
+              className="gap-2"
+              title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span className="hidden sm:inline">WhatsApp</span>
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setSendOpen(true)}
+              className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+            >
+              <Mail className="h-4 w-4" />
+              <span className="hidden sm:inline">Enviar</span>
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

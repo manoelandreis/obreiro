@@ -156,18 +156,36 @@ export default function AppQuotePreview() {
               variant="outline"
               onClick={handlePrint}
               disabled={!html}
-              className="gap-2"
+              className="h-9 w-9 p-0 sm:h-auto sm:w-auto sm:px-3 sm:py-2"
             >
-              <Printer className="h-4 w-4" /> Imprimir
-            </Button>
-            <Button onClick={handlePrint} disabled={!html} className="gap-2">
-              <Download className="h-4 w-4" /> PDF
+              <Printer className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1.5">Imprimir</span>
             </Button>
             <Button
-              onClick={() => navigate(`/app/quotes/${id}?send=1`)}
-              className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+              variant="outline"
+              onClick={handlePrint}
+              disabled={!html}
+              className="h-9 w-9 p-0 sm:h-auto sm:w-auto sm:px-3 sm:py-2"
             >
-              <Mail className="h-4 w-4" /> Enviar
+              <Download className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1.5">PDF</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate(`/app/quotes/${id}?send=1`)}
+              className="h-9 w-9 p-0 sm:h-auto sm:w-auto sm:px-3 sm:py-2"
+            >
+              <Mail className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1.5">Email</span>
+            </Button>
+            <Button
+              onClick={handleSendByWhatsApp}
+              disabled={!hasPhone}
+              className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+              title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
+            >
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp
             </Button>
           </div>
         </div>

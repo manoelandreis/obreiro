@@ -8,10 +8,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Upload, Image as ImageIcon, Trash2, Loader2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Upload, Image as ImageIcon, Trash2, Loader2, Wallet, Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  DEFAULT_PAYMENT_TERMS,
+  PAYMENT_PRESETS,
+  PaymentPreset,
+  PaymentTerms,
+  expandInstallments,
+  presetById,
+  totalPercent,
+} from '@/lib/paymentTerms';
 
 const MAX_LOGO_BYTES = 5 * 1024 * 1024;
+const fmt = (n: number) => new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(n);
+
 
 export default function AppBrand() {
   const { user } = useAppAuth();
@@ -34,7 +46,9 @@ export default function AppBrand() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>(DEFAULT_PAYMENT_TERMS);
   const fileRef = useRef<HTMLInputElement>(null);
+
 
   const loadSignedUrl = async (path: string) => {
     const { data } = await supabase.storage
@@ -49,24 +63,26 @@ export default function AppBrand() {
       const { data } = await supabase
         .from('app_user_settings')
         .select(
-          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address'
+          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address, default_payment_terms' as any
         )
         .eq('user_id', user.id)
         .maybeSingle();
       if (data) {
-        setLogoUrl(data.logo_url ?? null);
-        if (data.logo_url) setLogoPreview(await loadSignedUrl(data.logo_url));
-        setColorPrimary(data.brand_color_primary ?? '#1B3A5C');
-        setColorAccent(data.brand_color_accent ?? '#E8730A');
-        setDescription(data.company_description ?? '');
-        setTerms(data.company_terms ?? '');
-        setPaymentConditions(data.payment_conditions ?? '');
-        setValidityDays(data.quote_validity_days ?? 30);
-        setCompanyName((data as any).company_name ?? '');
-        setCompanyNif((data as any).company_nif ?? '');
-        setCompanyEmail((data as any).company_email ?? '');
-        setCompanyPhone((data as any).company_phone ?? '');
-        setCompanyAddress((data as any).company_address ?? '');
+        const d: any = data;
+        setLogoUrl(d.logo_url ?? null);
+        if (d.logo_url) setLogoPreview(await loadSignedUrl(d.logo_url));
+        setColorPrimary(d.brand_color_primary ?? '#1B3A5C');
+        setColorAccent(d.brand_color_accent ?? '#E8730A');
+        setDescription(d.company_description ?? '');
+        setTerms(d.company_terms ?? '');
+        setPaymentConditions(d.payment_conditions ?? '');
+        setValidityDays(d.quote_validity_days ?? 30);
+        setCompanyName(d.company_name ?? '');
+        setCompanyNif(d.company_nif ?? '');
+        setCompanyEmail(d.company_email ?? '');
+        setCompanyPhone(d.company_phone ?? '');
+        setCompanyAddress(d.company_address ?? '');
+        if (d.default_payment_terms) setPaymentTerms(d.default_payment_terms as PaymentTerms);
       }
       setLoading(false);
     })();
@@ -113,31 +129,34 @@ export default function AppBrand() {
 
   const save = async () => {
     if (!user) return;
+    if (paymentTerms.preset === 'custom' && totalPercent(paymentTerms) !== 100) {
+      return toast.error('Soma das percentagens deve ser 100%.');
+    }
     setSaving(true);
+    const payload: any = {
+      user_id: user.id,
+      logo_url: logoUrl,
+      brand_color_primary: colorPrimary,
+      brand_color_accent: colorAccent,
+      company_description: description.trim() || null,
+      company_terms: terms.trim() || null,
+      payment_conditions: paymentConditions.trim() || null,
+      quote_validity_days: validityDays,
+      company_name: companyName.trim() || null,
+      company_nif: companyNif.trim() || null,
+      company_email: companyEmail.trim() || null,
+      company_phone: companyPhone.trim() || null,
+      company_address: companyAddress.trim() || null,
+      default_payment_terms: paymentTerms,
+    };
     const { error } = await supabase
       .from('app_user_settings')
-      .upsert(
-        {
-          user_id: user.id,
-          logo_url: logoUrl,
-          brand_color_primary: colorPrimary,
-          brand_color_accent: colorAccent,
-          company_description: description.trim() || null,
-          company_terms: terms.trim() || null,
-          payment_conditions: paymentConditions.trim() || null,
-          quote_validity_days: validityDays,
-          company_name: companyName.trim() || null,
-          company_nif: companyNif.trim() || null,
-          company_email: companyEmail.trim() || null,
-          company_phone: companyPhone.trim() || null,
-          company_address: companyAddress.trim() || null,
-        },
-        { onConflict: 'user_id' }
-      );
+      .upsert(payload, { onConflict: 'user_id' });
     setSaving(false);
     if (error) return toast.error('Erro a guardar.');
     toast.success('Definições atualizadas.');
   };
+
 
   if (loading) {
     return (
@@ -348,6 +367,107 @@ export default function AppBrand() {
     </Card>
   );
 
+  const previewTotal = 1000;
+  const paymentCard = (
+    <Card>
+      <CardContent className="pt-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <Wallet className="h-5 w-5 text-muted-foreground" />
+          <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">Formato de pagamento por defeito</div>
+        </div>
+        <p className="text-sm text-muted-foreground -mt-2">Aplicado automaticamente aos novos orçamentos. Pode ser alterado em cada orçamento.</p>
+
+        <div>
+          <Label>Modelo</Label>
+          <Select
+            value={paymentTerms.preset}
+            onValueChange={(v) => {
+              const p = presetById(v as PaymentPreset);
+              setPaymentTerms({ preset: p.id, installments: p.installments.map((i) => ({ ...i })) });
+            }}
+          >
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {PAYMENT_PRESETS.map((p) => (
+                <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {paymentTerms.preset === 'custom' && (
+          <div className="space-y-2">
+            {paymentTerms.installments.map((i, idx) => (
+              <div key={idx} className="grid grid-cols-12 gap-2 items-end">
+                <div className="col-span-5"><Label className="text-xs">Descrição</Label>
+                  <Input value={i.label} onChange={(e) => {
+                    const next = [...paymentTerms.installments];
+                    next[idx] = { ...next[idx], label: e.target.value };
+                    setPaymentTerms({ ...paymentTerms, installments: next });
+                  }} />
+                </div>
+                <div className="col-span-3"><Label className="text-xs">%</Label>
+                  <Input type="number" min={0} max={100} value={i.percent} onChange={(e) => {
+                    const next = [...paymentTerms.installments];
+                    next[idx] = { ...next[idx], percent: Number(e.target.value) };
+                    setPaymentTerms({ ...paymentTerms, installments: next });
+                  }} />
+                </div>
+                <div className="col-span-3"><Label className="text-xs">Dias após aceitação</Label>
+                  <Input type="number" min={0} value={i.due_offset_days} onChange={(e) => {
+                    const next = [...paymentTerms.installments];
+                    next[idx] = { ...next[idx], due_offset_days: Number(e.target.value) };
+                    setPaymentTerms({ ...paymentTerms, installments: next });
+                  }} />
+                </div>
+                <div className="col-span-1 flex justify-end">
+                  {paymentTerms.installments.length > 1 && (
+                    <Button variant="ghost" size="icon" onClick={() => {
+                      const next = paymentTerms.installments.filter((_, n) => n !== idx);
+                      setPaymentTerms({ ...paymentTerms, installments: next });
+                    }}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => {
+              setPaymentTerms({
+                ...paymentTerms,
+                installments: [...paymentTerms.installments, { label: `Parcela ${paymentTerms.installments.length + 1}`, percent: 0, due_offset_days: 30 }],
+              });
+            }}>
+              <Plus className="h-4 w-4" /> Adicionar parcela
+            </Button>
+            {totalPercent(paymentTerms) !== 100 && (
+              <p className="text-xs text-destructive">Soma das percentagens: {totalPercent(paymentTerms)}% (deve ser 100%).</p>
+            )}
+          </div>
+        )}
+
+        <div className="rounded-lg border bg-muted/30 p-3">
+          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Pré-visualização (exemplo {fmt(previewTotal)})</div>
+          <div className="space-y-1">
+            {expandInstallments(paymentTerms, previewTotal, new Date()).map((p, idx) => (
+              <div key={idx} className="flex items-center justify-between text-sm gap-2">
+                <span>{p.label} <span className="text-muted-foreground">({p.percent}%)</span></span>
+                <span className="text-muted-foreground text-xs">vence {p.dueDate.toLocaleDateString('pt-PT')}</span>
+                <span className="font-semibold text-accent w-24 text-right">{fmt(p.amount)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="pt-2">
+          <Button onClick={save} disabled={saving} size="sm">
+            {saving ? 'A guardar...' : 'Guardar formato'}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
@@ -358,6 +478,9 @@ export default function AppBrand() {
       </div>
 
       {companyCard}
+
+      {paymentCard}
+
 
       {isPro ? (
         inner

@@ -59,7 +59,7 @@ export default function AppQuoteNew() {
     if (!user) return;
     void (async () => {
       const [{ data: settings }, { data: cs }, { data: tpl }] = await Promise.all([
-        supabase.from('app_user_settings').select('full_name, company_name, company_nif, company_email, company_phone, company_address').eq('user_id', user.id).maybeSingle(),
+        supabase.from('app_user_settings').select('full_name, company_name, company_nif, company_email, company_phone, company_address, default_payment_terms' as any).eq('user_id', user.id).maybeSingle(),
         supabase.from('app_clients').select('id, name, email, phone, address').order('name'),
         supabase.from('quote_templates').select('id, name, unit, default_price').eq('is_active', true),
       ]);
@@ -73,6 +73,7 @@ export default function AppQuoteNew() {
           address: s.company_address || '',
         });
         setCompanyConfigured(!!(s.company_name || s.company_nif || s.company_email));
+        if (s.default_payment_terms) setPaymentTerms(s.default_payment_terms);
       } else {
         setCompanyConfigured(false);
       }

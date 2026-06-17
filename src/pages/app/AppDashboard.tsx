@@ -187,18 +187,14 @@ export default function AppDashboard() {
 
   return (
     <div className="space-y-8 max-w-7xl">
-      <div className="flex items-start justify-between flex-wrap gap-4">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
           <h1 className="font-heading text-3xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground">
             Visão geral dos seus orçamentos e do dinheiro a entrar.
           </p>
         </div>
-        <Button asChild className="gap-2">
-          <Link to="/app/quotes/new">
-            <Plus className="h-4 w-4" /> Novo Orçamento
-          </Link>
-        </Button>
+        <MobilePrimaryAction label="Novo Orçamento" to="/app/quotes/new" />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">

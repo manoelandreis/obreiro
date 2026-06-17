@@ -50,14 +50,12 @@ export default function AppQuotes() {
 
   return (
     <div className="space-y-6 max-w-7xl">
-      <div className="flex items-start justify-between flex-wrap gap-4">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
           <h1 className="font-heading text-3xl font-bold">Orçamentos</h1>
           <p className="text-muted-foreground">Crie e gerencie os seus orçamentos.</p>
         </div>
-        <Button className="gap-2" onClick={() => navigate('/app/quotes/new')}>
-          <Plus className="h-4 w-4" /> Novo Orçamento
-        </Button>
+        <MobilePrimaryAction label="Novo Orçamento" onClick={() => navigate('/app/quotes/new')} to="/app/quotes/new" />
       </div>
 
       <Card>

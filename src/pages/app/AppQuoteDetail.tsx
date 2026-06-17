@@ -354,6 +354,33 @@ export default function AppQuoteDetail() {
         </CardContent>
       </Card>
 
+      {/* Payment terms snapshot */}
+      {quote.payment_terms && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-3">
+              Formato de pagamento — {presetById(quote.payment_terms.preset).label}
+            </div>
+            <div className="space-y-1.5">
+              {expandInstallments(
+                quote.payment_terms,
+                Number(quote.total),
+                quote.responded_at ?? quote.sent_at ?? quote.created_at,
+              ).map((p, idx) => (
+                <div key={idx} className="flex items-center justify-between text-sm">
+                  <span>{p.label} <span className="text-muted-foreground">({p.percent}%)</span></span>
+                  <span className="text-muted-foreground">vence {p.dueDate.toLocaleDateString('pt-PT')}</span>
+                  <span className="font-semibold text-primary w-28 text-right">
+                    {p.amount.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+
       {/* History */}
       {limits.tracking && history.length > 0 && (
         <Card>

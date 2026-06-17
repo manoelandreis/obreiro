@@ -1,117 +1,218 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Briefcase, CheckSquare, Calendar, Plus, TrendingUp } from 'lucide-react';
+import { StatusBadge } from '@/components/app/QuoteStatusBadge';
+import { Plus, FileText, Wallet, Coins, Bell, Mail, ArrowRight } from 'lucide-react';
+import { expandInstallments, isWithinMonth, type PaymentTerms } from '@/lib/paymentTerms';
 
-const STATUS_LABELS: Record<string, string> = {
-  orcamento: 'Orçamento',
-  aprovado: 'Aprovado',
-  em_curso: 'Em curso',
-  concluido: 'Concluído',
-};
-const STATUS_STYLES: Record<string, string> = {
-  orcamento: 'bg-primary/10 text-primary border-primary/20',
-  aprovado: 'bg-success-soft text-success-soft-foreground border-success/20',
-  em_curso: 'bg-warning-soft text-warning-soft-foreground border-warning/20',
-  concluido: 'bg-success-soft text-success-soft-foreground border-success/20',
-};
+type QuoteStatus = 'rascunho' | 'enviado' | 'visto' | 'aceite' | 'rejeitado' | 'expirado';
+
+interface QuoteRow {
+  id: string;
+  title: string;
+  status: QuoteStatus;
+  total: number;
+  created_at: string;
+  sent_at: string | null;
+  viewed_at: string | null;
+  responded_at: string | null;
+  expires_at: string | null;
+  payment_terms: PaymentTerms | null;
+  client_snapshot: any;
+}
+
+const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
+const daysSince = (iso: string) => Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+const daysUntil = (iso: string) => Math.floor((new Date(iso).getTime() - Date.now()) / 86_400_000);
+
+interface Reminder {
+  id: string;
+  quoteId: string;
+  urgency: number; // higher = more urgent
+  title: string;
+  message: string;
+}
 
 export default function AppDashboard() {
   const { user } = useAppAuth();
-  const [activeJobs, setActiveJobs] = useState(0);
-  const [pendingTasks, setPendingTasks] = useState(0);
-  const [weekEvents, setWeekEvents] = useState(0);
-  const [recent, setRecent] = useState<any[]>([]);
-  const [activity, setActivity] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
+  const [quotes, setQuotes] = useState<QuoteRow[]>([]);
 
   useEffect(() => {
     if (!user) return;
-    const load = async () => {
-      const [{ data: jobs }, { count: tasks }] = await Promise.all([
-        supabase.from('app_jobs').select('id, title, status, start_date, created_at').order('created_at', { ascending: false }),
-        supabase.from('app_job_tasks').select('id', { count: 'exact', head: true }).eq('done', false),
-      ]);
-      const all = jobs ?? [];
-      const active = all.filter((j) => j.status !== 'concluido').length;
-      setActiveJobs(active);
-      setPendingTasks(tasks ?? 0);
-
-      // Week: jobs starting in next 7 days
-      const today = new Date();
-      const in7 = new Date();
-      in7.setDate(today.getDate() + 7);
-      const upcoming = all.filter((j) => j.start_date && new Date(j.start_date) >= today && new Date(j.start_date) <= in7);
-      setWeekEvents(upcoming.length);
-
-      setRecent(all.slice(0, 5));
-
-      // Activity: jobs created in last 7 days, by weekday (Mon..Sun)
-      const counts = [0, 0, 0, 0, 0, 0, 0];
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - 7);
-      all.forEach((j) => {
-        const d = new Date(j.created_at);
-        if (d >= cutoff) {
-          const idx = (d.getDay() + 6) % 7; // Monday = 0
-          counts[idx]++;
-        }
-      });
-      setActivity(counts);
-    };
-    void load();
+    void (async () => {
+      const { data } = await supabase
+        .from('app_quotes')
+        .select('id, title, status, total, created_at, sent_at, viewed_at, responded_at, expires_at, payment_terms, client_snapshot')
+        .order('created_at', { ascending: false });
+      setQuotes((data ?? []) as any);
+    })();
   }, [user]);
 
-  const max = Math.max(...activity, 1);
-  const days = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+  const stats = useMemo(() => {
+    const now = new Date();
+    const openStatuses: QuoteStatus[] = ['rascunho', 'enviado', 'visto'];
+    const open = quotes.filter((q) => openStatuses.includes(q.status));
+    const accepted = quotes.filter((q) => q.status === 'aceite');
+
+    const acceptedThisMonth = accepted.filter((q) => {
+      const ref = q.responded_at ?? q.updated_at_fallback ?? q.created_at;
+      return ref && isWithinMonth(new Date(ref), now);
+    });
+    const acceptedTotalAllTime = accepted.reduce((a, q) => a + Number(q.total || 0), 0);
+    const acceptedThisMonthTotal = acceptedThisMonth.reduce((a, q) => a + Number(q.total || 0), 0);
+
+    // A receber este mês: expand installments for accepted quotes, sum those due in current month
+    let receivableThisMonth = 0;
+    for (const q of accepted) {
+      const anchor = q.responded_at ?? q.sent_at ?? q.created_at;
+      const parts = expandInstallments(q.payment_terms ?? null, Number(q.total || 0), anchor);
+      for (const p of parts) {
+        if (isWithinMonth(p.dueDate, now)) receivableThisMonth += p.amount;
+      }
+    }
+
+    return {
+      openCount: open.length,
+      acceptedThisMonthTotal,
+      acceptedTotalAllTime,
+      receivableThisMonth,
+    };
+  }, [quotes]);
+
+  const recent = quotes.slice(0, 5);
+
+  const reminders = useMemo<Reminder[]>(() => {
+    const out: Reminder[] = [];
+    for (const q of quotes) {
+      const clientName = q.client_snapshot?.name ?? 'Cliente';
+      if (q.status === 'enviado' && q.sent_at) {
+        const d = daysSince(q.sent_at);
+        if (d >= 7 && d <= 60) {
+          out.push({
+            id: `sent-${q.id}`,
+            quoteId: q.id,
+            urgency: 50 + d,
+            title: `«${q.title}» sem resposta há ${d} dias`,
+            message: `Enviado a ${clientName} — envie uma mensagem de seguimento.`,
+          });
+        }
+      }
+      if (q.status === 'visto' && q.viewed_at) {
+        const d = daysSince(q.viewed_at);
+        if (d >= 3) {
+          out.push({
+            id: `viewed-${q.id}`,
+            quoteId: q.id,
+            urgency: 80 + d,
+            title: `${clientName} abriu «${q.title}» há ${d} dias`,
+            message: 'Faça follow-up enquanto está fresco na cabeça do cliente.',
+          });
+        }
+      }
+      if (q.status === 'aceite' && q.responded_at) {
+        const d = daysSince(q.responded_at);
+        if (d >= 7) {
+          out.push({
+            id: `accepted-${q.id}`,
+            quoteId: q.id,
+            urgency: 40,
+            title: `«${q.title}» foi aceite há ${d} dias`,
+            message: 'Confirme datas com o cliente e inicie o trabalho.',
+          });
+        }
+      }
+      if (q.expires_at && !['aceite', 'rejeitado', 'expirado'].includes(q.status)) {
+        const left = daysUntil(q.expires_at);
+        if (left >= 0 && left <= 5) {
+          out.push({
+            id: `exp-${q.id}`,
+            quoteId: q.id,
+            urgency: 100 - left,
+            title: `«${q.title}» expira em ${left} dia${left === 1 ? '' : 's'}`,
+            message: `Avise ${clientName} antes que expire.`,
+          });
+        }
+      }
+    }
+    return out.sort((a, b) => b.urgency - a.urgency).slice(0, 6);
+  }, [quotes]);
 
   return (
     <div className="space-y-8 max-w-7xl">
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
           <h1 className="font-heading text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Visão geral do seu negócio e tarefas para hoje.</p>
+          <p className="text-muted-foreground">Visão geral dos seus orçamentos e do dinheiro a entrar.</p>
         </div>
         <Button asChild className="gap-2">
-          <Link to="/app/jobs?new=1"><Plus className="h-4 w-4" /> Novo Trabalho</Link>
+          <Link to="/app/quotes/new"><Plus className="h-4 w-4" /> Novo Orçamento</Link>
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <StatCard icon={Briefcase} label="Trabalhos ativos" value={activeJobs} accent="text-primary" bg="bg-primary/10" />
-        <StatCard icon={CheckSquare} label="Tarefas pendentes" value={pendingTasks} accent="text-warning-soft-foreground" bg="bg-warning-soft" suffix="para hoje" />
-        <StatCard icon={Calendar} label="Próximos eventos" value={weekEvents} accent="text-info-soft-foreground" bg="bg-info-soft" suffix="esta semana" />
+        <StatCard
+          icon={FileText}
+          label="Orçamentos em aberto"
+          value={String(stats.openCount)}
+          accent="text-primary"
+          bg="bg-primary/10"
+        />
+        <StatCard
+          icon={Wallet}
+          label="Aprovado este mês"
+          value={fmt(stats.acceptedThisMonthTotal)}
+          accent="text-success-soft-foreground"
+          bg="bg-success-soft"
+          footnote={`Acumulado: ${fmt(stats.acceptedTotalAllTime)}`}
+        />
+        <StatCard
+          icon={Coins}
+          label="A receber este mês"
+          value={fmt(stats.receivableThisMonth)}
+          accent="text-accent"
+          bg="bg-accent/10"
+          footnote="Baseado nos formatos de pagamento"
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-heading text-lg font-bold">Trabalhos Recentes</h2>
-              <Link to="/app/jobs" className="text-sm text-primary font-medium hover:underline">Ver todos</Link>
+              <h2 className="font-heading text-lg font-bold">Orçamentos Recentes</h2>
+              <Link to="/app/quotes" className="text-sm text-primary font-medium hover:underline">Ver todos</Link>
             </div>
             {recent.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-8 text-center">Ainda sem trabalhos. <Link to="/app/jobs?new=1" className="text-primary hover:underline">Crie o primeiro</Link>.</p>
+              <p className="text-sm text-muted-foreground py-8 text-center">
+                Ainda sem orçamentos. <Link to="/app/quotes/new" className="text-primary hover:underline">Crie o primeiro</Link>.
+              </p>
             ) : (
-              <div className="space-y-2">
-                {recent.map((j) => (
-                  <div key={j.id} className="flex items-center justify-between py-3 border-b border-border last:border-0">
+              <div className="space-y-1">
+                {recent.map((q) => (
+                  <Link
+                    key={q.id}
+                    to={`/app/quotes/${q.id}`}
+                    className="flex items-center justify-between py-3 border-b border-border last:border-0 gap-3 hover:bg-muted/40 rounded px-2 -mx-2 transition-colors"
+                  >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm uppercase">
-                        {j.title?.[0] ?? '?'}
+                        {q.title?.[0] ?? '?'}
                       </div>
                       <div className="min-w-0">
-                        <div className="font-medium truncate">{j.title}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {j.start_date ? new Date(j.start_date).toLocaleDateString('pt-PT') : '—'}
+                        <div className="font-medium truncate">{q.title}</div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          {q.client_snapshot?.name ?? '—'} • {new Date(q.created_at).toLocaleDateString('pt-PT')}
                         </div>
                       </div>
                     </div>
-                    <Badge variant="outline" className={STATUS_STYLES[j.status]}>{STATUS_LABELS[j.status]}</Badge>
-                  </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="text-sm font-semibold text-primary">{fmt(Number(q.total || 0))}</span>
+                      <StatusBadge status={q.status} />
+                    </div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -120,19 +221,36 @@ export default function AppDashboard() {
 
         <Card>
           <CardContent className="pt-6">
-            <h2 className="font-heading text-lg font-bold">Atividade Semanal</h2>
-            <p className="text-sm text-muted-foreground mb-6">Volume de trabalhos nos últimos 7 dias</p>
-            <div className="flex items-end justify-between h-48 gap-2">
-              {activity.map((v, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                  <div
-                    className="w-full bg-primary rounded-t-lg transition-all"
-                    style={{ height: `${(v / max) * 100}%`, minHeight: v > 0 ? '8px' : '2px', opacity: v > 0 ? 1 : 0.15 }}
-                  />
-                  <span className="text-xs text-muted-foreground">{days[i]}</span>
-                </div>
-              ))}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-lg font-bold flex items-center gap-2">
+                <Bell className="h-4 w-4 text-accent" /> Lembretes
+              </h2>
+              <span className="text-xs text-muted-foreground">{reminders.length} ações</span>
             </div>
+            {reminders.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-8 text-center">
+                Tudo em dia. Sem follow-ups pendentes.
+              </p>
+            ) : (
+              <ul className="space-y-3">
+                {reminders.map((r) => (
+                  <li key={r.id} className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/20">
+                    <div className="h-8 w-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center shrink-0">
+                      <Mail className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm">{r.title}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{r.message}</div>
+                    </div>
+                    <Button asChild variant="ghost" size="sm" className="gap-1 shrink-0">
+                      <Link to={`/app/quotes/${r.quoteId}`}>
+                        Abrir <ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -140,19 +258,17 @@ export default function AppDashboard() {
   );
 }
 
-function StatCard({ icon: Icon, label, value, accent, bg, suffix }: any) {
+function StatCard({ icon: Icon, label, value, accent, bg, footnote }: any) {
   return (
     <Card>
       <CardContent className="pt-6">
         <div className="flex items-start justify-between">
-          <div>
+          <div className="min-w-0">
             <div className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">{label}</div>
-            <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-4xl font-bold">{value}</span>
-              {suffix && <span className="text-sm text-muted-foreground">{suffix}</span>}
-            </div>
+            <div className="mt-3 text-3xl font-bold truncate">{value}</div>
+            {footnote && <div className="text-xs text-muted-foreground mt-1">{footnote}</div>}
           </div>
-          <div className={`h-10 w-10 rounded-xl ${bg} flex items-center justify-center`}>
+          <div className={`h-10 w-10 rounded-xl ${bg} flex items-center justify-center shrink-0`}>
             <Icon className={`h-5 w-5 ${accent}`} />
           </div>
         </div>

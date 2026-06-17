@@ -69,7 +69,7 @@ export function MobilePrimaryAction({
       <Button
         asChild
         size="lg"
-        className="h-14 rounded-full px-5 gap-2 shadow-lg shadow-primary/30"
+        className="h-16 w-full rounded-2xl px-6 gap-3 text-base shadow-xl shadow-primary/30"
       >
         <Link to={to} aria-label={label}>
           <Icon className="h-5 w-5" /> {label}
@@ -80,7 +80,7 @@ export function MobilePrimaryAction({
         size="lg"
         onClick={handleFab}
         aria-label={label}
-        className="h-14 rounded-full px-5 gap-2 shadow-lg shadow-primary/30"
+        className="h-16 w-full rounded-2xl px-6 gap-3 text-base shadow-xl shadow-primary/30"
       >
         <Icon className="h-5 w-5" /> {label}
       </Button>

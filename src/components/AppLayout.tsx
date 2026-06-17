@@ -2,11 +2,12 @@ import { Navigate, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Briefcase, LayoutGrid, Users, Settings, LogOut, Lock, FileText, Palette, Sparkles } from 'lucide-react';
+import { Briefcase, LayoutGrid, Users, Settings, LogOut, Lock, FileText, Palette, Sparkles, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
@@ -28,6 +29,7 @@ export default function AppLayout() {
   const [locked, setLocked] = useState(false);
   const [pinInput, setPinInput] = useState('');
   const [verifying, setVerifying] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -73,66 +75,99 @@ export default function AppLayout() {
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">A carregar...</div>;
   if (!user) return <Navigate to="/app/login" replace />;
 
+  const sidebarContent = (
+    <>
+      <div className="p-5 flex items-center gap-2.5">
+        <div
+          className="flex items-center justify-center rounded-[10px] bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white shadow-accent-glow"
+          style={{ width: 36, height: 36 }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 22, lineHeight: 1 }}>handyman</span>
+        </div>
+        <span className="font-heading text-lg font-bold tracking-tight text-foreground">Obreiro</span>
+      </div>
+
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {nav.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            onClick={() => setMobileOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition ${
+                isActive
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:bg-muted'
+              }`
+            }
+          >
+            <item.icon className="h-5 w-5" />
+            {item.label}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="p-4 border-t border-border space-y-2">
+        <div className="rounded-xl bg-muted/60 p-3 flex items-center gap-3">
+          <div className="h-8 w-8 rounded-full bg-primary/15" />
+          <div className="flex-1 min-w-0">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Conta</div>
+            <div className="text-sm font-medium truncate">{user.email}</div>
+          </div>
+        </div>
+        <Button variant="outline" size="sm" className="w-full gap-2" onClick={lockNow}>
+          <Lock className="h-4 w-4" /> Trancar App
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start gap-2 text-destructive hover:text-destructive hover:bg-destructive/5"
+          onClick={async () => { await signOut(); navigate('/app/login'); }}
+        >
+          <LogOut className="h-4 w-4" /> Sair
+        </Button>
+      </div>
+    </>
+  );
+
   return (
     <div className="min-h-screen flex bg-background">
-      {/* Sidebar */}
-      <aside className="w-64 shrink-0 bg-card border-r border-border flex flex-col">
-        <div className="p-5 flex items-center gap-2.5">
-          <div
-            className="flex items-center justify-center rounded-[10px] bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white shadow-accent-glow"
-            style={{ width: 36, height: 36 }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: 22, lineHeight: 1 }}>handyman</span>
-          </div>
-          <span className="font-heading text-lg font-bold tracking-tight text-foreground">Obreiro</span>
-        </div>
-
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {nav.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition ${
-                  isActive
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:bg-muted'
-                }`
-              }
-            >
-              <item.icon className="h-5 w-5" />
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="p-4 border-t border-border space-y-2">
-          <div className="rounded-xl bg-muted/60 p-3 flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-primary/15" />
-            <div className="flex-1 min-w-0">
-              <div className="text-xs uppercase tracking-wide text-muted-foreground">Conta</div>
-              <div className="text-sm font-medium truncate">{user.email}</div>
-            </div>
-          </div>
-          <Button variant="outline" size="sm" className="w-full gap-2" onClick={lockNow}>
-            <Lock className="h-4 w-4" /> Trancar App
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start gap-2 text-destructive hover:text-destructive hover:bg-destructive/5"
-            onClick={async () => { await signOut(); navigate('/app/login'); }}
-          >
-            <LogOut className="h-4 w-4" /> Sair
-          </Button>
-        </div>
+      {/* Sidebar (desktop) */}
+      <aside className="hidden md:flex w-64 shrink-0 bg-card border-r border-border flex-col">
+        {sidebarContent}
       </aside>
 
+      {/* Mobile sidebar */}
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent side="left" className="p-0 w-72 flex flex-col bg-card">
+          {sidebarContent}
+        </SheetContent>
+      </Sheet>
+
       {/* Main */}
-      <main className="flex-1 p-8 overflow-x-auto">
-        <Outlet />
-      </main>
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile top bar */}
+        <header className="md:hidden flex items-center gap-3 px-4 h-14 border-b border-border bg-card sticky top-0 z-30">
+          <Button variant="ghost" size="icon" onClick={() => setMobileOpen(true)} aria-label="Abrir menu">
+            <Menu className="h-5 w-5" />
+          </Button>
+
+          <div className="flex items-center gap-2">
+            <div
+              className="flex items-center justify-center rounded-md bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white"
+              style={{ width: 28, height: 28 }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 18, lineHeight: 1 }}>handyman</span>
+            </div>
+            <span className="font-heading text-base font-bold tracking-tight">Obreiro</span>
+          </div>
+        </header>
+        <main className="flex-1 p-4 md:p-8 overflow-x-auto">
+          <Outlet />
+        </main>
+      </div>
+
 
       {/* PIN lock overlay */}
       <Dialog open={locked} onOpenChange={() => {}}>

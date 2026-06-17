@@ -22,6 +22,7 @@ export default function AppQuotePreview() {
   const [html, setHtml] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState('Pré-visualização');
+  const [quote, setQuote] = useState<any>(null);
 
   useEffect(() => {
     (async () => {

@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Mail, Loader2, Printer } from 'lucide-react';
+import { ArrowLeft, Download, Mail, Loader2, Printer, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   buildQuoteHtml,
@@ -22,6 +22,7 @@ export default function AppQuotePreview() {
   const [html, setHtml] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState('Pré-visualização');
+  const [quote, setQuote] = useState<any>(null);
 
   useEffect(() => {
     (async () => {
@@ -38,6 +39,7 @@ export default function AppQuotePreview() {
         return;
       }
       setTitle(q.title);
+      setQuote(q);
 
       const brand = await loadBrand(user.id, isPro);
       const cs = (q.company_snapshot as any) || {};
@@ -108,6 +110,26 @@ export default function AppQuotePreview() {
     if (!openPrintWindow(html)) toast.error('Pop-up bloqueado.');
   };
 
+  const clientPhone = (quote?.client_snapshot as any)?.phone;
+  const hasPhone = Boolean(clientPhone && String(clientPhone).replace(/\D/g, '').length >= 6);
+  const publicUrl = quote ? `${window.location.origin}/q/${quote.public_token}` : '';
+
+  const handleSendByWhatsApp = () => {
+    if (!quote) return;
+    if (!hasPhone) return toast.error('Cliente sem telefone preenchido.');
+    const phone = String(clientPhone).replace(/\D/g, '');
+    const cl = (quote.client_snapshot as any) || {};
+    const cs = (quote.company_snapshot as any) || {};
+    const text = encodeURIComponent(
+      `Olá${cl.name ? ` ${cl.name}` : ''},\n\n` +
+      `Segue o orçamento «${quote.title}»${cs.name ? ` da ${cs.name}` : ''}.\n` +
+      `Pode ver e responder aqui: ${publicUrl}\n\n` +
+      `Obrigado.`
+    );
+    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+    toast.success('WhatsApp aberto.');
+  };
+
   return (
     <div className="space-y-4 -mx-4 sm:-mx-6 -my-4 sm:-my-6">
       {/* Toolbar */}
@@ -134,18 +156,36 @@ export default function AppQuotePreview() {
               variant="outline"
               onClick={handlePrint}
               disabled={!html}
-              className="gap-2"
+              className="h-9 w-9 p-0 sm:h-auto sm:w-auto sm:px-3 sm:py-2"
             >
-              <Printer className="h-4 w-4" /> Imprimir
-            </Button>
-            <Button onClick={handlePrint} disabled={!html} className="gap-2">
-              <Download className="h-4 w-4" /> PDF
+              <Printer className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1.5">Imprimir</span>
             </Button>
             <Button
-              onClick={() => navigate(`/app/quotes/${id}?send=1`)}
-              className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+              variant="outline"
+              onClick={handlePrint}
+              disabled={!html}
+              className="h-9 w-9 p-0 sm:h-auto sm:w-auto sm:px-3 sm:py-2"
             >
-              <Mail className="h-4 w-4" /> Enviar
+              <Download className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1.5">PDF</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate(`/app/quotes/${id}?send=1`)}
+              className="h-9 w-9 p-0 sm:h-auto sm:w-auto sm:px-3 sm:py-2"
+            >
+              <Mail className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1.5">Email</span>
+            </Button>
+            <Button
+              onClick={handleSendByWhatsApp}
+              disabled={!hasPhone}
+              className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+              title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
+            >
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp
             </Button>
           </div>
         </div>

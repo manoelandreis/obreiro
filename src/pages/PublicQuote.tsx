@@ -192,13 +192,11 @@ export default function PublicQuote() {
               <div className="text-2xl font-bold text-primary">Total: {fmt(quote.total)}</div>
             </div>
 
-            {quote.payment_terms && (
-              <PaymentTermsCard
-                paymentTerms={quote.payment_terms}
-                total={Number(quote.total)}
-                anchor={quote.responded_at ?? quote.sent_at ?? quote.created_at}
-              />
-            )}
+            <PaymentTermsCard
+              paymentTerms={quote.payment_terms ?? DEFAULT_PAYMENT_TERMS}
+              total={Number(quote.total)}
+              anchor={quote.responded_at ?? quote.sent_at ?? quote.created_at}
+            />
 
             {quote.notes && (
               <div className="border-t pt-4">

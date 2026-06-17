@@ -25,6 +25,12 @@ export default function AppBrand() {
   const [terms, setTerms] = useState('');
   const [paymentConditions, setPaymentConditions] = useState('');
   const [validityDays, setValidityDays] = useState(30);
+  // Company data
+  const [companyName, setCompanyName] = useState('');
+  const [companyNif, setCompanyNif] = useState('');
+  const [companyEmail, setCompanyEmail] = useState('');
+  const [companyPhone, setCompanyPhone] = useState('');
+  const [companyAddress, setCompanyAddress] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -43,7 +49,7 @@ export default function AppBrand() {
       const { data } = await supabase
         .from('app_user_settings')
         .select(
-          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days'
+          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address'
         )
         .eq('user_id', user.id)
         .maybeSingle();
@@ -56,6 +62,11 @@ export default function AppBrand() {
         setTerms(data.company_terms ?? '');
         setPaymentConditions(data.payment_conditions ?? '');
         setValidityDays(data.quote_validity_days ?? 30);
+        setCompanyName((data as any).company_name ?? '');
+        setCompanyNif((data as any).company_nif ?? '');
+        setCompanyEmail((data as any).company_email ?? '');
+        setCompanyPhone((data as any).company_phone ?? '');
+        setCompanyAddress((data as any).company_address ?? '');
       }
       setLoading(false);
     })();
@@ -115,12 +126,17 @@ export default function AppBrand() {
           company_terms: terms.trim() || null,
           payment_conditions: paymentConditions.trim() || null,
           quote_validity_days: validityDays,
+          company_name: companyName.trim() || null,
+          company_nif: companyNif.trim() || null,
+          company_email: companyEmail.trim() || null,
+          company_phone: companyPhone.trim() || null,
+          company_address: companyAddress.trim() || null,
         },
         { onConflict: 'user_id' }
       );
     setSaving(false);
     if (error) return toast.error('Erro a guardar.');
-    toast.success('Marca atualizada.');
+    toast.success('Definições atualizadas.');
   };
 
   if (loading) {
@@ -296,14 +312,52 @@ export default function AppBrand() {
     </Card>
   );
 
+  const companyCard = (
+    <Card>
+      <CardContent className="pt-6 space-y-4">
+        <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">Dados da Empresa</div>
+        <p className="text-sm text-muted-foreground -mt-2">Estes dados aparecem automaticamente em todos os orçamentos que criar.</p>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <Label>Nome da empresa</Label>
+            <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Ex: Silva Construções" />
+          </div>
+          <div>
+            <Label>NIF</Label>
+            <Input value={companyNif} onChange={(e) => setCompanyNif(e.target.value)} placeholder="Ex: 123456789" />
+          </div>
+          <div>
+            <Label>Email</Label>
+            <Input type="email" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} />
+          </div>
+          <div>
+            <Label>Telefone</Label>
+            <Input value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} />
+          </div>
+        </div>
+        <div>
+          <Label>Morada</Label>
+          <Input value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} />
+        </div>
+        <div className="pt-2">
+          <Button onClick={save} disabled={saving} size="sm">
+            {saving ? 'A guardar...' : 'Guardar dados'}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="font-heading text-3xl font-bold">Marca da empresa</h1>
+        <h1 className="font-heading text-3xl font-bold">Definições</h1>
         <p className="text-muted-foreground">
-          A sua identidade aparece em todos os orçamentos enviados aos clientes.
+          Dados da empresa e identidade que aparecem nos orçamentos enviados aos clientes.
         </p>
       </div>
+
+      {companyCard}
 
       {isPro ? (
         inner

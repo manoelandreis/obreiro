@@ -2,7 +2,7 @@ import { Navigate, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Briefcase, LayoutGrid, Users, Settings, LogOut, Lock, FileText, Palette, Sparkles, Menu } from 'lucide-react';
+import { LayoutGrid, Users, LogOut, Lock, FileText, Building2, CircleUser, Sparkles, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
@@ -15,10 +15,9 @@ import { toast } from 'sonner';
 const nav = [
   { to: '/app', label: 'Dashboard', icon: LayoutGrid, end: true },
   { to: '/app/quotes', label: 'Orçamentos', icon: FileText },
-  // { to: '/app/jobs', label: 'Trabalhos', icon: Briefcase }, // hidden for now
   { to: '/app/clients', label: 'Clientes', icon: Users },
-  { to: '/app/brand', label: 'Marca', icon: Palette },
-  { to: '/app/settings', label: 'Definições', icon: Settings },
+  { to: '/app/brand', label: 'Definições', icon: Building2 },
+  { to: '/app/settings', label: 'Conta', icon: CircleUser },
   { to: '/app/planos', label: 'Planos', icon: Sparkles },
 ];
 

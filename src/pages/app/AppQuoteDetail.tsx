@@ -20,7 +20,9 @@ import {
 } from '@/components/ui/collapsible';
 import { StatusBadge } from '@/components/app/QuoteStatusBadge';
 import { QuoteAttachments } from '@/components/app/QuoteAttachments';
+import { QuoteWorkView } from '@/components/app/QuoteWorkView';
 import { FeatureGate } from '@/components/app/FeatureGate';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   ArrowLeft, Download, Mail, Copy, History, Sparkles, Loader2, ExternalLink,
   ChevronDown, Eye, EyeOff, MessageCircle, ImagePlus, Check, MoreHorizontal,

@@ -566,9 +566,24 @@ export default function AppQuoteDetail() {
 
       {/* Floating action bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-[0_-4px_20px_-8px_rgba(0,0,0,0.15)]">
-        <div className="mx-auto max-w-5xl px-4 py-3 flex items-center gap-3">
+        <div className="mx-auto max-w-5xl px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
           {/* Total */}
           <div className="flex flex-col leading-tight min-w-0">
+            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">Total (c/ IVA)</span>
+            <span className="font-heading text-xl sm:text-2xl font-bold text-accent">
+              {euroFmt(Number(quote.total))}
+            </span>
+          </div>
+
+          <div className="sm:ml-auto flex items-center gap-2 flex-wrap">
+            {/* Desktop: inline secondary links */}
+            <div className="hidden md:flex items-center gap-1">
+              <Button variant="ghost" size="sm" asChild className="text-muted-foreground gap-1.5">
+                <a href={publicUrl} target="_blank" rel="noreferrer">
+                  <ExternalLink className="h-3.5 w-3.5" /> Ver como o cliente vê
+                </a>
+              </Button>
+              <Button
             <span className="text-[11px] uppercase tracking-wide text-muted-foreground">Total (c/ IVA)</span>
             <span className="font-heading text-xl sm:text-2xl font-bold text-accent">
               {euroFmt(Number(quote.total))}

@@ -2,11 +2,12 @@ import { Navigate, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Briefcase, LayoutGrid, Users, Settings, LogOut, Lock, FileText, Palette, Sparkles } from 'lucide-react';
+import { Briefcase, LayoutGrid, Users, Settings, LogOut, Lock, FileText, Palette, Sparkles, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';

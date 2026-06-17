@@ -397,6 +397,8 @@ export default function AppQuoteDetail() {
             subtotal={Number(quote.subtotal)}
             iva={Number(quote.iva)}
             notes={quote.notes}
+            paymentTerms={quote.payment_terms ?? defaultPaymentTerms}
+            paymentAnchor={quote.responded_at ?? quote.sent_at ?? quote.created_at}
             onClientUpdated={load}
           />
         </TabsContent>

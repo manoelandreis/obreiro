@@ -479,6 +479,9 @@ export default function AppBrand() {
 
       {companyCard}
 
+      {paymentCard}
+
+
       {isPro ? (
         inner
       ) : (

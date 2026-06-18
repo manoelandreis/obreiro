@@ -540,17 +540,17 @@ export default function AppBrand() {
           <Select value={selectedKey} onValueChange={onSelectChange} disabled={editing}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              {builtInPresets.map((p) => (
-                <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+              {templates.map((t) => (
+                <SelectItem key={t.id} value={`tpl:${t.id}`}>{t.name}</SelectItem>
               ))}
               {templates.length > 0 && (
                 <div className="my-1 border-t" />
               )}
-              {templates.map((t) => (
-                <SelectItem key={t.id} value={`tpl:${t.id}`}>{t.name}</SelectItem>
+              {builtInPresets.map((p) => (
+                <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
               ))}
               <div className="my-1 border-t" />
-              <SelectItem value="__new">+ Novo modelo personalizado</SelectItem>
+              <SelectItem value="__new" className="text-primary font-medium">+ Novo modelo personalizado</SelectItem>
             </SelectContent>
           </Select>
         </div>

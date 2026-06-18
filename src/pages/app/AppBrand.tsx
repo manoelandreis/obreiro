@@ -50,6 +50,14 @@ export default function AppBrand() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>(DEFAULT_PAYMENT_TERMS);
+  const [savedPresets, setSavedPresets] = useState<SavedPaymentPreset[]>([]);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editorId, setEditorId] = useState<string | null>(null);
+  const [editorName, setEditorName] = useState('');
+  const [editorInstallments, setEditorInstallments] = useState<PaymentInstallment[]>([
+    { label: 'Parcela 1', percent: 50, due_offset_days: 0 },
+    { label: 'Parcela 2', percent: 50, due_offset_days: 30 },
+  ]);
   const fileRef = useRef<HTMLInputElement>(null);
 
 

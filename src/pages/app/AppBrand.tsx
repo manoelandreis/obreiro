@@ -342,16 +342,6 @@ export default function AppBrand() {
           </p>
         </div>
 
-        {/* Payment conditions */}
-        <div className="border-t border-border pt-6 space-y-2">
-          <Label>Condições de pagamento</Label>
-          <Textarea
-            value={paymentConditions}
-            onChange={(e) => setPaymentConditions(e.target.value.slice(0, 2000))}
-            rows={3}
-            placeholder="Ex: 30% à adjudicação, 40% no início dos trabalhos, 30% na conclusão."
-          />
-        </div>
 
         {/* Validity */}
         <div className="border-t border-border pt-6 space-y-2">

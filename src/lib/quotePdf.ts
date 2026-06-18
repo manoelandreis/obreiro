@@ -139,9 +139,7 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
     </div>`;
   })();
 
-  const paymentHtml = payment
-    ? `<div class="section"><h3>Condições de pagamento</h3><div class="prewrap">${esc(payment)}</div></div>`
-    : '';
+  const paymentHtml = '';
 
   const termsHtml = terms
     ? `<div class="section terms"><h3>Termos e condições</h3><div class="prewrap small">${esc(terms)}</div></div>`

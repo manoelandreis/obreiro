@@ -454,12 +454,12 @@ export default function AppQuoteNew() {
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {PAYMENT_PRESETS.filter((p) => p.id !== 'custom').map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
-                  ))}
-                  {paymentTemplates.length > 0 && <div className="my-1 border-t" />}
                   {paymentTemplates.map((t) => (
                     <SelectItem key={t.id} value={`tpl:${t.id}`}>{t.name}</SelectItem>
+                  ))}
+                  {paymentTemplates.length > 0 && <div className="my-1 border-t" />}
+                  {PAYMENT_PRESETS.filter((p) => p.id !== 'custom').map((p) => (
+                    <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

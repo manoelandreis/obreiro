@@ -319,6 +319,7 @@ export type Database = {
           logo_url: string | null
           payment_conditions: string | null
           payment_term_presets: Json
+          payment_term_templates: Json | null
           pin_enabled: boolean
           pin_hash: string | null
           pin_salt: string | null
@@ -343,6 +344,7 @@ export type Database = {
           logo_url?: string | null
           payment_conditions?: string | null
           payment_term_presets?: Json
+          payment_term_templates?: Json | null
           pin_enabled?: boolean
           pin_hash?: string | null
           pin_salt?: string | null
@@ -367,6 +369,7 @@ export type Database = {
           logo_url?: string | null
           payment_conditions?: string | null
           payment_term_presets?: Json
+          payment_term_templates?: Json | null
           pin_enabled?: boolean
           pin_hash?: string | null
           pin_salt?: string | null

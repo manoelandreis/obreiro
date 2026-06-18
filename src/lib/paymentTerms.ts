@@ -8,21 +8,7 @@ export interface PaymentInstallment {
 
 export interface PaymentTerms {
   preset: PaymentPreset;
-  preset_id?: string; // id of a saved custom preset (when applicable)
   installments: PaymentInstallment[];
-}
-
-export interface SavedPaymentPreset {
-  id: string;
-  name: string;
-  installments: PaymentInstallment[];
-}
-
-export function summarizeInstallment(i: PaymentInstallment): string {
-  if (!i.due_offset_days || i.due_offset_days === 0) {
-    return `${i.label} · ${i.percent}%`;
-  }
-  return `${i.label} · ${i.percent}% a ${i.due_offset_days} dias`;
 }
 
 export const PAYMENT_PRESETS: { id: PaymentPreset; label: string; installments: PaymentInstallment[] }[] = [

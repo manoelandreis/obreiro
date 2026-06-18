@@ -467,3 +467,149 @@ export default function AppQuoteDetail() {
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
                 placeholder="cliente@exemplo.com"
+              />
+            </div>
+            <div>
+              <Label>Mensagem (opcional)</Label>
+              <Textarea
+                rows={4}
+                value={messageBody}
+                onChange={(e) => setMessageBody(e.target.value)}
+                placeholder="Olá, segue o orçamento que falámos..."
+              />
+            </div>
+            <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2 text-xs">
+              <span className="text-muted-foreground truncate">{publicUrl}</span>
+              <Button variant="ghost" size="sm" onClick={copyLink} className="gap-1 h-7">
+                <Copy className="h-3.5 w-3.5" /> Copiar
+              </Button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSendOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSendByEmail} className="gap-2">
+              <Mail className="h-4 w-4" /> Abrir email
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Floating action bar */}
+      <div className="fixed bottom-0 left-0 right-0 md:left-64 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-[0_-4px_20px_-8px_rgba(0,0,0,0.15)]">
+        <div className="mx-auto max-w-5xl px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          {/* Total */}
+          <div className="flex flex-col leading-tight min-w-0">
+            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">Total (c/ IVA)</span>
+            <span className="font-heading text-xl sm:text-2xl font-bold text-accent">
+              {euroFmt(Number(quote.total))}
+            </span>
+          </div>
+
+          <div className="sm:ml-auto flex items-center gap-2 flex-wrap">
+            {/* Mobile layout: menu + Download + WhatsApp (full-width) */}
+            <div className="flex items-center gap-2 w-full sm:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" aria-label="Mais ações" className="h-10 w-10 shrink-0">
+                    <MoreHorizontal className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <a href={publicUrl} target="_blank" rel="noreferrer" className="gap-2">
+                      <ExternalLink className="h-4 w-4" /> Ver como o cliente vê
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={copyLink} className="gap-2">
+                    <Copy className="h-4 w-4" /> Copiar link
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSendOpen(true)} className="gap-2">
+                    <Mail className="h-4 w-4" /> Enviar por email
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button
+                variant="outline"
+                onClick={handleDownload}
+                disabled={generating}
+                className="flex-1 h-10 gap-2"
+              >
+                {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                Descarregar
+              </Button>
+
+              <Button
+                onClick={handleSendByWhatsApp}
+                disabled={!hasPhone}
+                className="flex-1 h-10 gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+                title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
+              >
+                <MessageCircle className="h-4 w-4" />
+                WhatsApp
+              </Button>
+            </div>
+
+            {/* Desktop layout */}
+            <div className="hidden sm:flex items-center gap-2">
+              <Button
+                variant="outline"
+                asChild
+                className="h-10 w-10 p-0 md:w-auto md:px-3"
+                title="Ver como o cliente vê"
+              >
+                <a href={publicUrl} target="_blank" rel="noreferrer">
+                  <ExternalLink className="h-4 w-4" />
+                  <span className="hidden md:inline ml-1.5">Ver como o cliente vê</span>
+                </a>
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={copyLink}
+                className="h-10 w-10 p-0 md:w-auto md:px-3"
+                title="Copiar link"
+              >
+                <Copy className="h-4 w-4" />
+                <span className="hidden md:inline ml-1.5">Copiar link</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={handleDownload}
+                disabled={generating}
+                className="h-10 w-10 p-0 md:w-auto md:px-3"
+                title="Descarregar PDF"
+              >
+                {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                <span className="hidden md:inline ml-1.5">PDF</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => setSendOpen(true)}
+                className="h-10 w-10 p-0 md:w-auto md:px-3"
+                title="Enviar por email"
+              >
+                <Mail className="h-4 w-4" />
+                <span className="hidden md:inline ml-1.5">Email</span>
+              </Button>
+
+              <Button
+                onClick={handleSendByWhatsApp}
+                disabled={!hasPhone}
+                className="h-10 gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+                title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
+              >
+                <MessageCircle className="h-4 w-4" />
+                WhatsApp
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -9,13 +9,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, Image as ImageIcon, Trash2, Loader2, Wallet, Plus } from 'lucide-react';
+import { Upload, Image as ImageIcon, Trash2, Loader2, Wallet, Plus, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import {
   DEFAULT_PAYMENT_TERMS,
   PAYMENT_PRESETS,
   PaymentPreset,
   PaymentTerms,
+  CustomPaymentTemplate,
+  createEmptyTemplate,
   expandInstallments,
   presetById,
   totalPercent,

@@ -11,6 +11,25 @@ export interface PaymentTerms {
   installments: PaymentInstallment[];
 }
 
+export interface CustomPaymentTemplate {
+  id: string;
+  name: string;
+  installments: PaymentInstallment[];
+}
+
+export function createEmptyTemplate(name = 'Novo modelo'): CustomPaymentTemplate {
+  return {
+    id: (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+      ? crypto.randomUUID()
+      : `tpl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    name,
+    installments: [
+      { label: 'Parcela 1', percent: 50, due_offset_days: 0 },
+      { label: 'Parcela 2', percent: 50, due_offset_days: 30 },
+    ],
+  };
+}
+
 export const PAYMENT_PRESETS: { id: PaymentPreset; label: string; installments: PaymentInstallment[] }[] = [
   {
     id: '100_end',

@@ -94,6 +94,7 @@ export default function AppBrand() {
         setCompanyPhone(d.company_phone ?? '');
         setCompanyAddress(d.company_address ?? '');
         if (d.default_payment_terms) setPaymentTerms(d.default_payment_terms as PaymentTerms);
+        if (Array.isArray(d.payment_term_presets)) setSavedPresets(d.payment_term_presets as SavedPaymentPreset[]);
       }
       setLoading(false);
     })();

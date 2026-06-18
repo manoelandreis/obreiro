@@ -1,23 +1,54 @@
-# Ajuste no Preview do Orçamento
 
-## Problema
-O preview inline do orçamento está a esconder os valores totais (`hideTotals: true`), o que quebra a fidelidade do documento. O utilizador quer que o preview mostre **exatamente** o que o cliente vê. A barra flutuante em baixo deve continuar a mostrar o total como atalho de verificação rápida.
+## Objetivo
 
-## Alteração
+Na secção **Formato de pagamento por defeito** (em `/app/brand`), substituir o dropdown atual por uma grelha de **cards selecionáveis** (estilo do wireframe), permitindo ao utilizador:
 
-### 1. Reverter `hideTotals` no preview inline
-Ficheiro: `src/pages/app/AppQuoteDetail.tsx`
+1. Escolher um dos presets standard com 1 clique.
+2. Ver os seus próprios formatos personalizados guardados (com **nome**) como cards adicionais com etiqueta "Guardado por si".
+3. Clicar em **"Criar personalizado"** para abrir o editor de parcelas atual + um novo campo **Nome do formato**.
 
-- Alterar `buildHtml(true)` para passar `hideTotals: false` (ou remover a opção, usando o default).
-- O preview inline deve renderizar o orçamento completo, com totais visíveis.
+## UI
 
-### 2. Manter a barra flutuante
-Não alterar a barra de ações inferior. Continua a mostrar o total com IVA como atalho rápido.
+**Grelha de cards** (responsive: 1 col mobile, 2 cols sm, 3 cols md):
 
-### 3. Verificação
-- Confirmar que o `buildQuoteHtml` em `src/lib/quotePdf.ts` renderiza os totais quando `hideTotals` é omitido ou `false`.
-- Verificar no preview que o documento aparece completo.
+Cada card mostra:
+- Título (ex.: `100% à conclusão`, ou nome do personalizado com ícone ⭐)
+- Barra(s) de progresso visual proporcional às parcelas (cores: accent para presets, primary para personalizados guardados — como no wireframe)
+- Linhas de detalhe: `Adiantamento · 50%`, `Final · 50% a 30 dias`
+- Card selecionado: borda destacada (`ring-2 ring-primary`)
+- Personalizados guardados: badge "Guardado por si" no topo
+- Card final tracejado: `+ Criar personalizado`
 
-## Não alterar
-- Nada mais na página de detalhe, dashboard, ou outros fluxos.
-- Nenhuma migração de base de dados necessária.
+**Ao clicar "Criar personalizado":**
+- Expande abaixo da grelha o editor de parcelas (Descrição / % / Dias) já existente
+- Adiciona no topo um campo **Nome do formato** (ex.: "Meu 40/60")
+- Botões: `Guardar formato` (persiste como novo card personalizado) e `Cancelar`
+
+**Editar/Apagar personalizado:** ao passar o rato sobre um card personalizado, botão pequeno para editar/remover.
+
+## Dados
+
+Os custom presets nomeados precisam de persistência. Adicionar coluna `payment_term_presets jsonb` (array) em `app_user_settings`:
+
+```ts
+type SavedPaymentPreset = {
+  id: string;            // uuid
+  name: string;          // "Meu 40/60"
+  installments: PaymentInstallment[];
+};
+```
+
+O `payment_terms` atual continua a guardar o formato **selecionado por defeito** (snapshot das installments + um novo campo opcional `preset_id` para destacar o card correto).
+
+## Alterações
+
+1. **Migração** — adicionar `payment_term_presets jsonb default '[]'::jsonb` em `app_user_settings`.
+2. **`src/lib/paymentTerms.ts`** — adicionar tipo `SavedPaymentPreset`; helper `presetSummary(installments)` para o texto curto do card.
+3. **`src/components/app/PaymentPresetCard.tsx`** (novo) — card visual com barra proporcional, título, linhas de detalhe, estado selecionado, slot opcional para badge e ações hover.
+4. **`src/pages/app/AppBrand.tsx`** — substituir o bloco do dropdown (linhas ~380–447) por:
+   - Grelha de cards: presets standard + `payment_term_presets` do utilizador + card "Criar personalizado".
+   - Editor de parcelas só visível em modo criação/edição, com campo **Nome do formato** no topo.
+   - Carregar/guardar `payment_term_presets` no Supabase junto com `payment_terms`.
+5. Manter a pré-visualização (€1000) e o botão `Guardar formato` (passa a guardar o preset selecionado como default).
+
+Sem alterações na geração de orçamentos — continua a usar `payment_terms` (installments) do utilizador.

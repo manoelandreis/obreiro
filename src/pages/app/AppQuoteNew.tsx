@@ -51,6 +51,11 @@ export default function AppQuoteNew() {
   const [services, setServices] = useState<ServiceItem[]>([emptyService()]);
   const [notes, setNotes] = useState('');
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>(DEFAULT_PAYMENT_TERMS);
+  const [paymentTemplates, setPaymentTemplates] = useState<CustomPaymentTemplate[]>([]);
+  const [selectedPaymentKey, setSelectedPaymentKey] = useState<string>('100_end');
+  const [openNewPayment, setOpenNewPayment] = useState(false);
+  const [paymentDraft, setPaymentDraft] = useState<CustomPaymentTemplate | null>(null);
+  const [savingPayment, setSavingPayment] = useState(false);
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [saving, setSaving] = useState(false);
   const [expanded, setExpanded] = useState({ client: true, services: true, payment: false, notes: false });

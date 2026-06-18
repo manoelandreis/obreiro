@@ -418,6 +418,114 @@ export default function AppBrand() {
   );
 
   const previewTotal = 1000;
+  const todayStr = new Date().toLocaleDateString('pt-PT');
+  const builtInPresets = PAYMENT_PRESETS.filter((p) => p.id !== 'custom');
+  const selectedTpl = selectedKey.startsWith('tpl:')
+    ? templates.find((t) => t.id === selectedKey.slice(4)) ?? null
+    : null;
+  const editing = draft !== null;
+  const draftValid =
+    !!draft && draft.name.trim().length > 0 && totalPercent({ preset: 'custom', installments: draft.installments }) === 100;
+
+  const onSelectChange = (v: string) => {
+    if (editing) return; // safety
+    if (v === '__new') {
+      const tpl = createEmptyTemplate('Novo modelo');
+      setDraft(tpl);
+      setIsNewTemplate(true);
+      setEditingTplId(tpl.id);
+      setSelectedKey(`tpl:${tpl.id}`);
+      setPaymentTerms({ preset: 'custom', installments: tpl.installments.map((i) => ({ ...i })) });
+      return;
+    }
+    if (v.startsWith('tpl:')) {
+      const tpl = templates.find((t) => t.id === v.slice(4));
+      if (tpl) {
+        setSelectedKey(v);
+        setPaymentTerms({ preset: 'custom', installments: tpl.installments.map((i) => ({ ...i })) });
+      }
+      return;
+    }
+    const p = presetById(v as PaymentPreset);
+    setSelectedKey(p.id);
+    setPaymentTerms({ preset: p.id, installments: p.installments.map((i) => ({ ...i })) });
+  };
+
+  const startEdit = (tpl: CustomPaymentTemplate) => {
+    setDraft({ ...tpl, installments: tpl.installments.map((i) => ({ ...i })) });
+    setIsNewTemplate(false);
+    setEditingTplId(tpl.id);
+  };
+
+  const cancelEdit = () => {
+    if (isNewTemplate) {
+      // discard new template entirely
+      const fallback = templates[0] ? `tpl:${templates[0].id}` : '100_end';
+      if (fallback === '100_end') {
+        const p = presetById('100_end');
+        setPaymentTerms({ preset: p.id, installments: p.installments });
+      } else {
+        const t = templates[0]!;
+        setPaymentTerms({ preset: 'custom', installments: t.installments.map((i) => ({ ...i })) });
+      }
+      setSelectedKey(fallback);
+    }
+    setDraft(null);
+    setEditingTplId(null);
+    setIsNewTemplate(false);
+  };
+
+  const saveDraft = async () => {
+    if (!draft) return;
+    if (!draft.name.trim()) return toast.error('Indique um nome para o modelo.');
+    const nameTaken = templates.some(
+      (t) => t.id !== draft.id && t.name.trim().toLowerCase() === draft.name.trim().toLowerCase(),
+    );
+    if (nameTaken) return toast.error('Já existe um modelo com esse nome.');
+    if (totalPercent({ preset: 'custom', installments: draft.installments }) !== 100) {
+      return toast.error('Soma das percentagens deve ser 100%.');
+    }
+    const cleaned: CustomPaymentTemplate = { ...draft, name: draft.name.trim() };
+    const next = isNewTemplate
+      ? [...templates, cleaned]
+      : templates.map((t) => (t.id === cleaned.id ? cleaned : t));
+    const nextTerms: PaymentTerms = { preset: 'custom', installments: cleaned.installments.map((i) => ({ ...i })) };
+    setSaving(true);
+    const ok = await persistPaymentSettings(next, nextTerms);
+    setSaving(false);
+    if (!ok) return;
+    setTemplates(next);
+    setPaymentTerms(nextTerms);
+    setSelectedKey(`tpl:${cleaned.id}`);
+    setDraft(null);
+    setEditingTplId(null);
+    setIsNewTemplate(false);
+    toast.success(isNewTemplate ? 'Modelo adicionado.' : 'Modelo atualizado.');
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTplId) return;
+    const next = templates.filter((t) => t.id !== deleteTplId);
+    const fallback = presetById('100_end');
+    const nextTerms: PaymentTerms = { preset: fallback.id, installments: fallback.installments.map((i) => ({ ...i })) };
+    const ok = await persistPaymentSettings(next, nextTerms);
+    if (!ok) return;
+    setTemplates(next);
+    setPaymentTerms(nextTerms);
+    setSelectedKey('100_end');
+    setDeleteTplId(null);
+    if (editingTplId === deleteTplId) {
+      setDraft(null);
+      setEditingTplId(null);
+      setIsNewTemplate(false);
+    }
+    toast.success('Modelo eliminado.');
+  };
+
+  const previewSource: PaymentTerms = draft
+    ? { preset: 'custom', installments: draft.installments }
+    : paymentTerms;
+
   const paymentCard = (
     <Card>
       <CardContent className="pt-6 space-y-4">
@@ -429,92 +537,152 @@ export default function AppBrand() {
 
         <div>
           <Label>Modelo</Label>
-          <Select
-            value={paymentTerms.preset}
-            onValueChange={(v) => {
-              const p = presetById(v as PaymentPreset);
-              setPaymentTerms({ preset: p.id, installments: p.installments.map((i) => ({ ...i })) });
-            }}
-          >
+          <Select value={selectedKey} onValueChange={onSelectChange} disabled={editing}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              {PAYMENT_PRESETS.map((p) => (
+              {builtInPresets.map((p) => (
                 <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
               ))}
+              {templates.length > 0 && (
+                <div className="my-1 border-t" />
+              )}
+              {templates.map((t) => (
+                <SelectItem key={t.id} value={`tpl:${t.id}`}>{t.name}</SelectItem>
+              ))}
+              <div className="my-1 border-t" />
+              <SelectItem value="__new">+ Novo modelo personalizado</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        {paymentTerms.preset === 'custom' && (
-          <div className="space-y-2">
-            {paymentTerms.installments.map((i, idx) => (
-              <div key={idx} className="grid grid-cols-12 gap-2 items-end">
-                <div className="col-span-5"><Label className="text-xs">Descrição</Label>
-                  <Input value={i.label} onChange={(e) => {
-                    const next = [...paymentTerms.installments];
-                    next[idx] = { ...next[idx], label: e.target.value };
-                    setPaymentTerms({ ...paymentTerms, installments: next });
-                  }} />
-                </div>
-                <div className="col-span-3"><Label className="text-xs">%</Label>
-                  <Input type="number" min={0} max={100} value={i.percent} onChange={(e) => {
-                    const next = [...paymentTerms.installments];
-                    next[idx] = { ...next[idx], percent: Number(e.target.value) };
-                    setPaymentTerms({ ...paymentTerms, installments: next });
-                  }} />
-                </div>
-                <div className="col-span-3"><Label className="text-xs">Dias após aceitação</Label>
-                  <Input type="number" min={0} value={i.due_offset_days} onChange={(e) => {
-                    const next = [...paymentTerms.installments];
-                    next[idx] = { ...next[idx], due_offset_days: Number(e.target.value) };
-                    setPaymentTerms({ ...paymentTerms, installments: next });
-                  }} />
-                </div>
-                <div className="col-span-1 flex justify-end">
-                  {paymentTerms.installments.length > 1 && (
-                    <Button variant="ghost" size="icon" onClick={() => {
-                      const next = paymentTerms.installments.filter((_, n) => n !== idx);
-                      setPaymentTerms({ ...paymentTerms, installments: next });
-                    }}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => {
-              setPaymentTerms({
-                ...paymentTerms,
-                installments: [...paymentTerms.installments, { label: `Parcela ${paymentTerms.installments.length + 1}`, percent: 0, due_offset_days: 30 }],
-              });
-            }}>
-              <Plus className="h-4 w-4" /> Adicionar parcela
+        {selectedTpl && !editing && (
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => startEdit(selectedTpl)}>
+              <Pencil className="h-4 w-4" /> Editar formato
             </Button>
-            {totalPercent(paymentTerms) !== 100 && (
-              <p className="text-xs text-destructive">Soma das percentagens: {totalPercent(paymentTerms)}% (deve ser 100%).</p>
-            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2 text-destructive hover:text-destructive"
+              onClick={() => setDeleteTplId(selectedTpl.id)}
+            >
+              <Trash2 className="h-4 w-4" /> Eliminar formato
+            </Button>
+          </div>
+        )}
+
+        {editing && draft && (
+          <div className="space-y-3 rounded-lg border bg-muted/20 p-3">
+            <div>
+              <Label className="text-xs">Nome do modelo</Label>
+              <Input
+                value={draft.name}
+                placeholder="Ex.: 30% adiantamento + 70% à entrega"
+                onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              {draft.installments.map((i, idx) => (
+                <div key={idx} className="grid grid-cols-[1fr_5rem_7rem_2rem] gap-2 items-end">
+                  <div>
+                    {idx === 0 && <Label className="text-xs">Descrição</Label>}
+                    <Input value={i.label} onChange={(e) => {
+                      const next = [...draft.installments];
+                      next[idx] = { ...next[idx], label: e.target.value };
+                      setDraft({ ...draft, installments: next });
+                    }} />
+                  </div>
+                  <div>
+                    {idx === 0 && <Label className="text-xs">%</Label>}
+                    <Input type="number" min={0} max={100} value={i.percent} onChange={(e) => {
+                      const next = [...draft.installments];
+                      next[idx] = { ...next[idx], percent: Number(e.target.value) };
+                      setDraft({ ...draft, installments: next });
+                    }} />
+                  </div>
+                  <div>
+                    {idx === 0 && <Label className="text-xs">Dias após aceitação</Label>}
+                    <Input type="number" min={0} value={i.due_offset_days} onChange={(e) => {
+                      const next = [...draft.installments];
+                      next[idx] = { ...next[idx], due_offset_days: Number(e.target.value) };
+                      setDraft({ ...draft, installments: next });
+                    }} />
+                  </div>
+                  <div className="flex justify-end">
+                    {draft.installments.length > 1 && (
+                      <Button variant="ghost" size="icon" onClick={() => {
+                        const next = draft.installments.filter((_, n) => n !== idx);
+                        setDraft({ ...draft, installments: next });
+                      }}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => {
+                setDraft({
+                  ...draft,
+                  installments: [...draft.installments, { label: `Parcela ${draft.installments.length + 1}`, percent: 0, due_offset_days: 30 }],
+                });
+              }}>
+                <Plus className="h-4 w-4" /> Adicionar parcela
+              </Button>
+              {totalPercent({ preset: 'custom', installments: draft.installments }) !== 100 && (
+                <p className="text-xs text-destructive">
+                  Soma das percentagens: {totalPercent({ preset: 'custom', installments: draft.installments })}% (deve ser 100%).
+                </p>
+              )}
+            </div>
           </div>
         )}
 
         <div className="rounded-lg border bg-muted/30 p-3">
-          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Pré-visualização (exemplo {fmt(previewTotal)})</div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+            Pré-visualização (exemplo {fmt(previewTotal)} — {todayStr})
+          </div>
           <div className="space-y-1">
-            {expandInstallments(paymentTerms, previewTotal, new Date()).map((p, idx) => (
-              <div key={idx} className="flex items-center justify-between text-sm gap-2">
-                <span>{p.label} <span className="text-muted-foreground">({p.percent}%)</span></span>
-                <span className="text-muted-foreground text-xs">vence {p.dueDate.toLocaleDateString('pt-PT')}</span>
-                <span className="font-semibold text-accent w-24 text-right">{fmt(p.amount)}</span>
+            {expandInstallments(previewSource, previewTotal, new Date()).map((p, idx) => (
+              <div key={idx} className="grid grid-cols-[1fr_8rem_6rem] items-center gap-3 text-sm">
+                <span className="truncate">
+                  {p.label} <span className="text-muted-foreground">({p.percent}%)</span>
+                </span>
+                <span className="text-muted-foreground text-xs text-right">
+                  vence {p.dueDate.toLocaleDateString('pt-PT')}
+                </span>
+                <span className="font-semibold text-accent text-right">{fmt(p.amount)}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="pt-2">
-          <Button onClick={save} disabled={saving} size="sm">
-            {saving ? 'A guardar...' : 'Guardar formato'}
-          </Button>
-        </div>
+        {editing && (
+          <div className="pt-2 flex flex-wrap gap-2">
+            <Button onClick={saveDraft} disabled={saving || !draftValid} size="sm">
+              {saving ? 'A guardar...' : isNewTemplate ? 'Adicionar formato' : 'Guardar alterações'}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={cancelEdit} disabled={saving}>
+              Cancelar
+            </Button>
+          </div>
+        )}
       </CardContent>
+
+      <AlertDialog open={!!deleteTplId} onOpenChange={(o) => !o && setDeleteTplId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar formato?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O modelo será removido da lista de formatos personalizados.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Eliminar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 

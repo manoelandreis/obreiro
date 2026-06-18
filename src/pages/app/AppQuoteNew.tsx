@@ -461,21 +461,12 @@ export default function AppQuoteNew() {
                   {PAYMENT_PRESETS.filter((p) => p.id !== 'custom').map((p) => (
                     <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
                   ))}
+                  <div className="my-1 border-t" />
+                  <SelectItem value="__new" className="text-primary font-medium">+ Novo modelo personalizado</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              onClick={() => {
-                setPaymentDraft(createEmptyTemplate('Novo modelo'));
-                setOpenNewPayment(true);
-              }}
-            >
-              <Plus className="h-4 w-4" /> Adicionar método de pagamento personalizado
-            </Button>
 
             <div className="rounded-lg border bg-muted/30 p-3">
               <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Pré-visualização</div>

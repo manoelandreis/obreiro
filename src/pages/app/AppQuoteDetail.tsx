@@ -73,7 +73,7 @@ export default function AppQuoteDetail() {
   const [recipient, setRecipient] = useState('');
   const [messageBody, setMessageBody] = useState('');
   const [generating, setGenerating] = useState(false);
-  const [inlineHtml, setInlineHtml] = useState<string | null>(null);
+  
   const [showAttachments, setShowAttachments] = useState(false);
   const [defaultPaymentTerms, setDefaultPaymentTerms] = useState<PaymentTerms | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);

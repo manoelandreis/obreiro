@@ -22,7 +22,6 @@ import { StatusBadge } from '@/components/app/QuoteStatusBadge';
 import { QuoteAttachments } from '@/components/app/QuoteAttachments';
 import { QuoteWorkView } from '@/components/app/QuoteWorkView';
 import { FeatureGate } from '@/components/app/FeatureGate';
-
 import {
   ArrowLeft, Download, Mail, Copy, History, Sparkles, Loader2, ExternalLink,
   ChevronDown, Eye, EyeOff, MessageCircle, ImagePlus, Check, MoreHorizontal,
@@ -73,10 +72,8 @@ export default function AppQuoteDetail() {
   const [recipient, setRecipient] = useState('');
   const [messageBody, setMessageBody] = useState('');
   const [generating, setGenerating] = useState(false);
-  
   const [showAttachments, setShowAttachments] = useState(false);
   const [defaultPaymentTerms, setDefaultPaymentTerms] = useState<PaymentTerms | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const publicUrl = useMemo(
     () => (quote ? `${window.location.origin}/q/${quote.public_token}` : ''),
@@ -194,30 +191,6 @@ export default function AppQuoteDetail() {
       attachmentUrls,
       hideTotals: inline,
     });
-  };
-
-  // Build inline preview whenever quote changes
-  useEffect(() => {
-    if (!quote || !user) return;
-    let cancelled = false;
-    void (async () => {
-      const html = await buildHtml(false);
-      if (!cancelled) setInlineHtml(html);
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quote?.id, user?.id, isPro, defaultPaymentTerms]);
-
-  const autoSizeIframe = () => {
-    const f = iframeRef.current;
-    if (!f) return;
-    try {
-      const doc = f.contentDocument;
-      if (doc) {
-        const h = Math.max(doc.documentElement.scrollHeight, doc.body?.scrollHeight ?? 0);
-        f.style.height = `${h + 32}px`;
-      }
-    } catch { /* ignore */ }
   };
 
   const handleDownload = async () => {
@@ -381,53 +354,18 @@ export default function AppQuoteDetail() {
         </div>
       </div>
 
-
-      {/* View toggle: Work view vs Document preview */}
-      <Tabs defaultValue="work" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="work">Vista de trabalho</TabsTrigger>
-          <TabsTrigger value="doc">Pré-visualizar documento</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="work" className="mt-4">
-          <QuoteWorkView
-            quoteId={quote.id}
-            services={(quote.services as any) || []}
-            client={{ name: cl.name, email: cl.email, phone: cl.phone }}
-            subtotal={Number(quote.subtotal)}
-            iva={Number(quote.iva)}
-            notes={quote.notes}
-            paymentTerms={quote.payment_terms ?? defaultPaymentTerms}
-            paymentAnchor={quote.responded_at ?? quote.sent_at ?? quote.created_at}
-            onClientUpdated={load}
-          />
-        </TabsContent>
-
-        <TabsContent value="doc" className="mt-4">
-          <Card className="overflow-hidden">
-            <CardContent className="p-0 bg-muted/30">
-              {inlineHtml ? (
-                <iframe
-                  ref={iframeRef}
-                  title="Pré-visualização do orçamento"
-                  srcDoc={inlineHtml}
-                  onLoad={autoSizeIframe}
-                  className="w-full bg-white"
-                  style={{ minHeight: 600, border: 0 }}
-                />
-              ) : (
-                <div className="flex items-center justify-center py-20 text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" /> A preparar pré-visualização…
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-
-
-
+      {/* Work view */}
+      <QuoteWorkView
+        quoteId={quote.id}
+        services={(quote.services as any) || []}
+        client={{ name: cl.name, email: cl.email, phone: cl.phone }}
+        subtotal={Number(quote.subtotal)}
+        iva={Number(quote.iva)}
+        notes={quote.notes}
+        paymentTerms={quote.payment_terms ?? defaultPaymentTerms}
+        paymentAnchor={quote.responded_at ?? quote.sent_at ?? quote.created_at}
+        onClientUpdated={load}
+      />
 
       {/* Attachments (collapsed by default) */}
       <Collapsible open={showAttachments} onOpenChange={setShowAttachments}>
@@ -529,149 +467,4 @@ export default function AppQuoteDetail() {
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
                 placeholder="cliente@exemplo.com"
-              />
-            </div>
-            <div>
-              <Label>Mensagem (opcional)</Label>
-              <Textarea
-                rows={4}
-                value={messageBody}
-                onChange={(e) => setMessageBody(e.target.value)}
-                placeholder="Olá, segue o orçamento que falámos..."
-              />
-            </div>
-            <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2 text-xs">
-              <span className="text-muted-foreground truncate">{publicUrl}</span>
-              <Button variant="ghost" size="sm" onClick={copyLink} className="gap-1 h-7">
-                <Copy className="h-3.5 w-3.5" /> Copiar
-              </Button>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSendOpen(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleSendByEmail} className="gap-2">
-              <Mail className="h-4 w-4" /> Abrir email
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Floating action bar */}
-      <div className="fixed bottom-0 left-0 right-0 md:left-64 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-[0_-4px_20px_-8px_rgba(0,0,0,0.15)]">
-        <div className="mx-auto max-w-5xl px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-          {/* Total */}
-          <div className="flex flex-col leading-tight min-w-0">
-            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">Total (c/ IVA)</span>
-            <span className="font-heading text-xl sm:text-2xl font-bold text-accent">
-              {euroFmt(Number(quote.total))}
-            </span>
-          </div>
-
-          <div className="sm:ml-auto flex items-center gap-2 flex-wrap">
-            {/* Mobile layout: menu + Download + WhatsApp (full-width) */}
-            <div className="flex items-center gap-2 w-full sm:hidden">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" aria-label="Mais ações" className="h-10 w-10 shrink-0">
-                    <MoreHorizontal className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <a href={publicUrl} target="_blank" rel="noreferrer" className="gap-2">
-                      <ExternalLink className="h-4 w-4" /> Ver como o cliente vê
-                    </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={copyLink} className="gap-2">
-                    <Copy className="h-4 w-4" /> Copiar link
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSendOpen(true)} className="gap-2">
-                    <Mail className="h-4 w-4" /> Enviar por email
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <Button
-                variant="outline"
-                onClick={handleDownload}
-                disabled={generating}
-                className="flex-1 h-10 gap-2"
-              >
-                {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                Descarregar
-              </Button>
-
-              <Button
-                onClick={handleSendByWhatsApp}
-                disabled={!hasPhone}
-                className="flex-1 h-10 gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
-                title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
-              >
-                <MessageCircle className="h-4 w-4" />
-                WhatsApp
-              </Button>
-            </div>
-
-            {/* Desktop layout */}
-            <div className="hidden sm:flex items-center gap-2">
-              <Button
-                variant="outline"
-                asChild
-                className="h-10 w-10 p-0 md:w-auto md:px-3"
-                title="Ver como o cliente vê"
-              >
-                <a href={publicUrl} target="_blank" rel="noreferrer">
-                  <ExternalLink className="h-4 w-4" />
-                  <span className="hidden md:inline ml-1.5">Ver como o cliente vê</span>
-                </a>
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={copyLink}
-                className="h-10 w-10 p-0 md:w-auto md:px-3"
-                title="Copiar link"
-              >
-                <Copy className="h-4 w-4" />
-                <span className="hidden md:inline ml-1.5">Copiar link</span>
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={handleDownload}
-                disabled={generating}
-                className="h-10 w-10 p-0 md:w-auto md:px-3"
-                title="Descarregar PDF"
-              >
-                {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                <span className="hidden md:inline ml-1.5">PDF</span>
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={() => setSendOpen(true)}
-                className="h-10 w-10 p-0 md:w-auto md:px-3"
-                title="Enviar por email"
-              >
-                <Mail className="h-4 w-4" />
-                <span className="hidden md:inline ml-1.5">Email</span>
-              </Button>
-
-              <Button
-                onClick={handleSendByWhatsApp}
-                disabled={!hasPhone}
-                className="h-10 gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
-                title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
-              >
-                <MessageCircle className="h-4 w-4" />
-                WhatsApp
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+              area-Label=

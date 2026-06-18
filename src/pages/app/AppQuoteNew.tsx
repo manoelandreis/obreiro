@@ -65,7 +65,7 @@ export default function AppQuoteNew() {
     if (!user) return;
     void (async () => {
       const [{ data: settings }, { data: cs }, { data: tpl }] = await Promise.all([
-        supabase.from('app_user_settings').select('full_name, company_name, company_nif, company_email, company_phone, company_address, default_payment_terms' as any).eq('user_id', user.id).maybeSingle(),
+        supabase.from('app_user_settings').select('full_name, company_name, company_nif, company_email, company_phone, company_address, default_payment_terms, payment_term_templates' as any).eq('user_id', user.id).maybeSingle(),
         supabase.from('app_clients').select('id, name, email, phone, address').order('name'),
         supabase.from('quote_templates').select('id, name, unit, default_price').eq('is_active', true),
       ]);
@@ -79,7 +79,18 @@ export default function AppQuoteNew() {
           address: s.company_address || '',
         });
         setCompanyConfigured(!!(s.company_name || s.company_nif || s.company_email));
-        if (s.default_payment_terms) setPaymentTerms(s.default_payment_terms);
+        const tpls: CustomPaymentTemplate[] = Array.isArray(s.payment_term_templates) ? s.payment_term_templates : [];
+        setPaymentTemplates(tpls);
+        if (s.default_payment_terms) {
+          const dpt = s.default_payment_terms as PaymentTerms;
+          setPaymentTerms(dpt);
+          if (dpt.preset === 'custom') {
+            const match = tpls.find((t) => JSON.stringify(t.installments) === JSON.stringify(dpt.installments));
+            setSelectedPaymentKey(match ? `tpl:${match.id}` : (tpls[0] ? `tpl:${tpls[0].id}` : '100_end'));
+          } else {
+            setSelectedPaymentKey(dpt.preset);
+          }
+        }
       } else {
         setCompanyConfigured(false);
       }

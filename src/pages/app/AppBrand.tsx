@@ -82,7 +82,7 @@ export default function AppBrand() {
       const { data } = await supabase
         .from('app_user_settings')
         .select(
-          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address, default_payment_terms' as any
+          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address, default_payment_terms, payment_term_templates' as any
         )
         .eq('user_id', user.id)
         .maybeSingle();
@@ -101,7 +101,19 @@ export default function AppBrand() {
         setCompanyEmail(d.company_email ?? '');
         setCompanyPhone(d.company_phone ?? '');
         setCompanyAddress(d.company_address ?? '');
-        if (d.default_payment_terms) setPaymentTerms(d.default_payment_terms as PaymentTerms);
+        const tpls: CustomPaymentTemplate[] = Array.isArray(d.payment_term_templates) ? d.payment_term_templates : [];
+        setTemplates(tpls);
+        if (d.default_payment_terms) {
+          const dpt = d.default_payment_terms as PaymentTerms;
+          setPaymentTerms(dpt);
+          // Try to match a saved template by installments
+          if (dpt.preset === 'custom') {
+            const match = tpls.find(t => JSON.stringify(t.installments) === JSON.stringify(dpt.installments));
+            setSelectedKey(match ? `tpl:${match.id}` : (tpls[0] ? `tpl:${tpls[0].id}` : '100_end'));
+          } else {
+            setSelectedKey(dpt.preset);
+          }
+        }
       }
       setLoading(false);
     })();

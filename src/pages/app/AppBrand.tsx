@@ -179,6 +179,7 @@ export default function AppBrand() {
       company_phone: companyPhone.trim() || null,
       company_address: companyAddress.trim() || null,
       default_payment_terms: paymentTerms,
+      payment_term_templates: templates,
     };
     const { error } = await supabase
       .from('app_user_settings')

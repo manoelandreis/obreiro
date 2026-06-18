@@ -59,6 +59,13 @@ export default function AppBrand() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>(DEFAULT_PAYMENT_TERMS);
+  const [templates, setTemplates] = useState<CustomPaymentTemplate[]>([]);
+  // selectedKey: preset id (without 'custom') OR `tpl:<id>`
+  const [selectedKey, setSelectedKey] = useState<string>('100_end');
+  const [editingTplId, setEditingTplId] = useState<string | null>(null);
+  const [isNewTemplate, setIsNewTemplate] = useState(false);
+  const [draft, setDraft] = useState<CustomPaymentTemplate | null>(null);
+  const [deleteTplId, setDeleteTplId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
 

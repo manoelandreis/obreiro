@@ -467,4 +467,3 @@ export default function AppQuoteDetail() {
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
                 placeholder="cliente@exemplo.com"
-              area-Label=

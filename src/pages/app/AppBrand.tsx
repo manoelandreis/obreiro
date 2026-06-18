@@ -189,6 +189,24 @@ export default function AppBrand() {
     toast.success('Definições atualizadas.');
   };
 
+  const persistPaymentSettings = async (
+    nextTemplates: CustomPaymentTemplate[],
+    nextTerms: PaymentTerms,
+  ) => {
+    if (!user) return false;
+    const { error } = await supabase
+      .from('app_user_settings')
+      .upsert(
+        { user_id: user.id, payment_term_templates: nextTemplates, default_payment_terms: nextTerms } as any,
+        { onConflict: 'user_id' },
+      );
+    if (error) {
+      toast.error('Erro a guardar.');
+      return false;
+    }
+    return true;
+  };
+
 
   if (loading) {
     return (

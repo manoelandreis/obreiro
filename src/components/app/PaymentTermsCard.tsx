@@ -33,22 +33,16 @@ export function PaymentTermsCard({ paymentTerms, total, anchor, className }: Pro
           </div>
           <span className="text-xs font-semibold text-accent">{presetLabel}</span>
         </div>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-1">
           {parts.map((p, idx) => (
-            <div
-              key={idx}
-              className="rounded-md border bg-background p-3 flex flex-col gap-1"
-            >
-              <div className="flex items-center justify-between">
-                <span className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
-                  {idx + 1}ª · {p.percent}%
-                </span>
-                <span className="text-[10px] text-muted-foreground">
-                  {p.dueDate.toLocaleDateString('pt-PT')}
-                </span>
-              </div>
-              <div className="text-xs text-muted-foreground">{p.label}</div>
-              <div className="text-base font-bold text-primary">{euro(p.amount)}</div>
+            <div key={idx} className="grid grid-cols-[1fr_8rem_6rem] items-center gap-3 text-sm">
+              <span className="truncate">
+                {p.label} <span className="text-muted-foreground">({p.percent}%)</span>
+              </span>
+              <span className="text-muted-foreground text-xs text-right">
+                vence {p.dueDate.toLocaleDateString('pt-PT')}
+              </span>
+              <span className="font-semibold text-accent text-right">{euro(p.amount)}</span>
             </div>
           ))}
         </div>

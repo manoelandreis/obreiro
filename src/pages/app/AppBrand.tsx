@@ -8,18 +8,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, Image as ImageIcon, Trash2, Loader2, Wallet, Plus } from 'lucide-react';
+
+import { Upload, Image as ImageIcon, Trash2, Loader2, Wallet, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   DEFAULT_PAYMENT_TERMS,
   PAYMENT_PRESETS,
   PaymentPreset,
   PaymentTerms,
+  PaymentInstallment,
+  SavedPaymentPreset,
   expandInstallments,
   presetById,
   totalPercent,
 } from '@/lib/paymentTerms';
+import { PaymentPresetCard, CreatePresetCard } from '@/components/app/PaymentPresetCard';
 
 const MAX_LOGO_BYTES = 5 * 1024 * 1024;
 const fmt = (n: number) => new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(n);
@@ -47,6 +50,14 @@ export default function AppBrand() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>(DEFAULT_PAYMENT_TERMS);
+  const [savedPresets, setSavedPresets] = useState<SavedPaymentPreset[]>([]);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editorId, setEditorId] = useState<string | null>(null);
+  const [editorName, setEditorName] = useState('');
+  const [editorInstallments, setEditorInstallments] = useState<PaymentInstallment[]>([
+    { label: 'Parcela 1', percent: 50, due_offset_days: 0 },
+    { label: 'Parcela 2', percent: 50, due_offset_days: 30 },
+  ]);
   const fileRef = useRef<HTMLInputElement>(null);
 
 
@@ -63,7 +74,7 @@ export default function AppBrand() {
       const { data } = await supabase
         .from('app_user_settings')
         .select(
-          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address, default_payment_terms' as any
+          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address, default_payment_terms, payment_term_presets' as any
         )
         .eq('user_id', user.id)
         .maybeSingle();
@@ -83,6 +94,7 @@ export default function AppBrand() {
         setCompanyPhone(d.company_phone ?? '');
         setCompanyAddress(d.company_address ?? '');
         if (d.default_payment_terms) setPaymentTerms(d.default_payment_terms as PaymentTerms);
+        if (Array.isArray(d.payment_term_presets)) setSavedPresets(d.payment_term_presets as SavedPaymentPreset[]);
       }
       setLoading(false);
     })();
@@ -148,6 +160,7 @@ export default function AppBrand() {
       company_phone: companyPhone.trim() || null,
       company_address: companyAddress.trim() || null,
       default_payment_terms: paymentTerms,
+      payment_term_presets: savedPresets,
     };
     const { error } = await supabase
       .from('app_user_settings')
@@ -368,6 +381,68 @@ export default function AppBrand() {
   );
 
   const previewTotal = 1000;
+
+  const selectStandardPreset = (id: PaymentPreset) => {
+    const p = presetById(id);
+    setPaymentTerms({ preset: p.id, installments: p.installments.map((i) => ({ ...i })) });
+    setEditorOpen(false);
+  };
+
+  const selectSavedPreset = (s: SavedPaymentPreset) => {
+    setPaymentTerms({
+      preset: 'custom',
+      preset_id: s.id,
+      installments: s.installments.map((i) => ({ ...i })),
+    });
+    setEditorOpen(false);
+  };
+
+  const openEditorNew = () => {
+    setEditorId(null);
+    setEditorName('');
+    setEditorInstallments([
+      { label: 'Parcela 1', percent: 50, due_offset_days: 0 },
+      { label: 'Parcela 2', percent: 50, due_offset_days: 30 },
+    ]);
+    setEditorOpen(true);
+  };
+
+  const openEditorEdit = (s: SavedPaymentPreset) => {
+    setEditorId(s.id);
+    setEditorName(s.name);
+    setEditorInstallments(s.installments.map((i) => ({ ...i })));
+    setEditorOpen(true);
+  };
+
+  const editorTotalPercent = editorInstallments.reduce((a, b) => a + (Number(b.percent) || 0), 0);
+
+  const handleSaveCustom = () => {
+    const name = editorName.trim();
+    if (!name) return toast.error('Indique um nome para o formato.');
+    if (editorTotalPercent !== 100) return toast.error('Soma das percentagens deve ser 100%.');
+    const id = editorId ?? (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `p_${Date.now()}`);
+    const next: SavedPaymentPreset = { id, name, installments: editorInstallments.map((i) => ({ ...i })) };
+    setSavedPresets((prev) => {
+      const exists = prev.some((p) => p.id === id);
+      return exists ? prev.map((p) => (p.id === id ? next : p)) : [...prev, next];
+    });
+    setPaymentTerms({ preset: 'custom', preset_id: id, installments: next.installments.map((i) => ({ ...i })) });
+    setEditorOpen(false);
+    toast.success(editorId ? 'Formato atualizado.' : 'Formato criado. Não esquecer de Guardar.');
+  };
+
+  const deleteSavedPreset = (id: string) => {
+    setSavedPresets((prev) => prev.filter((p) => p.id !== id));
+    if (paymentTerms.preset_id === id) {
+      selectStandardPreset('100_end');
+    }
+  };
+
+  const isStandardSelected = (id: PaymentPreset) =>
+    !editorOpen && paymentTerms.preset === id && !paymentTerms.preset_id;
+  const isSavedSelected = (id: string) =>
+    !editorOpen && paymentTerms.preset_id === id;
+
   const paymentCard = (
     <Card>
       <CardContent className="pt-6 space-y-4">
@@ -377,72 +452,108 @@ export default function AppBrand() {
         </div>
         <p className="text-sm text-muted-foreground -mt-2">Aplicado automaticamente aos novos orçamentos. Pode ser alterado em cada orçamento.</p>
 
-        <div>
-          <Label>Modelo</Label>
-          <Select
-            value={paymentTerms.preset}
-            onValueChange={(v) => {
-              const p = presetById(v as PaymentPreset);
-              setPaymentTerms({ preset: p.id, installments: p.installments.map((i) => ({ ...i })) });
-            }}
-          >
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {PAYMENT_PRESETS.map((p) => (
-                <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-2">
+          {PAYMENT_PRESETS.filter((p) => p.id !== 'custom').map((p) => (
+            <PaymentPresetCard
+              key={p.id}
+              title={p.label}
+              installments={p.installments}
+              selected={isStandardSelected(p.id)}
+              onClick={() => selectStandardPreset(p.id)}
+            />
+          ))}
+          {savedPresets.map((s) => (
+            <PaymentPresetCard
+              key={s.id}
+              title={s.name}
+              installments={s.installments}
+              saved
+              selected={isSavedSelected(s.id)}
+              onClick={() => selectSavedPreset(s)}
+              onEdit={() => openEditorEdit(s)}
+              onDelete={() => deleteSavedPreset(s.id)}
+            />
+          ))}
+          <CreatePresetCard onClick={openEditorNew} active={editorOpen} />
         </div>
 
-        {paymentTerms.preset === 'custom' && (
-          <div className="space-y-2">
-            {paymentTerms.installments.map((i, idx) => (
-              <div key={idx} className="grid grid-cols-12 gap-2 items-end">
-                <div className="col-span-5"><Label className="text-xs">Descrição</Label>
-                  <Input value={i.label} onChange={(e) => {
-                    const next = [...paymentTerms.installments];
-                    next[idx] = { ...next[idx], label: e.target.value };
-                    setPaymentTerms({ ...paymentTerms, installments: next });
-                  }} />
-                </div>
-                <div className="col-span-3"><Label className="text-xs">%</Label>
-                  <Input type="number" min={0} max={100} value={i.percent} onChange={(e) => {
-                    const next = [...paymentTerms.installments];
-                    next[idx] = { ...next[idx], percent: Number(e.target.value) };
-                    setPaymentTerms({ ...paymentTerms, installments: next });
-                  }} />
-                </div>
-                <div className="col-span-3"><Label className="text-xs">Dias após aceitação</Label>
-                  <Input type="number" min={0} value={i.due_offset_days} onChange={(e) => {
-                    const next = [...paymentTerms.installments];
-                    next[idx] = { ...next[idx], due_offset_days: Number(e.target.value) };
-                    setPaymentTerms({ ...paymentTerms, installments: next });
-                  }} />
-                </div>
-                <div className="col-span-1 flex justify-end">
-                  {paymentTerms.installments.length > 1 && (
-                    <Button variant="ghost" size="icon" onClick={() => {
-                      const next = paymentTerms.installments.filter((_, n) => n !== idx);
-                      setPaymentTerms({ ...paymentTerms, installments: next });
-                    }}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  )}
-                </div>
+        {editorOpen && (
+          <div className="rounded-xl border bg-muted/20 p-4 space-y-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1">
+                <Label htmlFor="preset-name">Nome do formato</Label>
+                <Input
+                  id="preset-name"
+                  placeholder="Ex.: Meu 40/60"
+                  value={editorName}
+                  onChange={(e) => setEditorName(e.target.value)}
+                  className="mt-1"
+                />
               </div>
-            ))}
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => {
-              setPaymentTerms({
-                ...paymentTerms,
-                installments: [...paymentTerms.installments, { label: `Parcela ${paymentTerms.installments.length + 1}`, percent: 0, due_offset_days: 30 }],
-              });
-            }}>
-              <Plus className="h-4 w-4" /> Adicionar parcela
-            </Button>
-            {totalPercent(paymentTerms) !== 100 && (
-              <p className="text-xs text-destructive">Soma das percentagens: {totalPercent(paymentTerms)}% (deve ser 100%).</p>
-            )}
+              <Button variant="ghost" size="icon" onClick={() => setEditorOpen(false)} aria-label="Fechar">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              {editorInstallments.map((i, idx) => (
+                <div key={idx} className="grid grid-cols-12 gap-2 items-end">
+                  <div className="col-span-5">
+                    <Label className="text-xs">Descrição</Label>
+                    <Input value={i.label} onChange={(e) => {
+                      const next = [...editorInstallments];
+                      next[idx] = { ...next[idx], label: e.target.value };
+                      setEditorInstallments(next);
+                    }} />
+                  </div>
+                  <div className="col-span-3">
+                    <Label className="text-xs">%</Label>
+                    <Input type="number" min={0} max={100} value={i.percent} onChange={(e) => {
+                      const next = [...editorInstallments];
+                      next[idx] = { ...next[idx], percent: Number(e.target.value) };
+                      setEditorInstallments(next);
+                    }} />
+                  </div>
+                  <div className="col-span-3">
+                    <Label className="text-xs">Dias após aceitação</Label>
+                    <Input type="number" min={0} value={i.due_offset_days} onChange={(e) => {
+                      const next = [...editorInstallments];
+                      next[idx] = { ...next[idx], due_offset_days: Number(e.target.value) };
+                      setEditorInstallments(next);
+                    }} />
+                  </div>
+                  <div className="col-span-1 flex justify-end">
+                    {editorInstallments.length > 1 && (
+                      <Button variant="ghost" size="icon" onClick={() => {
+                        setEditorInstallments(editorInstallments.filter((_, n) => n !== idx));
+                      }}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => {
+                setEditorInstallments([
+                  ...editorInstallments,
+                  { label: `Parcela ${editorInstallments.length + 1}`, percent: 0, due_offset_days: 30 },
+                ]);
+              }}>
+                <Plus className="h-4 w-4" /> Adicionar parcela
+              </Button>
+              {editorTotalPercent !== 100 && (
+                <p className="text-xs text-destructive">Soma das percentagens: {editorTotalPercent}% (deve ser 100%).</p>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              <Button onClick={handleSaveCustom} size="sm">
+                {editorId ? 'Atualizar formato' : 'Criar formato'}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setEditorOpen(false)}>
+                Cancelar
+              </Button>
+            </div>
           </div>
         )}
 

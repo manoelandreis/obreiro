@@ -20,7 +20,8 @@ import {
 } from 'lucide-react';
 import {
   PAYMENT_PRESETS, DEFAULT_PAYMENT_TERMS, presetById, expandInstallments, totalPercent,
-  type PaymentPreset, type PaymentTerms,
+  createEmptyTemplate,
+  type PaymentPreset, type PaymentTerms, type CustomPaymentTemplate,
 } from '@/lib/paymentTerms';
 
 interface MaterialItem { id: string; name: string; quantity: number; unit: string; unitPrice: number; }

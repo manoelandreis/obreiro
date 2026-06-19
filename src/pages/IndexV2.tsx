@@ -286,38 +286,6 @@ export default function IndexV2() {
         </div>
       </section>
 
-      {/* ─────── SECTION: Porque o Obreiro ─────── */}
-      <section className="px-6 py-20 bg-secondary/30 scroll-mt-20">
-        <div className="mx-auto max-w-[1180px]">
-          <div className="text-center mb-12">
-            <span className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
-              <Zap className="h-3 w-3" /> Sem comissões. Sem letras pequenas.
-            </span>
-            <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-foreground text-balance">
-              Fica com 100% do que ganha. O Obreiro só lhe poupa tempo.
-            </h2>
-            <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-              Não cobramos comissão sobre os seus orçamentos nem ficamos com parte dos seus trabalhos. Paga um valor fixo e simples — e tem tudo o que precisa para parecer (e ser) mais profissional.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { icon: Zap, title: 'Rápido', desc: 'Orçamentos completos em minutos, com cálculo automático de IVA, serviços e materiais. Menos tempo no escritório, mais tempo na obra.' },
-              { icon: Sparkles, title: 'Profissional', desc: 'O seu logo, as suas cores e os seus termos. Cada orçamento chega ao cliente com a sua marca e um aspeto que inspira confiança.' },
-              { icon: ClipboardList, title: 'Organizado', desc: 'Clientes, trabalhos, pagamentos e estado de cada orçamento num só lugar. Saiba sempre o que está aprovado e o que falta cobrar.' },
-            ].map((item) => (
-              <div key={item.title} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-                <div className="h-10 w-10 rounded-xl bg-accent-soft flex items-center justify-center mb-4">
-                  <item.icon className="h-5 w-5 text-accent" strokeWidth={1.5} />
-                </div>
-                <h3 className="font-heading font-semibold text-base mb-1.5">{item.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
 
       {/* ─────── SECTION: Exemplos de Orçamentos ─────── */}

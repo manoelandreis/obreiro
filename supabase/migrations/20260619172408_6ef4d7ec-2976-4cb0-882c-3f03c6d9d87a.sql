@@ -1,0 +1,1 @@
+ALTER TABLE public.app_user_settings ADD COLUMN IF NOT EXISTS terms_templates jsonb NOT NULL DEFAULT '[]'::jsonb;

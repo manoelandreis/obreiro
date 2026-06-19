@@ -324,6 +324,7 @@ export type Database = {
           pin_hash: string | null
           pin_salt: string | null
           quote_validity_days: number
+          terms_templates: Json
           updated_at: string
           user_id: string
         }
@@ -349,6 +350,7 @@ export type Database = {
           pin_hash?: string | null
           pin_salt?: string | null
           quote_validity_days?: number
+          terms_templates?: Json
           updated_at?: string
           user_id: string
         }
@@ -374,6 +376,7 @@ export type Database = {
           pin_hash?: string | null
           pin_salt?: string | null
           quote_validity_days?: number
+          terms_templates?: Json
           updated_at?: string
           user_id?: string
         }

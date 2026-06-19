@@ -202,7 +202,6 @@ export default function AppBrand() {
           company_email: companyEmail.trim() || null,
           company_phone: companyPhone.trim() || null,
           company_address: companyAddress.trim() || null,
-          company_address: companyAddress.trim() || null,
           company_description: description.trim() || null,
           payment_mbway: paymentMbway.trim() || null,
           payment_iban: paymentIban.trim().replace(/\s+/g, '') || null,

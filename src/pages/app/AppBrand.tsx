@@ -623,12 +623,9 @@ export default function AppBrand() {
           </div>
           <div className="space-y-1">
             {expandInstallments(previewSource, previewTotal, new Date()).map((p, idx) => (
-              <div key={idx} className="grid grid-cols-[1fr_8rem_6rem] items-center gap-3 text-sm">
+              <div key={idx} className="grid grid-cols-[1fr_6rem] items-center gap-3 text-sm">
                 <span className="truncate">
                   {p.label} <span className="text-muted-foreground">({p.percent}%)</span>
-                </span>
-                <span className="text-muted-foreground text-xs text-right">
-                  vence {p.dueDate.toLocaleDateString('pt-PT')}
                 </span>
                 <span className="font-semibold text-accent text-right">{fmt(p.amount)}</span>
               </div>

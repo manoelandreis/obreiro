@@ -130,7 +130,6 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
         ${parts.map((p, i) => `<div class="payment-card">
           <div class="payment-card-top">
             <span class="payment-pill">${i + 1}ª · ${p.percent}%</span>
-            <span class="payment-due">${p.dueDate.toLocaleDateString('pt-PT')}</span>
           </div>
           <div class="payment-card-label">${esc(p.label)}</div>
           <div class="payment-card-amount">${euro(p.amount)}</div>

@@ -600,39 +600,8 @@ export default function IndexV2() {
       </section>
 
 
-      {/* ─────── SECTION: Sem comissões ─────── */}
-      <section id="sobre" className="px-6 py-20 scroll-mt-20">
-        <div className="mx-auto max-w-[1180px]">
-          <div className="grid md:grid-cols-2 gap-12 mb-12">
-            <div>
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground leading-tight text-balance">
-                Sem comissões.<br />Sem letras pequenas.
-              </h2>
-            </div>
-            <div className="flex items-end">
-              <p className="text-muted-foreground text-base leading-relaxed">
-                Os seus dados são processados localmente. Os seus orçamentos são seus. Sempre.
-              </p>
-            </div>
-          </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { icon: Lock, title: 'Privado por defeito', desc: 'Os dados do orçamento ficam no seu navegador. Nada é enviado.' },
-              { icon: ShieldCheck, title: 'RGPD desde o dia 1', desc: 'Conforme com a legislação portuguesa e europeia.' },
-              { icon: Zap, title: 'Sem fees por uso', desc: 'Pague pela ferramenta, não por cada orçamento que envia.' },
-            ].map((item) => (
-              <div key={item.title} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-                <div className="h-10 w-10 rounded-xl bg-accent-soft flex items-center justify-center mb-4">
-                  <item.icon className="h-5 w-5 text-accent" strokeWidth={1.5} />
-                </div>
-                <h3 className="font-heading font-semibold text-base mb-1.5">{item.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* ─────── SECTION: Exemplos de Orçamentos ─────── */}
       <section id="exemplos" className="px-6 py-20 bg-secondary/30 scroll-mt-20">
@@ -758,7 +727,40 @@ export default function IndexV2() {
       </section>
 
 
-      {/* ─────── FAQ ─────── */}
+      {/* ─────── SECTION: Segurança & Privacidade ─────── */}
+      <section id="sobre" className="px-6 py-20 scroll-mt-20">
+        <div className="mx-auto max-w-[1180px]">
+          <div className="text-center mb-12">
+            <span className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
+              <ShieldCheck className="h-3 w-3" /> Segurança & Privacidade
+            </span>
+            <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-foreground text-balance">
+              Os seus dados são seus. E ficam seguros.
+            </h2>
+            <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
+              Construído de raiz a pensar no RGPD e no mercado português.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { icon: Lock, title: 'RGPD nativo', desc: 'Consentimento explícito dos clientes e direito ao esquecimento. Conformidade pensada para Portugal desde o primeiro dia.' },
+              { icon: ShieldCheck, title: 'Dados protegidos', desc: 'O orçamento só é guardado quando decide enviá-lo. Ligações encriptadas e alojamento seguro para toda a sua informação.' },
+              { icon: Download, title: 'Sempre no seu controlo', desc: 'Exporte ou elimine os seus dados a qualquer momento. Sem prisões, sem letras pequenas — saída livre quando quiser.' },
+            ].map((item) => (
+              <div key={item.title} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+                <div className="h-10 w-10 rounded-xl bg-accent-soft flex items-center justify-center mb-4">
+                  <item.icon className="h-5 w-5 text-accent" strokeWidth={1.5} />
+                </div>
+                <h3 className="font-heading font-semibold text-base mb-1.5">{item.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
       <section id="faq" className="px-6 py-20 bg-secondary/30">
         <div className="mx-auto max-w-2xl">
           <div className="text-center mb-10">

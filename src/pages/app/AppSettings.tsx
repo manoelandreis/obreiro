@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ShieldCheck, Upload, Trash2, User as UserIcon } from 'lucide-react';
+import { SectionHeader } from '@/components/app/SectionHeader';
+import { UserCircle, AtSign, KeyRound, ShieldCheck, Upload, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AppSettings() {
@@ -21,6 +22,7 @@ export default function AppSettings() {
   const [avatarPath, setAvatarPath] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
 
   // Email change
   const [email, setEmail] = useState('');
@@ -32,13 +34,6 @@ export default function AppSettings() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [updatingPassword, setUpdatingPassword] = useState(false);
-
-  // Company
-  const [companyName, setCompanyName] = useState('');
-  const [companyNif, setCompanyNif] = useState('');
-  const [companyEmail, setCompanyEmail] = useState('');
-  const [companyPhone, setCompanyPhone] = useState('');
-  const [companyAddress, setCompanyAddress] = useState('');
 
   // PIN
   const [pinEnabled, setPinEnabled] = useState(false);
@@ -57,17 +52,12 @@ export default function AppSettings() {
     if (!user) return;
     setEmail(user.email ?? '');
     supabase.from('app_user_settings')
-      .select('full_name, avatar_url, company_name, company_nif, company_email, company_phone, company_address, pin_enabled')
+      .select('full_name, avatar_url, pin_enabled')
       .eq('user_id', user.id).maybeSingle().then(({ data }) => {
         if (data) {
           setFullName(data.full_name ?? '');
           setAvatarPath((data as any).avatar_url ?? null);
           if ((data as any).avatar_url) loadAvatarSignedUrl((data as any).avatar_url);
-          setCompanyName(data.company_name ?? '');
-          setCompanyNif((data as any).company_nif ?? '');
-          setCompanyEmail((data as any).company_email ?? '');
-          setCompanyPhone((data as any).company_phone ?? '');
-          setCompanyAddress((data as any).company_address ?? '');
           setPinEnabled(data.pin_enabled);
           setInitialPinEnabled(data.pin_enabled);
           setHasExistingPin(data.pin_enabled);
@@ -89,7 +79,6 @@ export default function AppSettings() {
       setUploadingAvatar(false);
       return toast.error('Erro ao carregar imagem.');
     }
-    // remove previous
     if (avatarPath) {
       await supabase.storage.from('avatars').remove([avatarPath]);
     }
@@ -115,6 +104,16 @@ export default function AppSettings() {
     toast.success('Foto removida.');
   };
 
+  const saveProfile = async () => {
+    if (!user) return;
+    setSavingProfile(true);
+    const { error } = await supabase.from('app_user_settings')
+      .upsert({ user_id: user.id, full_name: fullName.trim() || null }, { onConflict: 'user_id' });
+    setSavingProfile(false);
+    if (error) return toast.error('Erro a guardar perfil.');
+    toast.success('Perfil guardado.');
+  };
+
   const updateEmail = async () => {
     if (!newEmail || newEmail === email) return toast.error('Indique um novo email diferente do atual.');
     setUpdatingEmail(true);
@@ -131,7 +130,6 @@ export default function AppSettings() {
     if (!currentPassword) return toast.error('Indique a password atual.');
 
     setUpdatingPassword(true);
-    // Re-verify current password
     const { error: signErr } = await supabase.auth.signInWithPassword({ email: email, password: currentPassword });
     if (signErr) {
       setUpdatingPassword(false);
@@ -157,16 +155,6 @@ export default function AppSettings() {
       return;
     }
     setSaving(true);
-
-    const payload: any = {
-      user_id: user.id,
-      full_name: fullName.trim() || null,
-    };
-    const { error } = await supabase.from('app_user_settings').upsert(payload, { onConflict: 'user_id' });
-    if (error) {
-      setSaving(false);
-      return toast.error('Erro a guardar.');
-    }
 
     try {
       if (!pinEnabled && initialPinEnabled) {
@@ -212,31 +200,31 @@ export default function AppSettings() {
         <p className="text-muted-foreground">Gira o seu perfil e segurança.</p>
       </div>
 
-
-
-      {/* Account Management */}
+      {/* Dados da Conta */}
       <Card>
         <CardContent className="pt-6 space-y-6">
-          <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">Conta</div>
+          <SectionHeader icon={UserCircle} title="Dados da Conta" />
 
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">
               {avatarUrl ? <AvatarImage src={avatarUrl} alt={fullName} /> : null}
               <AvatarFallback className="bg-primary/10 text-primary text-lg font-semibold">
-                {avatarUrl ? <UserIcon className="h-8 w-8" /> : initials}
+                {avatarUrl ? <UserCircle className="h-8 w-8" /> : initials}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-              <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploadingAvatar}>
-                <Upload className="h-4 w-4 mr-2" />
-                {uploadingAvatar ? 'A carregar...' : avatarUrl ? 'Mudar foto' : 'Carregar foto'}
-              </Button>
-              {avatarUrl && (
-                <Button variant="ghost" size="sm" onClick={removeAvatar} className="text-destructive hover:text-destructive ml-2">
-                  <Trash2 className="h-4 w-4 mr-2" /> Remover
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploadingAvatar}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  {uploadingAvatar ? 'A carregar...' : avatarUrl ? 'Mudar foto' : 'Carregar foto'}
                 </Button>
-              )}
+                {avatarUrl && (
+                  <Button variant="ghost" size="sm" onClick={removeAvatar} className="text-destructive hover:text-destructive">
+                    <Trash2 className="h-4 w-4 mr-2" /> Remover
+                  </Button>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">PNG ou JPG. Máximo 5MB.</p>
             </div>
           </div>
@@ -246,12 +234,18 @@ export default function AppSettings() {
             <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="O seu nome" />
           </div>
 
-          <Button onClick={save} disabled={saving} size="sm">
-            {saving ? 'A guardar...' : 'Guardar perfil'}
+          <Button onClick={saveProfile} disabled={savingProfile} size="sm">
+            {savingProfile ? 'A guardar...' : 'Guardar perfil'}
           </Button>
+        </CardContent>
+      </Card>
 
-          {/* Change email */}
-          <div className="border-t border-border pt-6 space-y-3">
+      {/* Email */}
+      <Card>
+        <CardContent className="pt-6 space-y-6">
+          <SectionHeader icon={AtSign} title="Email" />
+
+          <div className="space-y-3">
             <div className="font-semibold">Alterar email</div>
             <div>
               <Label>Email atual</Label>
@@ -266,9 +260,15 @@ export default function AppSettings() {
             </Button>
             <p className="text-xs text-muted-foreground">Receberá um email de confirmação no novo endereço.</p>
           </div>
+        </CardContent>
+      </Card>
 
-          {/* Change password */}
-          <div className="border-t border-border pt-6 space-y-3">
+      {/* Password */}
+      <Card>
+        <CardContent className="pt-6 space-y-6">
+          <SectionHeader icon={KeyRound} title="Password" />
+
+          <div className="space-y-3">
             <div className="font-semibold">Alterar password</div>
             <div>
               <Label>Password atual</Label>
@@ -292,15 +292,15 @@ export default function AppSettings() {
         </CardContent>
       </Card>
 
-      {/* Security */}
+      {/* Segurança PIN */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
-            <div className="flex-1">
-              <div className="font-semibold">Segurança PIN</div>
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-accent/10 text-accent shrink-0">
+              <ShieldCheck className="h-4 w-4" />
+            </span>
+            <div className="flex-1 min-w-0">
+              <div className="font-heading text-xl font-bold text-foreground tracking-tight">Segurança PIN</div>
               <div className="text-sm text-muted-foreground">Ativar bloqueio por código PIN ao iniciar.</div>
             </div>
             <Switch checked={pinEnabled} onCheckedChange={setPinEnabled} />

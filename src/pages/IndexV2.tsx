@@ -255,7 +255,7 @@ export default function IndexV2() {
               <Sparkles className="h-3 w-3" /> Para construtores portugueses
             </div>
             <h1 className="mt-5 font-heading text-4xl md:text-6xl font-bold leading-[1.05] text-foreground text-balance">
-              {hero?.title || 'A ferramenta de orçamentos que cabe na obra.'}
+              {hero?.title || 'Crie orçamentos profissionais em minutos'}
             </h1>
             <p className="mt-5 mx-auto max-w-xl text-lg text-foreground/70 leading-relaxed">
               {hero?.subtitle || 'Organize o seu negócio de construção num só lugar — orçamentos, clientes e trabalhos, sempre consigo no telemóvel.'}

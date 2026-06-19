@@ -148,20 +148,20 @@ export function QuoteWorkView({
                 </div>
               </div>
 
-              {(s.hours > 0 || s.pricePerHour > 0) && (
-                <div className="text-sm rounded-md bg-muted/40 px-3 py-2">
-                  <span className="text-muted-foreground">Mão de obra </span>
-                  <span className="font-medium">{euro(s.pricePerHour)}/h</span>
-                  <span className="text-muted-foreground"> × </span>
-                  <span className="font-medium">{s.hours}h</span>
-                  <span className="text-muted-foreground"> = </span>
-                  <span className="font-semibold">{euro(labor)}</span>
-                </div>
-              )}
-
-              {s.materials?.length > 0 && (
+              {(s.hours > 0 || s.pricePerHour > 0 || s.materials?.length > 0) && (
                 <ul className="divide-y divide-border/60 text-sm">
-                  {s.materials.map((m, i) => (
+                  {(s.hours > 0 || s.pricePerHour > 0) && (
+                    <li className="py-2 flex items-baseline gap-2">
+                      <span className="font-medium truncate">Mão de obra</span>
+                      <span className="text-muted-foreground text-xs">
+                        · {s.hours}h × {euro(s.pricePerHour)}/h
+                      </span>
+                      <span className="ml-auto font-semibold shrink-0">
+                        {euro(labor)}
+                      </span>
+                    </li>
+                  )}
+                  {s.materials?.map((m, i) => (
                     <li key={i} className="py-2 flex items-baseline gap-2">
                       <span className="font-medium truncate">{m.name || 'Material'}</span>
                       <span className="text-muted-foreground text-xs">

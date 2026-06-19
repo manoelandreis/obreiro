@@ -72,6 +72,7 @@ export default function AppQuoteDetail() {
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [sendOpen, setSendOpen] = useState(false);
+  const [detailSheetOpen, setDetailSheetOpen] = useState(false);
   const [recipient, setRecipient] = useState('');
   const [messageBody, setMessageBody] = useState('');
   const [generating, setGenerating] = useState(false);

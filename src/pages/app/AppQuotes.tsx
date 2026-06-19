@@ -319,59 +319,82 @@ export default function AppQuotes() {
                       className="flex items-center gap-2"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm" className="gap-2">
+                      {isMobile ? (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2"
+                            onClick={() => setSheet({ quote: q, kind: 'actions' })}
+                          >
                             <MoreHorizontal className="h-4 w-4" /> Ações
                           </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56">
-                          <DropdownMenuItem onClick={() => navigate(`/app/quotes/${q.id}`)}>
-                            <Pencil className="h-4 w-4 mr-2" /> Editar
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuLabel className="flex items-center gap-2 text-xs">
-                            <CircleDot className="h-3.5 w-3.5" /> Mudar estado
-                          </DropdownMenuLabel>
-                          {STATUS_OPTIONS.map((s) => (
-                            <DropdownMenuItem
-                              key={s.value}
-                              onClick={() => updateStatus(q, s.value)}
-                            >
-                              <span className="flex-1">{s.label}</span>
-                              {q.status === s.value && <Check className="h-3.5 w-3.5" />}
-                            </DropdownMenuItem>
-                          ))}
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleDelete(q.id)}
-                            className="text-destructive focus:text-destructive"
+                          <Button
+                            size="sm"
+                            className="gap-2"
+                            onClick={() => setSheet({ quote: q, kind: 'share' })}
                           >
-                            <Trash2 className="h-4 w-4 mr-2" /> Eliminar
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button size="sm" className="gap-2">
                             <Share2 className="h-4 w-4" /> Partilhar
                           </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem onClick={() => shareEmail(q)}>
-                            <Mail className="h-4 w-4 mr-2" /> Enviar por email
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => shareWhatsapp(q)}>
-                            <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => copyLink(q)}>
-                            Copiar link
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                        </>
+                      ) : (
+                        <>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm" className="gap-2">
+                                <MoreHorizontal className="h-4 w-4" /> Ações
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56">
+                              <DropdownMenuItem onClick={() => navigate(`/app/quotes/${q.id}`)}>
+                                <Pencil className="h-4 w-4 mr-2" /> Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuLabel className="flex items-center gap-2 text-xs">
+                                <CircleDot className="h-3.5 w-3.5" /> Mudar estado
+                              </DropdownMenuLabel>
+                              {STATUS_OPTIONS.map((s) => (
+                                <DropdownMenuItem
+                                  key={s.value}
+                                  onClick={() => updateStatus(q, s.value)}
+                                >
+                                  <span className="flex-1">{s.label}</span>
+                                  {q.status === s.value && <Check className="h-3.5 w-3.5" />}
+                                </DropdownMenuItem>
+                              ))}
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => handleDelete(q.id)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" /> Eliminar
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button size="sm" className="gap-2">
+                                <Share2 className="h-4 w-4" /> Partilhar
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                              <DropdownMenuItem onClick={() => shareEmail(q)}>
+                                <Mail className="h-4 w-4 mr-2" /> Enviar por email
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => shareWhatsapp(q)}>
+                                <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => copyLink(q)}>
+                                Copiar link
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </>
+                      )}
                     </div>
+
                   </div>
                 );
               })}

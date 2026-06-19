@@ -603,6 +603,50 @@ export default function AppQuoteDetail() {
           </div>
         </div>
       </div>
+
+      {/* Mobile actions bottom sheet */}
+      <Sheet open={detailSheetOpen} onOpenChange={setDetailSheetOpen}>
+        <SheetContent side="bottom" className="rounded-t-2xl p-0 max-h-[90vh] overflow-y-auto">
+          <SheetHeader className="px-5 pt-5 pb-3 text-left">
+            <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-muted" />
+            <SheetTitle className="text-xl">Ações</SheetTitle>
+            <p className="text-sm text-muted-foreground truncate">{quote.title}</p>
+          </SheetHeader>
+          <div className="px-2 pb-6 flex flex-col">
+            <a
+              href={publicUrl}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => setDetailSheetOpen(false)}
+              className="flex items-center gap-3 h-14 px-3 rounded-lg text-base hover:bg-muted/50 active:bg-muted"
+            >
+              <ExternalLink className="h-5 w-5 text-muted-foreground" />
+              Ver como o cliente vê
+            </a>
+            <button
+              onClick={() => { copyLink(); setDetailSheetOpen(false); }}
+              className="flex items-center gap-3 h-14 px-3 rounded-lg text-base hover:bg-muted/50 active:bg-muted text-left"
+            >
+              <Copy className="h-5 w-5 text-muted-foreground" />
+              Copiar link
+            </button>
+            <button
+              onClick={() => { setSendOpen(true); setDetailSheetOpen(false); }}
+              className="flex items-center gap-3 h-14 px-3 rounded-lg text-base hover:bg-muted/50 active:bg-muted text-left"
+            >
+              <Mail className="h-5 w-5 text-muted-foreground" />
+              Enviar por email
+            </button>
+            <button
+              onClick={() => { toast.info('Edição em breve.'); setDetailSheetOpen(false); }}
+              className="flex items-center gap-3 h-14 px-3 rounded-lg text-base hover:bg-muted/50 active:bg-muted text-left"
+            >
+              <Pencil className="h-5 w-5 text-muted-foreground" />
+              Editar
+            </button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

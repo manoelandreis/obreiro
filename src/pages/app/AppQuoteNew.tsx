@@ -354,7 +354,7 @@ export default function AppQuoteNew() {
                   <div><Label>Serviço</Label><Input value={svc.name} placeholder="Ex: Pintura Interior" onChange={(e) => updateService(svc.id, 'name', e.target.value)} /></div>
                   <div><Label>Descrição</Label><Input value={svc.description} onChange={(e) => updateService(svc.id, 'description', e.target.value)} /></div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-3">
                   <div><Label>Preço por Hora (€)</Label><Input type="number" min={0} step={0.01} value={svc.pricePerHour} onChange={(e) => updateService(svc.id, 'pricePerHour', Number(e.target.value))} /></div>
                   <div><Label>Horas Aproximadas</Label><Input type="number" min={0.5} step={0.5} value={svc.hours} onChange={(e) => updateService(svc.id, 'hours', Number(e.target.value))} /></div>
                 </div>

@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { SectionHeader } from '@/components/app/SectionHeader';
-import { UserCircle, AtSign, KeyRound, ShieldCheck, Upload, Trash2 } from 'lucide-react';
+import { UserCircle, AtSign, KeyRound, Upload, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AppSettings() {

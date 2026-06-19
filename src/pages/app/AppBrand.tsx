@@ -531,19 +531,21 @@ export default function AppBrand() {
               />
             </div>
             {selectedTpl && !editing && (
-              <>
-                <Button variant="outline" size="sm" className="gap-2" onClick={() => startEdit(selectedTpl)}>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button variant="outline" size="sm" className="gap-2 flex-1 sm:flex-initial" onClick={() => startEdit(selectedTpl)}>
                   <Pencil className="h-4 w-4" /> Editar formato
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="gap-2 text-destructive hover:text-destructive"
+                  className="gap-2 text-destructive hover:text-destructive shrink-0"
                   onClick={() => setDeleteTplId(selectedTpl.id)}
+                  aria-label="Eliminar formato"
                 >
-                  <Trash2 className="h-4 w-4" /> Eliminar formato
+                  <Trash2 className="h-4 w-4" />
+                  <span className="hidden min-[420px]:inline">Eliminar formato</span>
                 </Button>
-              </>
+              </div>
             )}
           </div>
         </div>

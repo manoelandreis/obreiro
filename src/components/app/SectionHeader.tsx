@@ -18,7 +18,7 @@ export function SectionHeader({ icon: Icon, title, description }: Props) {
         </h2>
       </div>
       {description && (
-        <p className="text-sm text-muted-foreground pl-[38px]">{description}</p>
+        <p className="text-sm text-muted-foreground pl-[42px]">{description}</p>
       )}
     </div>
   );

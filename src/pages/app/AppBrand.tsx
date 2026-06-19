@@ -384,6 +384,18 @@ export default function AppBrand() {
           <Label>Morada</Label>
           <Input value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} />
         </div>
+        <div className="space-y-2 pt-2">
+          <Label>Descrição / história da empresa</Label>
+          <Textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
+            rows={4}
+            placeholder="Ex: A Silva Construções é uma empresa familiar com 20 anos de experiência..."
+          />
+          <p className="text-xs text-muted-foreground text-right">
+            {description.length}/2000
+          </p>
+        </div>
         <div className="pt-2">
           <Button onClick={save} disabled={saving} size="sm">
             {saving ? 'A guardar...' : 'Guardar dados'}

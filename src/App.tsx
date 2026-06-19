@@ -23,7 +23,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AppLayout from "./components/AppLayout";
 import AppLogin from "./pages/app/AppLogin";
 import AppSignup from "./pages/app/AppSignup";
-import AppDashboard from "./pages/app/AppDashboard";
+import { Navigate } from "react-router-dom";
 import AppJobs from "./pages/app/AppJobs";
 import AppClients from "./pages/app/AppClients";
 import AppSettings from "./pages/app/AppSettings";
@@ -73,7 +73,7 @@ const App = () => {
               <Route path="/app/login" element={<AppLogin />} />
               <Route path="/app/signup" element={<AppSignup />} />
               <Route path="/app" element={<AppLayout />}>
-                <Route index element={<AppDashboard />} />
+                <Route index element={<Navigate to="/app/quotes" replace />} />
                 <Route path="jobs" element={<AppJobs />} />
                 <Route path="quotes" element={<AppQuotes />} />
                 <Route path="quotes/new" element={<AppQuoteNew />} />

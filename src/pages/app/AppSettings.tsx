@@ -176,7 +176,7 @@ export default function AppSettings() {
                 </Button>
                 {avatarUrl && (
                   <Button variant="ghost" size="sm" onClick={removeAvatar} className="text-destructive hover:text-destructive">
-                    <Trash2 className="h-4 w-4 mr-2" /> Remover
+                    <Trash2 className="h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">Remover</span>
                   </Button>
                 )}
               </div>

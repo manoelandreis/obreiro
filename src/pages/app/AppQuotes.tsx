@@ -402,9 +402,133 @@ export default function AppQuotes() {
           )}
         </CardContent>
       </Card>
+
+      <Sheet open={!!sheet} onOpenChange={(o) => !o && setSheet(null)}>
+        <SheetContent
+          side="bottom"
+          className="rounded-t-2xl p-0 max-h-[90vh] overflow-y-auto"
+        >
+          {sheet && (
+            <>
+              <SheetHeader className="px-5 pt-5 pb-3 text-left">
+                <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-muted" />
+                <SheetTitle className="text-xl">
+                  {sheet.kind === 'actions' ? 'Ações' : 'Partilhar'}
+                </SheetTitle>
+                <p className="text-sm text-muted-foreground truncate">
+                  {sheet.quote.title}
+                </p>
+              </SheetHeader>
+
+              <div className="px-2 pb-6">
+                {sheet.kind === 'actions' ? (
+                  <div className="flex flex-col">
+                    <SheetButton
+                      icon={Pencil}
+                      label="Editar"
+                      onClick={() => {
+                        const id = sheet.quote.id;
+                        setSheet(null);
+                        navigate(`/app/quotes/${id}`);
+                      }}
+                    />
+
+                    <div className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+                      <CircleDot className="h-3.5 w-3.5" /> Mudar estado
+                    </div>
+                    {STATUS_OPTIONS.map((s) => (
+                      <button
+                        key={s.value}
+                        onClick={async () => {
+                          await updateStatus(sheet.quote, s.value);
+                          setSheet(null);
+                        }}
+                        className="flex items-center justify-between h-14 px-3 rounded-lg text-base hover:bg-muted/50 active:bg-muted"
+                      >
+                        <span>{s.label}</span>
+                        {sheet.quote.status === s.value && (
+                          <Check className="h-5 w-5 text-accent" />
+                        )}
+                      </button>
+                    ))}
+
+                    <div className="h-px bg-border my-2 mx-3" />
+                    <SheetButton
+                      icon={Trash2}
+                      label="Eliminar"
+                      destructive
+                      onClick={() => {
+                        const id = sheet.quote.id;
+                        setSheet(null);
+                        handleDelete(id);
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex flex-col">
+                    <SheetButton
+                      icon={Mail}
+                      label="Enviar por email"
+                      onClick={() => {
+                        const q = sheet.quote;
+                        setSheet(null);
+                        shareEmail(q);
+                      }}
+                    />
+                    <SheetButton
+                      icon={MessageCircle}
+                      label="WhatsApp"
+                      onClick={() => {
+                        const q = sheet.quote;
+                        setSheet(null);
+                        shareWhatsapp(q);
+                      }}
+                    />
+                    <div className="h-px bg-border my-2 mx-3" />
+                    <SheetButton
+                      icon={Share2}
+                      label="Copiar link"
+                      onClick={() => {
+                        const q = sheet.quote;
+                        setSheet(null);
+                        copyLink(q);
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
+
+function SheetButton({
+  icon: Icon,
+  label,
+  onClick,
+  destructive,
+}: {
+  icon: any;
+  label: string;
+  onClick: () => void;
+  destructive?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-3 h-14 px-3 rounded-lg text-base hover:bg-muted/50 active:bg-muted text-left ${
+        destructive ? 'text-destructive' : ''
+      }`}
+    >
+      <Icon className="h-5 w-5" />
+      <span>{label}</span>
+    </button>
+  );
+}
+
 
 function StatCard({ icon: Icon, label, value, accent, bg, footnote }: any) {
   return (

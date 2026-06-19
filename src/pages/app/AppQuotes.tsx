@@ -474,6 +474,37 @@ export default function AppQuotes() {
                         handleDelete(id);
                       }}
                     />
+                    <div className="h-px bg-border my-2 mx-3" />
+                    <div className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+                      <Share2 className="h-3.5 w-3.5" /> Partilhar
+                    </div>
+                    <SheetButton
+                      icon={Mail}
+                      label="Enviar por email"
+                      onClick={() => {
+                        const q = sheet.quote;
+                        setSheet(null);
+                        shareEmail(q);
+                      }}
+                    />
+                    <SheetButton
+                      icon={MessageCircle}
+                      label="WhatsApp"
+                      onClick={() => {
+                        const q = sheet.quote;
+                        setSheet(null);
+                        shareWhatsapp(q);
+                      }}
+                    />
+                    <SheetButton
+                      icon={Share2}
+                      label="Copiar link"
+                      onClick={() => {
+                        const q = sheet.quote;
+                        setSheet(null);
+                        copyLink(q);
+                      }}
+                    />
                   </div>
                 ) : (
                   <div className="flex flex-col">

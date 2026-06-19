@@ -374,7 +374,7 @@ export default function IndexV2() {
                         <div><Label className="text-xs">Serviço</Label><Input value={svc.name} onChange={(e) => updateService(svc.id, 'name', e.target.value)} placeholder="Ex: Pintura Interior" /></div>
                         <div><Label className="text-xs">Descrição</Label><Input value={svc.description} onChange={(e) => updateService(svc.id, 'description', e.target.value)} /></div>
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid gap-3">
                         <div><Label className="text-xs">Preço por Hora (€)</Label><Input type="number" min={0} step={0.01} value={svc.pricePerHour} onChange={(e) => updateService(svc.id, 'pricePerHour', Number(e.target.value))} /></div>
                         <div><Label className="text-xs">Horas Aprox.</Label><Input type="number" min={0.5} step={0.5} value={svc.hours} onChange={(e) => updateService(svc.id, 'hours', Number(e.target.value))} /></div>
                       </div>

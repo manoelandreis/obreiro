@@ -12,6 +12,7 @@ import {
   FileText, BarChart3, Users, ClipboardList, ArrowRight, ShieldCheck, Eye, Trash2,
   Plus, Download, Building2, Wrench, Package, Mail, ChevronDown, ChevronUp,
   Zap, Lock, Sparkles, Check, FileCheck, Repeat, HelpCircle, BookmarkPlus,
+  LayoutGrid,
 } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import mockupTemplate from '@/assets/mockup-template.jpg';

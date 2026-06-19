@@ -6,7 +6,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { SectionHeader } from '@/components/app/SectionHeader';
 import { UserCircle, AtSign, KeyRound, Upload, Trash2 } from 'lucide-react';
@@ -35,14 +34,6 @@ export default function AppSettings() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [updatingPassword, setUpdatingPassword] = useState(false);
 
-  // PIN
-  const [pinEnabled, setPinEnabled] = useState(false);
-  const [pin, setPin] = useState('');
-  const [hasExistingPin, setHasExistingPin] = useState(false);
-  const [initialPinEnabled, setInitialPinEnabled] = useState(false);
-
-  const [saving, setSaving] = useState(false);
-
   const loadAvatarSignedUrl = async (path: string) => {
     const { data } = await supabase.storage.from('avatars').createSignedUrl(path, 3600);
     if (data?.signedUrl) setAvatarUrl(data.signedUrl);
@@ -52,15 +43,12 @@ export default function AppSettings() {
     if (!user) return;
     setEmail(user.email ?? '');
     supabase.from('app_user_settings')
-      .select('full_name, avatar_url, pin_enabled')
+      .select('full_name, avatar_url')
       .eq('user_id', user.id).maybeSingle().then(({ data }) => {
         if (data) {
           setFullName(data.full_name ?? '');
           setAvatarPath((data as any).avatar_url ?? null);
           if ((data as any).avatar_url) loadAvatarSignedUrl((data as any).avatar_url);
-          setPinEnabled(data.pin_enabled);
-          setInitialPinEnabled(data.pin_enabled);
-          setHasExistingPin(data.pin_enabled);
         }
       });
   }, [user]);
@@ -142,39 +130,6 @@ export default function AppSettings() {
     setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
-  };
-
-  const save = async () => {
-    if (!user) return;
-    if (pinEnabled && !hasExistingPin && !pin) {
-      toast.error('Defina um PIN para ativar o bloqueio.');
-      return;
-    }
-    if (pinEnabled && pin && !/^\d{4,8}$/.test(pin)) {
-      toast.error('O PIN deve ter entre 4 e 8 dígitos.');
-      return;
-    }
-    setSaving(true);
-
-    try {
-      if (!pinEnabled && initialPinEnabled) {
-        const { error: fnErr } = await supabase.functions.invoke('set-pin', { body: { enabled: false } });
-        if (fnErr) throw fnErr;
-        setHasExistingPin(false);
-      } else if (pinEnabled && pin) {
-        const { error: fnErr } = await supabase.functions.invoke('set-pin', { body: { pin } });
-        if (fnErr) throw fnErr;
-        setHasExistingPin(true);
-      }
-      setInitialPinEnabled(pinEnabled);
-    } catch (e) {
-      setSaving(false);
-      return toast.error('Erro a guardar o PIN.');
-    }
-
-    setSaving(false);
-    toast.success('Definições guardadas.');
-    setPin('');
   };
 
   const deleteAll = async () => {
@@ -263,10 +218,10 @@ export default function AppSettings() {
         </CardContent>
       </Card>
 
-      {/* Password */}
+      {/* Palavra-passe */}
       <Card>
         <CardContent className="pt-6 space-y-6">
-          <SectionHeader icon={KeyRound} title="Password" />
+          <SectionHeader icon={KeyRound} title="Palavra-passe" />
 
           <div className="space-y-3">
             <div className="font-semibold">Alterar password</div>
@@ -292,42 +247,10 @@ export default function AppSettings() {
         </CardContent>
       </Card>
 
-      {/* Segurança PIN */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-3">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-accent/10 text-accent shrink-0">
-              <ShieldCheck className="h-4 w-4" />
-            </span>
-            <div className="flex-1 min-w-0">
-              <div className="font-heading text-xl font-bold text-foreground tracking-tight">Segurança PIN</div>
-              <div className="text-sm text-muted-foreground">Ativar bloqueio por código PIN ao iniciar.</div>
-            </div>
-            <Switch checked={pinEnabled} onCheckedChange={setPinEnabled} />
-          </div>
-          {pinEnabled && (
-            <div className="mt-4">
-              <Label>{hasExistingPin ? 'Definir novo PIN (deixe vazio para manter)' : 'Novo PIN'}</Label>
-              <Input
-                type="password"
-                inputMode="numeric"
-                placeholder="••••"
-                maxLength={8}
-                value={pin}
-                onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-              />
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
       {/* Save / Danger */}
       <Card>
         <CardContent className="pt-6 space-y-3">
-          <Button onClick={save} disabled={saving} className="w-full bg-foreground hover:bg-foreground/90 text-background">
-            {saving ? 'A guardar...' : 'Guardar Alterações'}
-          </Button>
-          <Button onClick={deleteAll} variant="ghost" className="w-full bg-destructive/5 text-destructive hover:bg-destructive/10 hover:text-destructive">
+          <Button variant="ghost" className="w-full bg-destructive/5 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={deleteAll}>
             Eliminar Todos os Dados
           </Button>
         </CardContent>

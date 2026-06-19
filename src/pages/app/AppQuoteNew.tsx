@@ -260,7 +260,7 @@ export default function AppQuoteNew() {
             <p className="text-muted-foreground">Preencha os dados do cliente, serviços e materiais.</p>
           </div>
         </div>
-        <Button className="gap-2" disabled={saving} onClick={handleSave}>
+        <Button className="gap-2 w-full sm:w-auto" disabled={saving} onClick={handleSave}>
           <Save className="h-4 w-4" /> {saving ? 'A guardar...' : 'Guardar Orçamento'}
         </Button>
       </div>

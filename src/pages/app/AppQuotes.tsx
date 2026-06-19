@@ -30,12 +30,20 @@ import {
 } from 'lucide-react';
 import { SmartStatusBadge } from '@/components/app/QuoteStatusBadge';
 import { MobilePrimaryAction } from '@/components/app/MobilePrimaryAction';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 import {
   expandInstallments,
   isWithinMonth,
   type PaymentTerms,
 } from '@/lib/paymentTerms';
+
 
 type Status = 'rascunho' | 'enviado' | 'visto' | 'aceite' | 'rejeitado' | 'expirado';
 

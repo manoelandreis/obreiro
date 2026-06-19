@@ -250,6 +250,9 @@ export default function AppSettings() {
       {/* Save / Danger */}
       <Card>
         <CardContent className="pt-6 space-y-3">
+          <Button className="w-full bg-foreground hover:bg-foreground/90 text-background">
+            Guardar Alterações
+          </Button>
           <Button variant="ghost" className="w-full bg-destructive/5 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={deleteAll}>
             Eliminar Todos os Dados
           </Button>

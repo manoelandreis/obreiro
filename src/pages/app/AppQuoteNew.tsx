@@ -417,8 +417,8 @@ export default function AppQuoteNew() {
         <button onClick={() => toggle('payment')} className="w-full">
           <CardHeader className="flex flex-row items-center justify-between cursor-pointer">
             <CardTitle className="flex items-center gap-2 text-base">
-              <Wallet className="h-5 w-5" /> Formato de Pagamento
-              <span className="ml-2 text-sm font-normal text-muted-foreground">
+              <Wallet className="h-5 w-5" /> Pagamento
+              <span className="ml-2 text-sm font-normal text-muted-foreground truncate">
                 — {selectedPaymentKey.startsWith('tpl:')
                   ? (paymentTemplates.find((t) => t.id === selectedPaymentKey.slice(4))?.name ?? 'Personalizado')
                   : presetById(paymentTerms.preset).label}

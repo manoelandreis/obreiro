@@ -292,16 +292,6 @@ export default function AppQuotes() {
                           viewed_at={q.viewed_at}
                           payment_due_days={dueDays}
                         />
-                        {itemsCount > 0 && (
-                          <span className="inline-flex items-center rounded-full bg-muted text-muted-foreground text-xs font-medium px-2 py-1">
-                            {itemsCount} {itemsCount === 1 ? 'item' : 'itens'}
-                          </span>
-                        )}
-                        {(q.payment_terms?.installments?.length ?? 0) > 1 && (
-                          <span className="inline-flex items-center rounded-full bg-accent/10 text-accent text-xs font-medium px-2 py-1">
-                            Novo formato
-                          </span>
-                        )}
                       </div>
                       <div className="text-sm text-muted-foreground mt-1">
                         {new Date(q.created_at).toLocaleDateString('pt-PT')}

@@ -12,6 +12,11 @@ const ScheduleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <path d="M7.87 8.58 8.82 7.64 6.66 5.49V2.47H5.34v3.58l2.53 2.53ZM6 12a6 6 0 1 1 0-12 6 6 0 0 1 0 12Z" fill="currentColor"/>
   </svg>
 );
+const MailIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" {...props}>
+    <path d="M1.46 10.57c-.4 0-.74-.14-1.03-.43A1.4 1.4 0 0 1 0 9.11V2.89c0-.4.14-.74.43-1.03.29-.29.63-.43 1.03-.43h9.08c.41 0 .76.14 1.04.43.28.29.42.63.42 1.03v6.22c0 .4-.14.74-.42 1.03-.28.29-.63.43-1.04.43H1.46ZM6 7.08l4.54-2.67V2.89L6 5.55 1.46 2.89v1.52L6 7.08Z" fill="currentColor"/>
+  </svg>
+);
 const CheckCircleIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" {...props}>
     <path d="M5.22 8.31 8.88 4.66l-.98-.99-2.68 2.67-1.16-1.15-.99.99 2.15 2.13ZM6 12a6 6 0 1 1 0-12 6 6 0 0 1 0 12Z" fill="currentColor"/>
@@ -30,7 +35,7 @@ const ErrorIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 const STYLES: Record<Status, { label: string; cls: string; Icon: React.FC<any> }> = {
   rascunho: { label: 'Rascunho', cls: 'bg-muted text-muted-foreground', Icon: DrawIcon },
-  enviado: { label: 'Enviado', cls: 'bg-info-soft text-info-soft-foreground', Icon: ScheduleIcon },
+  enviado: { label: 'Enviado', cls: 'bg-accent/10 text-accent', Icon: MailIcon },
   visto: { label: 'Visto', cls: 'bg-info-soft text-info-soft-foreground', Icon: ScheduleIcon },
   aceite: { label: 'Orçamento aceito', cls: 'bg-success-soft text-success-soft-foreground', Icon: CheckCircleIcon },
   rejeitado: { label: 'Cancelado', cls: 'bg-destructive-soft text-destructive-soft-foreground', Icon: CancelIcon },

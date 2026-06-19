@@ -258,7 +258,7 @@ export default function IndexV2() {
               {hero?.title || 'A ferramenta de orçamentos que cabe na obra.'}
             </h1>
             <p className="mt-5 mx-auto max-w-xl text-lg text-foreground/70 leading-relaxed">
-              {hero?.subtitle || 'Crie, envie e organize orçamentos profissionais em minutos — do telemóvel, sem complicações.'}
+              {hero?.subtitle || 'Organize o seu negócio de construção num só lugar — orçamentos, clientes e trabalhos, sempre consigo no telemóvel.'}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button size="lg" variant="accent" onClick={scrollToQuote} className="gap-2 h-12 px-6">

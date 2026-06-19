@@ -115,14 +115,20 @@ export function MobileSheetSelect({
                       onChange(opt.value);
                     }}
                     className={
-                      'flex items-center justify-between w-full h-14 px-3 rounded-lg text-base hover:bg-muted/50 active:bg-muted text-left ' +
-                      (opt.primary ? 'text-primary font-medium' : '')
+                      'flex items-center gap-3 w-full h-14 px-4 rounded-lg text-base text-left ' +
+                      (isSelected
+                        ? 'bg-accent text-accent-foreground font-medium'
+                        : opt.primary
+                          ? 'text-primary font-medium hover:bg-muted/50 active:bg-muted'
+                          : 'hover:bg-muted/50 active:bg-muted')
                     }
                   >
-                    <span className="flex items-center gap-3">
-                      {isSelected && <Check className="h-5 w-5 text-accent" />}
-                      <span className={isSelected ? '' : 'pl-8'}>{opt.label}</span>
-                    </span>
+                    {isSelected ? (
+                      <Check className="h-5 w-5 shrink-0" />
+                    ) : (
+                      <span className="w-5 shrink-0" />
+                    )}
+                    <span className="truncate">{opt.label}</span>
                   </button>
                 </div>
               );

@@ -433,16 +433,6 @@ export default function AppQuotes() {
               <div className="px-2 pb-6">
                 {sheet.kind === 'actions' ? (
                   <div className="flex flex-col">
-                    <SheetButton
-                      icon={Pencil}
-                      label="Editar"
-                      onClick={() => {
-                        const id = sheet.quote.id;
-                        setSheet(null);
-                        navigate(`/app/quotes/${id}`);
-                      }}
-                    />
-
                     <div className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
                       <CircleDot className="h-3.5 w-3.5" /> Mudar estado
                     </div>
@@ -462,17 +452,6 @@ export default function AppQuotes() {
                       </button>
                     ))}
 
-                    <div className="h-px bg-border my-2 mx-3" />
-                    <SheetButton
-                      icon={Trash2}
-                      label="Eliminar"
-                      destructive
-                      onClick={() => {
-                        const id = sheet.quote.id;
-                        setSheet(null);
-                        handleDelete(id);
-                      }}
-                    />
                     <div className="h-px bg-border my-2 mx-3" />
                     <div className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
                       <Share2 className="h-3.5 w-3.5" /> Partilhar
@@ -502,6 +481,27 @@ export default function AppQuotes() {
                         const q = sheet.quote;
                         setSheet(null);
                         copyLink(q);
+                      }}
+                    />
+
+                    <div className="h-px bg-border my-2 mx-3" />
+                    <SheetButton
+                      icon={Pencil}
+                      label="Editar"
+                      onClick={() => {
+                        const id = sheet.quote.id;
+                        setSheet(null);
+                        navigate(`/app/quotes/${id}`);
+                      }}
+                    />
+                    <SheetButton
+                      icon={Trash2}
+                      label="Eliminar"
+                      destructive
+                      onClick={() => {
+                        const id = sheet.quote.id;
+                        setSheet(null);
+                        handleDelete(id);
                       }}
                     />
                   </div>

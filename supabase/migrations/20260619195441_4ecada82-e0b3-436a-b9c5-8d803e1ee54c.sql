@@ -1,0 +1,1 @@
+ALTER TABLE public.app_user_settings ADD COLUMN IF NOT EXISTS payment_mbway TEXT, ADD COLUMN IF NOT EXISTS payment_iban TEXT;

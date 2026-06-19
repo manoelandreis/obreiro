@@ -9,7 +9,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, Image as ImageIcon, Trash2, Loader2, Wallet, Plus, Pencil } from 'lucide-react';
+import {
+  Upload,
+  Image as ImageIcon,
+  Trash2,
+  Loader2,
+  Wallet,
+  Plus,
+  Pencil,
+  Building2,
+  FileText,
+  Type,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -32,6 +43,12 @@ import {
   presetById,
   totalPercent,
 } from '@/lib/paymentTerms';
+import {
+  TermsTemplate,
+  createEmptyTermsTemplate,
+  DEFAULT_TERMS_CONTENT,
+} from '@/lib/termsTemplates';
+import { SectionHeader } from '@/components/app/SectionHeader';
 
 const MAX_LOGO_BYTES = 5 * 1024 * 1024;
 const fmt = (n: number) => new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(n);
@@ -46,8 +63,6 @@ export default function AppBrand() {
   const [colorPrimary, setColorPrimary] = useState('#1B3A5C');
   const [colorAccent, setColorAccent] = useState('#E8730A');
   const [description, setDescription] = useState('');
-  const [terms, setTerms] = useState('');
-  const [paymentConditions, setPaymentConditions] = useState('');
   const [validityDays, setValidityDays] = useState(30);
   // Company data
   const [companyName, setCompanyName] = useState('');
@@ -58,14 +73,20 @@ export default function AppBrand() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  // Payment templates
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>(DEFAULT_PAYMENT_TERMS);
   const [templates, setTemplates] = useState<CustomPaymentTemplate[]>([]);
-  // selectedKey: preset id (without 'custom') OR `tpl:<id>`
   const [selectedKey, setSelectedKey] = useState<string>('100_end');
   const [editingTplId, setEditingTplId] = useState<string | null>(null);
   const [isNewTemplate, setIsNewTemplate] = useState(false);
   const [draft, setDraft] = useState<CustomPaymentTemplate | null>(null);
   const [deleteTplId, setDeleteTplId] = useState<string | null>(null);
+  // Terms templates
+  const [termsTemplates, setTermsTemplates] = useState<TermsTemplate[]>([]);
+  const [selectedTermsKey, setSelectedTermsKey] = useState<string>('');
+  const [termsDraft, setTermsDraft] = useState<TermsTemplate | null>(null);
+  const [isNewTermsTpl, setIsNewTermsTpl] = useState(false);
+  const [deleteTermsTplId, setDeleteTermsTplId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
 
@@ -82,7 +103,7 @@ export default function AppBrand() {
       const { data } = await supabase
         .from('app_user_settings')
         .select(
-          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address, default_payment_terms, payment_term_templates' as any
+          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address, default_payment_terms, payment_term_templates, terms_templates' as any
         )
         .eq('user_id', user.id)
         .maybeSingle();
@@ -93,8 +114,6 @@ export default function AppBrand() {
         setColorPrimary(d.brand_color_primary ?? '#1B3A5C');
         setColorAccent(d.brand_color_accent ?? '#E8730A');
         setDescription(d.company_description ?? '');
-        setTerms(d.company_terms ?? '');
-        setPaymentConditions(d.payment_conditions ?? '');
         setValidityDays(d.quote_validity_days ?? 30);
         setCompanyName(d.company_name ?? '');
         setCompanyNif(d.company_nif ?? '');
@@ -106,7 +125,6 @@ export default function AppBrand() {
         if (d.default_payment_terms) {
           const dpt = d.default_payment_terms as PaymentTerms;
           setPaymentTerms(dpt);
-          // Try to match a saved template by installments
           if (dpt.preset === 'custom') {
             const match = tpls.find(t => JSON.stringify(t.installments) === JSON.stringify(dpt.installments));
             setSelectedKey(match ? `tpl:${match.id}` : (tpls[0] ? `tpl:${tpls[0].id}` : '100_end'));
@@ -114,6 +132,20 @@ export default function AppBrand() {
             setSelectedKey(dpt.preset);
           }
         }
+        const ttpls: TermsTemplate[] = Array.isArray(d.terms_templates) ? d.terms_templates : [];
+        const legacy: string | null = d.company_terms ?? null;
+        let initialTerms = ttpls;
+        let initialKey = '';
+        if (ttpls.length === 0 && legacy && legacy.trim().length > 0) {
+          // Migrate legacy single-string terms into a template
+          const t: TermsTemplate = { ...createEmptyTermsTemplate('Termos padrão'), content: legacy };
+          initialTerms = [t];
+          initialKey = `ttpl:${t.id}`;
+        } else if (ttpls.length > 0) {
+          initialKey = `ttpl:${ttpls[0].id}`;
+        }
+        setTermsTemplates(initialTerms);
+        setSelectedTermsKey(initialKey);
       }
       setLoading(false);
     })();
@@ -124,12 +156,8 @@ export default function AppBrand() {
   const onLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
-    if (!file.type.startsWith('image/')) {
-      return toast.error('Selecione uma imagem.');
-    }
-    if (file.size > MAX_LOGO_BYTES) {
-      return toast.error('Logo até 5MB.');
-    }
+    if (!file.type.startsWith('image/')) return toast.error('Selecione uma imagem.');
+    if (file.size > MAX_LOGO_BYTES) return toast.error('Logo até 5MB.');
     setUploading(true);
     const ext = file.name.split('.').pop() ?? 'png';
     const path = `${user.id}/logo-${Date.now()}.${ext}`;
@@ -140,7 +168,6 @@ export default function AppBrand() {
       setUploading(false);
       return toast.error('Falhou o upload do logo.');
     }
-    // Delete old logo
     if (logoUrl && logoUrl !== path) {
       await supabase.storage.from('company-assets').remove([logoUrl]);
     }
@@ -158,46 +185,75 @@ export default function AppBrand() {
     toast.success('Logo removido.');
   };
 
-  const save = async () => {
+  const saveCompany = async () => {
     if (!user) return;
-    if (paymentTerms.preset === 'custom' && totalPercent(paymentTerms) !== 100) {
-      return toast.error('Soma das percentagens deve ser 100%.');
-    }
     setSaving(true);
-    const payload: any = {
-      user_id: user.id,
-      logo_url: logoUrl,
-      brand_color_primary: colorPrimary,
-      brand_color_accent: colorAccent,
-      company_description: description.trim() || null,
-      company_terms: terms.trim() || null,
-      payment_conditions: paymentConditions.trim() || null,
-      quote_validity_days: validityDays,
-      company_name: companyName.trim() || null,
-      company_nif: companyNif.trim() || null,
-      company_email: companyEmail.trim() || null,
-      company_phone: companyPhone.trim() || null,
-      company_address: companyAddress.trim() || null,
-      default_payment_terms: paymentTerms,
-      payment_term_templates: templates,
-    };
     const { error } = await supabase
       .from('app_user_settings')
-      .upsert(payload, { onConflict: 'user_id' });
+      .upsert(
+        {
+          user_id: user.id,
+          company_name: companyName.trim() || null,
+          company_nif: companyNif.trim() || null,
+          company_email: companyEmail.trim() || null,
+          company_phone: companyPhone.trim() || null,
+          company_address: companyAddress.trim() || null,
+          company_description: description.trim() || null,
+        } as any,
+        { onConflict: 'user_id' },
+      );
     setSaving(false);
     if (error) return toast.error('Erro a guardar.');
-    toast.success('Definições atualizadas.');
+    toast.success('Dados atualizados.');
+  };
+
+  const saveBrand = async () => {
+    if (!user) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from('app_user_settings')
+      .upsert(
+        {
+          user_id: user.id,
+          logo_url: logoUrl,
+          brand_color_primary: colorPrimary,
+          brand_color_accent: colorAccent,
+        } as any,
+        { onConflict: 'user_id' },
+      );
+    setSaving(false);
+    if (error) return toast.error('Erro a guardar.');
+    toast.success('Marca atualizada.');
   };
 
   const persistPaymentSettings = async (
     nextTemplates: CustomPaymentTemplate[],
     nextTerms: PaymentTerms,
+    nextValidity?: number,
   ) => {
+    if (!user) return false;
+    const payload: any = {
+      user_id: user.id,
+      payment_term_templates: nextTemplates,
+      default_payment_terms: nextTerms,
+    };
+    if (typeof nextValidity === 'number') payload.quote_validity_days = nextValidity;
+    const { error } = await supabase
+      .from('app_user_settings')
+      .upsert(payload, { onConflict: 'user_id' });
+    if (error) {
+      toast.error('Erro a guardar.');
+      return false;
+    }
+    return true;
+  };
+
+  const persistTermsTemplates = async (next: TermsTemplate[]) => {
     if (!user) return false;
     const { error } = await supabase
       .from('app_user_settings')
       .upsert(
-        { user_id: user.id, payment_term_templates: nextTemplates, default_payment_terms: nextTerms } as any,
+        { user_id: user.id, terms_templates: next } as any,
         { onConflict: 'user_id' },
       );
     if (error) {
@@ -216,152 +272,15 @@ export default function AppBrand() {
     );
   }
 
-  const inner = (
-    <Card>
-      <CardContent className="pt-6 space-y-8">
-        {/* Logo */}
-        <div className="space-y-3">
-          <Label className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">
-            Logótipo
-          </Label>
-          <div className="flex items-center gap-5">
-            <div className="h-24 w-24 rounded-xl border border-dashed border-border bg-muted/40 flex items-center justify-center overflow-hidden">
-              {logoPreview ? (
-                <img
-                  src={logoPreview}
-                  alt="Logo"
-                  className="h-full w-full object-contain"
-                />
-              ) : (
-                <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
-              )}
-            </div>
-            <div className="flex flex-col gap-2">
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={onLogoChange}
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onPickLogo}
-                disabled={uploading}
-                className="gap-2"
-              >
-                {uploading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Upload className="h-4 w-4" />
-                )}
-                {logoUrl ? 'Substituir' : 'Carregar logo'}
-              </Button>
-              {logoUrl && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-destructive hover:text-destructive gap-2"
-                  onClick={removeLogo}
-                >
-                  <Trash2 className="h-4 w-4" /> Remover
-                </Button>
-              )}
-              <p className="text-xs text-muted-foreground">PNG, JPG ou SVG. Até 5MB.</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Colors */}
-        <div className="border-t border-border pt-6 space-y-3">
-          <Label className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">
-            Cores da empresa
-          </Label>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <Label>Cor principal</Label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={colorPrimary}
-                  onChange={(e) => setColorPrimary(e.target.value)}
-                  className="h-10 w-14 rounded border border-input cursor-pointer"
-                />
-                <Input
-                  value={colorPrimary}
-                  onChange={(e) => setColorPrimary(e.target.value)}
-                  className="flex-1"
-                />
-              </div>
-            </div>
-            <div>
-              <Label>Cor de destaque</Label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={colorAccent}
-                  onChange={(e) => setColorAccent(e.target.value)}
-                  className="h-10 w-14 rounded border border-input cursor-pointer"
-                />
-                <Input
-                  value={colorAccent}
-                  onChange={(e) => setColorAccent(e.target.value)}
-                  className="flex-1"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* T&Cs */}
-        <div className="border-t border-border pt-6 space-y-2">
-          <Label>Termos e condições (rodapé do orçamento)</Label>
-          <Textarea
-            value={terms}
-            onChange={(e) => setTerms(e.target.value.slice(0, 5000))}
-            rows={5}
-            placeholder="Ex: Os valores apresentados são válidos por X dias. Garantia de 1 ano em todos os trabalhos..."
-          />
-          <p className="text-xs text-muted-foreground text-right">
-            {terms.length}/5000
-          </p>
-        </div>
-
-
-        {/* Validity */}
-        <div className="border-t border-border pt-6 space-y-2">
-          <Label>Validade do orçamento (dias)</Label>
-          <Input
-            type="number"
-            min={1}
-            max={365}
-            value={validityDays}
-            onChange={(e) =>
-              setValidityDays(Math.min(365, Math.max(1, Number(e.target.value) || 30)))
-            }
-            className="max-w-[140px]"
-          />
-        </div>
-
-        <div className="border-t border-border pt-6">
-          <Button
-            onClick={save}
-            disabled={saving}
-            className="w-full bg-foreground hover:bg-foreground/90 text-background"
-          >
-            {saving ? 'A guardar...' : 'Guardar marca'}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
+  // ============ Company card ============
   const companyCard = (
     <Card>
       <CardContent className="pt-6 space-y-4">
-        <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">Dados da Empresa</div>
-        <p className="text-sm text-muted-foreground -mt-2">Estes dados aparecem automaticamente em todos os orçamentos que criar.</p>
+        <SectionHeader
+          icon={Building2}
+          title="Dados da Empresa"
+          description="Estes dados aparecem automaticamente em todos os orçamentos que criar."
+        />
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <Label>Nome da empresa</Label>
@@ -384,7 +303,7 @@ export default function AppBrand() {
           <Label>Morada</Label>
           <Input value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} />
         </div>
-        <div className="space-y-2 pt-2">
+        <div className="space-y-2">
           <Label>Descrição / história da empresa</Label>
           <Textarea
             value={description}
@@ -392,12 +311,10 @@ export default function AppBrand() {
             rows={4}
             placeholder="Ex: A Silva Construções é uma empresa familiar com 20 anos de experiência..."
           />
-          <p className="text-xs text-muted-foreground text-right">
-            {description.length}/2000
-          </p>
+          <p className="text-xs text-muted-foreground text-right">{description.length}/2000</p>
         </div>
         <div className="pt-2">
-          <Button onClick={save} disabled={saving} size="sm">
+          <Button onClick={saveCompany} disabled={saving} size="sm">
             {saving ? 'A guardar...' : 'Guardar dados'}
           </Button>
         </div>
@@ -405,6 +322,7 @@ export default function AppBrand() {
     </Card>
   );
 
+  // ============ Payment card ============
   const previewTotal = 1000;
   const todayStr = new Date().toLocaleDateString('pt-PT');
   const builtInPresets = PAYMENT_PRESETS.filter((p) => p.id !== 'custom');
@@ -416,7 +334,7 @@ export default function AppBrand() {
     !!draft && draft.name.trim().length > 0 && totalPercent({ preset: 'custom', installments: draft.installments }) === 100;
 
   const onSelectChange = (v: string) => {
-    if (editing) return; // safety
+    if (editing) return;
     if (v === '__new') {
       const tpl = createEmptyTemplate('Novo modelo');
       setDraft(tpl);
@@ -447,7 +365,6 @@ export default function AppBrand() {
 
   const cancelEdit = () => {
     if (isNewTemplate) {
-      // discard new template entirely
       const fallback = templates[0] ? `tpl:${templates[0].id}` : '100_end';
       if (fallback === '100_end') {
         const p = presetById('100_end');
@@ -479,7 +396,7 @@ export default function AppBrand() {
       : templates.map((t) => (t.id === cleaned.id ? cleaned : t));
     const nextTerms: PaymentTerms = { preset: 'custom', installments: cleaned.installments.map((i) => ({ ...i })) };
     setSaving(true);
-    const ok = await persistPaymentSettings(next, nextTerms);
+    const ok = await persistPaymentSettings(next, nextTerms, validityDays);
     setSaving(false);
     if (!ok) return;
     setTemplates(next);
@@ -496,7 +413,7 @@ export default function AppBrand() {
     const next = templates.filter((t) => t.id !== deleteTplId);
     const fallback = presetById('100_end');
     const nextTerms: PaymentTerms = { preset: fallback.id, installments: fallback.installments.map((i) => ({ ...i })) };
-    const ok = await persistPaymentSettings(next, nextTerms);
+    const ok = await persistPaymentSettings(next, nextTerms, validityDays);
     if (!ok) return;
     setTemplates(next);
     setPaymentTerms(nextTerms);
@@ -510,6 +427,17 @@ export default function AppBrand() {
     toast.success('Modelo eliminado.');
   };
 
+  const saveValidity = async () => {
+    if (!user) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from('app_user_settings')
+      .upsert({ user_id: user.id, quote_validity_days: validityDays } as any, { onConflict: 'user_id' });
+    setSaving(false);
+    if (error) return toast.error('Erro a guardar.');
+    toast.success('Validade atualizada.');
+  };
+
   const previewSource: PaymentTerms = draft
     ? { preset: 'custom', installments: draft.installments }
     : paymentTerms;
@@ -517,47 +445,46 @@ export default function AppBrand() {
   const paymentCard = (
     <Card>
       <CardContent className="pt-6 space-y-4">
-        <div className="flex items-center gap-2">
-          <Wallet className="h-5 w-5 text-muted-foreground" />
-          <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">Formato de pagamento por defeito</div>
-        </div>
-        <p className="text-sm text-muted-foreground -mt-2">Aplicado automaticamente aos novos orçamentos. Pode ser alterado em cada orçamento.</p>
+        <SectionHeader
+          icon={Wallet}
+          title="Formatos de pagamento"
+          description="Aplicado automaticamente aos novos orçamentos. Pode ser alterado em cada orçamento."
+        />
 
         <div>
           <Label>Modelo</Label>
-          <Select value={selectedKey} onValueChange={onSelectChange} disabled={editing}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {templates.map((t) => (
-                <SelectItem key={t.id} value={`tpl:${t.id}`}>{t.name}</SelectItem>
-              ))}
-              {templates.length > 0 && (
+          <div className="flex flex-wrap gap-2 items-center">
+            <Select value={selectedKey} onValueChange={onSelectChange} disabled={editing}>
+              <SelectTrigger className="flex-1 min-w-[220px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {templates.map((t) => (
+                  <SelectItem key={t.id} value={`tpl:${t.id}`}>{t.name}</SelectItem>
+                ))}
+                {templates.length > 0 && <div className="my-1 border-t" />}
+                {builtInPresets.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                ))}
                 <div className="my-1 border-t" />
-              )}
-              {builtInPresets.map((p) => (
-                <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
-              ))}
-              <div className="my-1 border-t" />
-              <SelectItem value="__new" className="text-primary font-medium">+ Novo modelo personalizado</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {selectedTpl && !editing && (
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => startEdit(selectedTpl)}>
-              <Pencil className="h-4 w-4" /> Editar formato
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-2 text-destructive hover:text-destructive"
-              onClick={() => setDeleteTplId(selectedTpl.id)}
-            >
-              <Trash2 className="h-4 w-4" /> Eliminar formato
-            </Button>
+                <SelectItem value="__new" className="text-primary font-medium">+ Novo modelo personalizado</SelectItem>
+              </SelectContent>
+            </Select>
+            {selectedTpl && !editing && (
+              <>
+                <Button variant="outline" size="sm" className="gap-2" onClick={() => startEdit(selectedTpl)}>
+                  <Pencil className="h-4 w-4" /> Editar formato
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2 text-destructive hover:text-destructive"
+                  onClick={() => setDeleteTplId(selectedTpl.id)}
+                >
+                  <Trash2 className="h-4 w-4" /> Eliminar formato
+                </Button>
+              </>
+            )}
           </div>
-        )}
+        </div>
 
         {editing && draft && (
           <div className="space-y-3 rounded-lg border bg-muted/20 p-3">
@@ -655,6 +582,26 @@ export default function AppBrand() {
             </Button>
           </div>
         )}
+
+        {/* Validity moved inside payment card */}
+        <div className="border-t border-border pt-4 space-y-2">
+          <Label>Validade do orçamento (dias)</Label>
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              min={1}
+              max={365}
+              value={validityDays}
+              onChange={(e) =>
+                setValidityDays(Math.min(365, Math.max(1, Number(e.target.value) || 30)))
+              }
+              className="max-w-[140px]"
+            />
+            <Button onClick={saveValidity} disabled={saving} size="sm" variant="outline">
+              Guardar
+            </Button>
+          </div>
+        </div>
       </CardContent>
 
       <AlertDialog open={!!deleteTplId} onOpenChange={(o) => !o && setDeleteTplId(null)}>
@@ -674,6 +621,259 @@ export default function AppBrand() {
     </Card>
   );
 
+  // ============ Terms card ============
+  const selectedTermsTpl = selectedTermsKey.startsWith('ttpl:')
+    ? termsTemplates.find((t) => t.id === selectedTermsKey.slice(5)) ?? null
+    : null;
+  const editingTerms = termsDraft !== null;
+  const termsDraftValid = !!termsDraft && termsDraft.name.trim().length > 0;
+
+  const onTermsSelectChange = (v: string) => {
+    if (editingTerms) return;
+    if (v === '__new') {
+      const tpl: TermsTemplate = { ...createEmptyTermsTemplate('Novo modelo'), content: DEFAULT_TERMS_CONTENT };
+      setTermsDraft(tpl);
+      setIsNewTermsTpl(true);
+      setSelectedTermsKey(`ttpl:${tpl.id}`);
+      return;
+    }
+    if (v.startsWith('ttpl:')) {
+      setSelectedTermsKey(v);
+    }
+  };
+
+  const startEditTerms = (tpl: TermsTemplate) => {
+    setTermsDraft({ ...tpl });
+    setIsNewTermsTpl(false);
+  };
+
+  const cancelEditTerms = () => {
+    if (isNewTermsTpl) {
+      setSelectedTermsKey(termsTemplates[0] ? `ttpl:${termsTemplates[0].id}` : '');
+    }
+    setTermsDraft(null);
+    setIsNewTermsTpl(false);
+  };
+
+  const saveTermsDraft = async () => {
+    if (!termsDraft) return;
+    if (!termsDraft.name.trim()) return toast.error('Indique um nome para o modelo.');
+    const nameTaken = termsTemplates.some(
+      (t) => t.id !== termsDraft.id && t.name.trim().toLowerCase() === termsDraft.name.trim().toLowerCase(),
+    );
+    if (nameTaken) return toast.error('Já existe um modelo com esse nome.');
+    const cleaned: TermsTemplate = { ...termsDraft, name: termsDraft.name.trim() };
+    const next = isNewTermsTpl
+      ? [...termsTemplates, cleaned]
+      : termsTemplates.map((t) => (t.id === cleaned.id ? cleaned : t));
+    setSaving(true);
+    const ok = await persistTermsTemplates(next);
+    setSaving(false);
+    if (!ok) return;
+    setTermsTemplates(next);
+    setSelectedTermsKey(`ttpl:${cleaned.id}`);
+    setTermsDraft(null);
+    setIsNewTermsTpl(false);
+    toast.success(isNewTermsTpl ? 'Modelo adicionado.' : 'Modelo atualizado.');
+  };
+
+  const confirmDeleteTerms = async () => {
+    if (!deleteTermsTplId) return;
+    const next = termsTemplates.filter((t) => t.id !== deleteTermsTplId);
+    const ok = await persistTermsTemplates(next);
+    if (!ok) return;
+    setTermsTemplates(next);
+    setSelectedTermsKey(next[0] ? `ttpl:${next[0].id}` : '');
+    setDeleteTermsTplId(null);
+    if (termsDraft?.id === deleteTermsTplId) {
+      setTermsDraft(null);
+      setIsNewTermsTpl(false);
+    }
+    toast.success('Modelo eliminado.');
+  };
+
+  const previewTermsContent = termsDraft ? termsDraft.content : (selectedTermsTpl?.content ?? '');
+
+  const termsCard = (
+    <Card>
+      <CardContent className="pt-6 space-y-4">
+        <SectionHeader
+          icon={FileText}
+          title="Termos e Condições"
+          description="Aplicado automaticamente aos novos orçamentos. Pode ser alterado em cada orçamento."
+        />
+
+        <div>
+          <Label>Modelo</Label>
+          <div className="flex flex-wrap gap-2 items-center">
+            <Select
+              value={selectedTermsKey || '__placeholder'}
+              onValueChange={onTermsSelectChange}
+              disabled={editingTerms}
+            >
+              <SelectTrigger className="flex-1 min-w-[220px]">
+                <SelectValue placeholder="Selecione ou crie um modelo" />
+              </SelectTrigger>
+              <SelectContent>
+                {termsTemplates.map((t) => (
+                  <SelectItem key={t.id} value={`ttpl:${t.id}`}>{t.name}</SelectItem>
+                ))}
+                {termsTemplates.length > 0 && <div className="my-1 border-t" />}
+                <SelectItem value="__new" className="text-primary font-medium">
+                  + Novo modelo
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            {selectedTermsTpl && !editingTerms && (
+              <>
+                <Button variant="outline" size="sm" className="gap-2" onClick={() => startEditTerms(selectedTermsTpl)}>
+                  <Pencil className="h-4 w-4" /> Editar formato
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2 text-destructive hover:text-destructive"
+                  onClick={() => setDeleteTermsTplId(selectedTermsTpl.id)}
+                >
+                  <Trash2 className="h-4 w-4" /> Eliminar formato
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {editingTerms && termsDraft && (
+          <div className="space-y-3 rounded-lg border bg-muted/20 p-3">
+            <div>
+              <Label className="text-xs">Nome do modelo</Label>
+              <Input
+                value={termsDraft.name}
+                placeholder="Ex.: Termos padrão"
+                onChange={(e) => setTermsDraft({ ...termsDraft, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Conteúdo</Label>
+              <Textarea
+                value={termsDraft.content}
+                onChange={(e) => setTermsDraft({ ...termsDraft, content: e.target.value.slice(0, 5000) })}
+                rows={6}
+                placeholder="Ex: Os preços são válidos por 30 dias..."
+              />
+              <p className="text-xs text-muted-foreground text-right">{termsDraft.content.length}/5000</p>
+            </div>
+          </div>
+        )}
+
+        {!editingTerms && previewTermsContent && (
+          <div className="rounded-lg border bg-muted/30 p-3">
+            <pre className="whitespace-pre-wrap font-sans text-sm text-foreground">{previewTermsContent}</pre>
+          </div>
+        )}
+
+        {editingTerms && (
+          <div className="pt-2 flex flex-wrap gap-2">
+            <Button onClick={saveTermsDraft} disabled={saving || !termsDraftValid} size="sm">
+              {saving ? 'A guardar...' : isNewTermsTpl ? 'Adicionar formato' : 'Guardar alterações'}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={cancelEditTerms} disabled={saving}>
+              Cancelar
+            </Button>
+          </div>
+        )}
+      </CardContent>
+
+      <AlertDialog open={!!deleteTermsTplId} onOpenChange={(o) => !o && setDeleteTermsTplId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar formato?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O modelo será removido da lista de termos guardados.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteTerms}>Eliminar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Card>
+  );
+
+  // ============ Brand (logo + colors) card ============
+  const brandCard = (
+    <Card>
+      <CardContent className="pt-6 space-y-6">
+        <SectionHeader icon={Type} title="Logotipo da empresa" />
+
+        <div className="flex items-center gap-5">
+          <div className="h-24 w-24 rounded-xl border border-dashed border-border bg-muted/40 flex items-center justify-center overflow-hidden">
+            {logoPreview ? (
+              <img src={logoPreview} alt="Logo" className="h-full w-full object-contain" />
+            ) : (
+              <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <input ref={fileRef} type="file" accept="image/*" hidden onChange={onLogoChange} />
+            <Button variant="outline" size="sm" onClick={onPickLogo} disabled={uploading} className="gap-2">
+              {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              {logoUrl ? 'Substituir' : 'Carregar logo'}
+            </Button>
+            {logoUrl && (
+              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive gap-2" onClick={removeLogo}>
+                <Trash2 className="h-4 w-4" /> Remover
+              </Button>
+            )}
+            <p className="text-xs text-muted-foreground">PNG, JPG ou SVG. Até 5MB.</p>
+          </div>
+        </div>
+
+        <div className="border-t border-border pt-6 space-y-3">
+          <Label className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">
+            Cores da empresa
+          </Label>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <Label>Cor principal</Label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={colorPrimary}
+                  onChange={(e) => setColorPrimary(e.target.value)}
+                  className="h-10 w-14 rounded border border-input cursor-pointer"
+                />
+                <Input value={colorPrimary} onChange={(e) => setColorPrimary(e.target.value)} className="flex-1" />
+              </div>
+            </div>
+            <div>
+              <Label>Cor de destaque</Label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={colorAccent}
+                  onChange={(e) => setColorAccent(e.target.value)}
+                  className="h-10 w-14 rounded border border-input cursor-pointer"
+                />
+                <Input value={colorAccent} onChange={(e) => setColorAccent(e.target.value)} className="flex-1" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-border pt-6">
+          <Button
+            onClick={saveBrand}
+            disabled={saving}
+            className="w-full bg-foreground hover:bg-foreground/90 text-background"
+          >
+            {saving ? 'A guardar...' : 'Guardar marca'}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
@@ -684,12 +884,11 @@ export default function AppBrand() {
       </div>
 
       {companyCard}
-
       {paymentCard}
-
+      {termsCard}
 
       {isPro ? (
-        inner
+        brandCard
       ) : (
         <FeatureGate
           feature="pdfBranding"
@@ -697,7 +896,7 @@ export default function AppBrand() {
           title="Marca personalizada"
           description="Disponível no plano Pro."
         >
-          {inner}
+          {brandCard}
         </FeatureGate>
       )}
     </div>

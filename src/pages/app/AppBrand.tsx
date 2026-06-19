@@ -122,6 +122,8 @@ export default function AppBrand() {
         setCompanyEmail(d.company_email ?? '');
         setCompanyPhone(d.company_phone ?? '');
         setCompanyAddress(d.company_address ?? '');
+        setPaymentMbway(d.payment_mbway ?? '');
+        setPaymentIban(d.payment_iban ?? '');
         const tpls: CustomPaymentTemplate[] = Array.isArray(d.payment_term_templates) ? d.payment_term_templates : [];
         setTemplates(tpls);
         if (d.default_payment_terms) {

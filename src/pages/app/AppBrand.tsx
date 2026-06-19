@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MobileSheetSelect, type SheetSelectOption } from '@/components/app/MobileSheetSelect';
 import {
   Upload,
   Image as ImageIcon,
@@ -454,20 +454,31 @@ export default function AppBrand() {
         <div>
           <Label>Modelo</Label>
           <div className="flex flex-wrap gap-2 items-center">
-            <Select value={selectedKey} onValueChange={onSelectChange} disabled={editing}>
-              <SelectTrigger className="flex-1 min-w-[220px]"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {templates.map((t) => (
-                  <SelectItem key={t.id} value={`tpl:${t.id}`}>{t.name}</SelectItem>
-                ))}
-                {templates.length > 0 && <div className="my-1 border-t" />}
-                {builtInPresets.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
-                ))}
-                <div className="my-1 border-t" />
-                <SelectItem value="__new" className="text-primary font-medium">+ Novo modelo personalizado</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex-1 min-w-[220px]">
+              <MobileSheetSelect
+                value={selectedKey}
+                onChange={onSelectChange}
+                disabled={editing}
+                title="Formato de pagamento"
+                options={[
+                  ...templates.map<SheetSelectOption>((t) => ({
+                    value: `tpl:${t.id}`,
+                    label: t.name,
+                  })),
+                  ...builtInPresets.map<SheetSelectOption>((p, i) => ({
+                    value: p.id,
+                    label: p.label,
+                    dividerBefore: i === 0 && templates.length > 0,
+                  })),
+                  {
+                    value: '__new',
+                    label: '+ Novo modelo personalizado',
+                    primary: true,
+                    dividerBefore: true,
+                  },
+                ]}
+              />
+            </div>
             {selectedTpl && !editing && (
               <>
                 <Button variant="outline" size="sm" className="gap-2" onClick={() => startEdit(selectedTpl)}>
@@ -706,24 +717,27 @@ export default function AppBrand() {
         <div>
           <Label>Modelo</Label>
           <div className="flex flex-wrap gap-2 items-center">
-            <Select
-              value={selectedTermsKey || '__placeholder'}
-              onValueChange={onTermsSelectChange}
-              disabled={editingTerms}
-            >
-              <SelectTrigger className="flex-1 min-w-[220px]">
-                <SelectValue placeholder="Selecione ou crie um modelo" />
-              </SelectTrigger>
-              <SelectContent>
-                {termsTemplates.map((t) => (
-                  <SelectItem key={t.id} value={`ttpl:${t.id}`}>{t.name}</SelectItem>
-                ))}
-                {termsTemplates.length > 0 && <div className="my-1 border-t" />}
-                <SelectItem value="__new" className="text-primary font-medium">
-                  + Novo modelo
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex-1 min-w-[220px]">
+              <MobileSheetSelect
+                value={selectedTermsKey}
+                onChange={onTermsSelectChange}
+                disabled={editingTerms}
+                placeholder="Selecione ou crie um modelo"
+                title="Termos e condições"
+                options={[
+                  ...termsTemplates.map<SheetSelectOption>((t) => ({
+                    value: `ttpl:${t.id}`,
+                    label: t.name,
+                  })),
+                  {
+                    value: '__new',
+                    label: '+ Novo modelo',
+                    primary: true,
+                    dividerBefore: termsTemplates.length > 0,
+                  },
+                ]}
+              />
+            </div>
             {selectedTermsTpl && !editingTerms && (
               <>
                 <Button variant="outline" size="sm" className="gap-2" onClick={() => startEditTerms(selectedTermsTpl)}>

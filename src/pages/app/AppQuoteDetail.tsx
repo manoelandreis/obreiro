@@ -514,29 +514,15 @@ export default function AppQuoteDetail() {
           <div className="sm:ml-auto flex items-center gap-2 flex-wrap">
             {/* Mobile layout: menu + Download + WhatsApp (full-width) */}
             <div className="flex items-center gap-2 w-full sm:hidden">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" aria-label="Mais ações" className="h-10 w-10 shrink-0">
-                    <MoreHorizontal className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <a href={publicUrl} target="_blank" rel="noreferrer" className="gap-2">
-                      <ExternalLink className="h-4 w-4" /> Ver como o cliente vê
-                    </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={copyLink} className="gap-2">
-                    <Copy className="h-4 w-4" /> Copiar link
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSendOpen(true)} className="gap-2">
-                    <Mail className="h-4 w-4" /> Enviar por email
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => toast.info('Edição em breve.')} className="gap-2">
-                    <Pencil className="h-4 w-4" /> Editar
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label="Mais ações"
+                className="h-10 w-10 shrink-0"
+                onClick={() => setDetailSheetOpen(true)}
+              >
+                <MoreHorizontal className="h-5 w-5" />
+              </Button>
 
               <Button
                 variant="outline"

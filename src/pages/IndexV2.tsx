@@ -286,6 +286,143 @@ export default function IndexV2() {
           </div>
         </div>
       </section>
+      {/* ─────── SEM COMISSÕES ─────── */}
+      <section className="px-6 py-20 bg-navy-deep text-white scroll-mt-20">
+        <div className="mx-auto max-w-[1180px]">
+          <div className="text-center mb-12">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
+              Sem comissões. Sem letras pequenas.
+            </span>
+            <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-white text-balance">
+              Fica com 100% do que ganha. O Obreiro só lhe poupa tempo.
+            </h2>
+            <p className="mt-3 text-white/70 max-w-2xl mx-auto text-lg leading-relaxed">
+              Não cobramos comissão sobre os seus orçamentos nem ficamos com parte dos seus trabalhos. Paga um valor fixo e simples — e tem tudo o que precisa para parecer (e ser) mais profissional.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { icon: Zap, title: 'Rápido', desc: 'Orçamentos completos em minutos, com cálculo automático de IVA, serviços e materiais. Menos tempo no escritório, mais tempo na obra.' },
+              { icon: Sparkles, title: 'Profissional', desc: 'O seu logo, as suas cores e os seus termos. Cada orçamento chega ao cliente com a sua marca e um aspeto que inspira confiança.' },
+              { icon: LayoutGrid, title: 'Organizado', desc: 'Clientes, trabalhos, pagamentos e estado de cada orçamento num só lugar. Saiba sempre o que está aprovado e o que falta cobrar.' },
+            ].map((item) => (
+              <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-6">
+                <div className="h-10 w-10 rounded-xl bg-accent/20 flex items-center justify-center mb-4">
+                  <item.icon className="h-5 w-5 text-accent" strokeWidth={1.5} />
+                </div>
+                <h3 className="font-heading font-semibold text-base mb-1.5 text-white">{item.title}</h3>
+                <p className="text-white/60 text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+      {/* ─────── SECTION: Exemplos de Orçamentos ─────── */}
+      <section id="exemplos" className="px-6 py-20 bg-secondary/30 scroll-mt-20">
+        <div className="mx-auto max-w-[1180px]">
+          <div className="text-center mb-12">
+            <span className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
+              <FileCheck className="h-3 w-3" /> Exemplos reais
+            </span>
+            <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-foreground text-balance">
+              Veja como ficam os seus orçamentos
+            </h2>
+            <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
+              Três exemplos de orçamentos profissionais criados em minutos com o Obreiro.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                category: 'Canalização',
+                title: 'Reparação de fuga + substituição',
+                desc: 'Orçamento de serviço pontual com mão de obra e materiais detalhados. Ideal para reparações rápidas.',
+                pdf: '/exemplos/orcamento-canalizacao.pdf',
+                preview: '/exemplos/orcamento-canalizacao.png',
+              },
+              {
+                category: 'Pintura',
+                title: 'Pintura interior de apartamento T2',
+                desc: 'Orçamento por horas com discriminação de tintas e materiais consumíveis. Notas com condições e garantias.',
+                pdf: '/exemplos/orcamento-pintura.pdf',
+                preview: '/exemplos/orcamento-pintura.png',
+              },
+              {
+                category: 'Remodelação',
+                title: 'Remodelação integral de casa de banho',
+                desc: 'Múltiplos serviços (construção, canalização, eletricidade) com subtotais por serviço e plano de pagamento.',
+                pdf: '/exemplos/orcamento-remodelacao.pdf',
+                preview: '/exemplos/orcamento-remodelacao.png',
+              },
+            ].map((quote) => (
+              <div key={quote.title} className="flex flex-col">
+                {/* PDF preview image */}
+                <a
+                  href={quote.pdf}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative block rounded-2xl bg-card border border-border overflow-hidden shadow-soft hover:shadow-lg transition-all"
+                  aria-label={`Ver orçamento ${quote.title} no navegador`}
+                >
+                  <div className="aspect-square overflow-hidden bg-secondary/50">
+                    <img
+                      src={quote.preview}
+                      alt={`Pré-visualização do orçamento de ${quote.category.toLowerCase()}`}
+                      loading="lazy"
+                      className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-background/95 backdrop-blur px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-foreground shadow-sm">
+                    <FileText className="h-3 w-3 text-accent" /> PDF
+                  </span>
+                </a>
+
+                {/* Title + description + links (outside the image) */}
+                <div className="pt-5 px-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-accent mb-1.5">
+                    {quote.category}
+                  </p>
+                  <h3 className="font-heading font-bold text-lg text-foreground leading-tight mb-2">
+                    {quote.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    {quote.desc}
+                  </p>
+                  <div className="flex items-center gap-4 text-sm">
+                    <a
+                      href={quote.pdf}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 font-semibold text-accent hover:text-accent/80 transition-colors"
+                    >
+                      <Eye className="h-4 w-4" /> Ver na web
+                    </a>
+                    <span className="text-border" aria-hidden="true">·</span>
+                    <a
+                      href={quote.pdf}
+                      download
+                      className="inline-flex items-center gap-1.5 font-semibold text-foreground hover:text-accent transition-colors"
+                    >
+                      <Download className="h-4 w-4" /> Download PDF
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 text-center">
+            <Button size="lg" variant="accent" onClick={scrollToQuote} className="gap-2 h-12 px-6">
+              Criar o meu orçamento <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
 
       {/* ─────── INLINE QUOTE BUILDER ─────── */}
       <section ref={quoteRef} id="quote-builder" className="px-6 py-20 bg-card border-y border-border scroll-mt-20">
@@ -603,110 +740,6 @@ export default function IndexV2() {
 
 
 
-
-      {/* ─────── SECTION: Exemplos de Orçamentos ─────── */}
-      <section id="exemplos" className="px-6 py-20 bg-secondary/30 scroll-mt-20">
-        <div className="mx-auto max-w-[1180px]">
-          <div className="text-center mb-12">
-            <span className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
-              <FileCheck className="h-3 w-3" /> Exemplos reais
-            </span>
-            <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-foreground text-balance">
-              Veja como ficam os seus orçamentos
-            </h2>
-            <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
-              Três exemplos de orçamentos profissionais criados em minutos com o Obreiro.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                category: 'Canalização',
-                title: 'Reparação de fuga + substituição',
-                desc: 'Orçamento de serviço pontual com mão de obra e materiais detalhados. Ideal para reparações rápidas.',
-                pdf: '/exemplos/orcamento-canalizacao.pdf',
-                preview: '/exemplos/orcamento-canalizacao.png',
-              },
-              {
-                category: 'Pintura',
-                title: 'Pintura interior de apartamento T2',
-                desc: 'Orçamento por horas com discriminação de tintas e materiais consumíveis. Notas com condições e garantias.',
-                pdf: '/exemplos/orcamento-pintura.pdf',
-                preview: '/exemplos/orcamento-pintura.png',
-              },
-              {
-                category: 'Remodelação',
-                title: 'Remodelação integral de casa de banho',
-                desc: 'Múltiplos serviços (construção, canalização, eletricidade) com subtotais por serviço e plano de pagamento.',
-                pdf: '/exemplos/orcamento-remodelacao.pdf',
-                preview: '/exemplos/orcamento-remodelacao.png',
-              },
-            ].map((quote) => (
-              <div key={quote.title} className="flex flex-col">
-                {/* PDF preview image */}
-                <a
-                  href={quote.pdf}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative block rounded-2xl bg-card border border-border overflow-hidden shadow-soft hover:shadow-lg transition-all"
-                  aria-label={`Ver orçamento ${quote.title} no navegador`}
-                >
-                  <div className="aspect-square overflow-hidden bg-secondary/50">
-                    <img
-                      src={quote.preview}
-                      alt={`Pré-visualização do orçamento de ${quote.category.toLowerCase()}`}
-                      loading="lazy"
-                      className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-background/95 backdrop-blur px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-foreground shadow-sm">
-                    <FileText className="h-3 w-3 text-accent" /> PDF
-                  </span>
-                </a>
-
-                {/* Title + description + links (outside the image) */}
-                <div className="pt-5 px-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-accent mb-1.5">
-                    {quote.category}
-                  </p>
-                  <h3 className="font-heading font-bold text-lg text-foreground leading-tight mb-2">
-                    {quote.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                    {quote.desc}
-                  </p>
-                  <div className="flex items-center gap-4 text-sm">
-                    <a
-                      href={quote.pdf}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 font-semibold text-accent hover:text-accent/80 transition-colors"
-                    >
-                      <Eye className="h-4 w-4" /> Ver na web
-                    </a>
-                    <span className="text-border" aria-hidden="true">·</span>
-                    <a
-                      href={quote.pdf}
-                      download
-                      className="inline-flex items-center gap-1.5 font-semibold text-foreground hover:text-accent transition-colors"
-                    >
-                      <Download className="h-4 w-4" /> Download PDF
-                    </a>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 text-center">
-            <Button size="lg" variant="accent" onClick={scrollToQuote} className="gap-2 h-12 px-6">
-              Criar o meu orçamento <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </section>
 
       {/* ─────── TESTIMONIAL ─────── */}
       <section className="px-6 py-20">

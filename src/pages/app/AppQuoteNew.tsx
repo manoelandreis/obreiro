@@ -260,7 +260,7 @@ export default function AppQuoteNew() {
             <p className="text-muted-foreground">Preencha os dados do cliente, serviços e materiais.</p>
           </div>
         </div>
-        <Button className="gap-2" disabled={saving} onClick={handleSave}>
+        <Button className="gap-2 w-full sm:w-auto" disabled={saving} onClick={handleSave}>
           <Save className="h-4 w-4" /> {saving ? 'A guardar...' : 'Guardar Orçamento'}
         </Button>
       </div>
@@ -615,7 +615,7 @@ export default function AppQuoteNew() {
           <div className="text-sm text-muted-foreground">IVA (23%): <span className="font-medium text-foreground">{fmt(iva)}</span></div>
           <div className="text-2xl font-bold text-primary border-t pt-2">Total: {fmt(total)}</div>
           <div className="pt-3">
-            <Button size="lg" className="gap-2" disabled={saving} onClick={handleSave}>
+            <Button size="lg" className="gap-2 w-full" disabled={saving} onClick={handleSave}>
               <Save className="h-4 w-4" /> {saving ? 'A guardar...' : 'Guardar Orçamento'}
             </Button>
           </div>

@@ -279,38 +279,81 @@ export default function AppBrand() {
   }
 
   // ============ Company card ============
+  const Subsection = ({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) => (
+    <div className="space-y-3 pt-2">
+      <div>
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+        {description && <p className="text-xs text-muted-foreground mt-0.5">{description}</p>}
+      </div>
+      {children}
+    </div>
+  );
+
   const companyCard = (
     <Card>
-      <CardContent className="pt-6 space-y-4">
+      <CardContent className="pt-6 space-y-6">
         <SectionHeader
           icon={Building2}
           title="Dados da Empresa"
           description="Estes dados aparecem automaticamente em todos os orçamentos que criar."
         />
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <Label>Nome da empresa</Label>
-            <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Ex: Silva Construções" />
+
+        <Subsection title="Identificação" description="Nome legal e número de contribuinte da empresa.">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label>Nome da empresa</Label>
+              <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Ex: Silva Construções" />
+            </div>
+            <div>
+              <Label>NIF</Label>
+              <Input value={companyNif} onChange={(e) => setCompanyNif(e.target.value)} placeholder="Ex: 123456789" />
+            </div>
           </div>
-          <div>
-            <Label>NIF</Label>
-            <Input value={companyNif} onChange={(e) => setCompanyNif(e.target.value)} placeholder="Ex: 123456789" />
+        </Subsection>
+
+        <Subsection title="Contactos" description="Como os clientes podem entrar em contacto consigo.">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label>Email</Label>
+              <Input type="email" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} placeholder="geral@empresa.pt" />
+            </div>
+            <div>
+              <Label>Telefone</Label>
+              <Input value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} placeholder="+351 912 345 678" />
+            </div>
+            <div className="md:col-span-2">
+              <Label>Morada</Label>
+              <Input value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} placeholder="Rua, número, código postal, localidade" />
+            </div>
           </div>
-          <div>
-            <Label>Email</Label>
-            <Input type="email" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} />
+        </Subsection>
+
+        <Subsection title="Métodos de pagamento" description="Aparecem nos orçamentos para o cliente poder pagar diretamente.">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label>MBWay</Label>
+              <Input
+                type="tel"
+                inputMode="tel"
+                value={paymentMbway}
+                onChange={(e) => setPaymentMbway(e.target.value)}
+                placeholder="+351 912 345 678"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Número de telemóvel português associado ao MBWay.</p>
+            </div>
+            <div>
+              <Label>IBAN</Label>
+              <Input
+                value={paymentIban}
+                onChange={(e) => setPaymentIban(e.target.value.toUpperCase())}
+                placeholder="PT50 0000 0000 0000 0000 0000 0"
+              />
+              <p className="text-xs text-muted-foreground mt-1">IBAN para transferência bancária.</p>
+            </div>
           </div>
-          <div>
-            <Label>Telefone</Label>
-            <Input value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} />
-          </div>
-        </div>
-        <div>
-          <Label>Morada</Label>
-          <Input value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} />
-        </div>
-        <div className="space-y-2">
-          <Label>Descrição / história da empresa</Label>
+        </Subsection>
+
+        <Subsection title="Sobre a empresa" description="Breve descrição que aparece nos orçamentos.">
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value.slice(0, 2000))}
@@ -318,7 +361,8 @@ export default function AppBrand() {
             placeholder="Ex: A Silva Construções é uma empresa familiar com 20 anos de experiência..."
           />
           <p className="text-xs text-muted-foreground text-right">{description.length}/2000</p>
-        </div>
+        </Subsection>
+
         <div className="pt-2">
           <Button onClick={saveCompany} disabled={saving} size="sm">
             {saving ? 'A guardar...' : 'Guardar dados'}
@@ -327,6 +371,7 @@ export default function AppBrand() {
       </CardContent>
     </Card>
   );
+
 
   // ============ Payment card ============
   const previewTotal = 1000;

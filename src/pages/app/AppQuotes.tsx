@@ -82,8 +82,11 @@ const daysSince = (iso: string | Date) =>
 export default function AppQuotes() {
   const { user } = useAppAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [quotes, setQuotes] = useState<QuoteRow[]>([]);
   const [search, setSearch] = useState('');
+  const [sheet, setSheet] = useState<{ quote: QuoteRow; kind: 'actions' | 'share' } | null>(null);
+
 
   const load = async () => {
     const { data } = await supabase

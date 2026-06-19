@@ -555,8 +555,30 @@ export default function AppQuoteDetail() {
               </Button>
             </div>
 
-            {/* Desktop / tablet layout: PDF + Email + WhatsApp + Mais ações */}
+            {/* Desktop / tablet layout: Mais ações + PDF + Email + WhatsApp */}
             <div className="hidden sm:flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="h-10.10 gap-1.5" aria-label="Mais ações">
+                    <MoreHorizontal className="h-4 w-4" />
+                    Mais ações
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <a href={publicUrl} target="_blank" rel="noreferrer" className="gap-2">
+                      <ExternalLink className="h-4 w-4" /> Ver como o cliente vê
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={copyLink} className="gap-2">
+                    <Copy className="h-4 w-4" /> Copiar link
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => toast.info('Edição em breve.')} className="gap-2">
+                    <Pencil className="h-4 w-4" /> Editar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Button
                 variant="outline"
                 onClick={handleDownload}
@@ -587,28 +609,6 @@ export default function AppQuoteDetail() {
                 <MessageCircle className="h-4 w-4" />
                 WhatsApp
               </Button>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="h-10 gap-1.5" aria-label="Mais ações">
-                    <MoreHorizontal className="h-4 w-4" />
-                    Mais ações
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <a href={publicUrl} target="_blank" rel="noreferrer" className="gap-2">
-                      <ExternalLink className="h-4 w-4" /> Ver como o cliente vê
-                    </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={copyLink} className="gap-2">
-                    <Copy className="h-4 w-4" /> Copiar link
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => toast.info('Edição em breve.')} className="gap-2">
-                    <Pencil className="h-4 w-4" /> Editar
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </div>
         </div>

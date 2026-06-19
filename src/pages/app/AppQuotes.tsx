@@ -286,7 +286,6 @@ export default function AppQuotes() {
           ) : (
             <div className="divide-y divide-border">
               {filtered.map((q) => {
-                const itemsCount = Array.isArray(q.services) ? q.services.length : 0;
                 const clientName = q.app_clients?.name ?? q.client_snapshot?.name ?? null;
                 const dueDays = paymentDueDays(q);
                 return isMobile ? (

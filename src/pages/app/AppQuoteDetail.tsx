@@ -24,7 +24,7 @@ import { QuoteWorkView } from '@/components/app/QuoteWorkView';
 import { FeatureGate } from '@/components/app/FeatureGate';
 import {
   ArrowLeft, Download, Mail, Copy, History, Sparkles, Loader2, ExternalLink,
-  ChevronDown, Eye, EyeOff, MessageCircle, ImagePlus, Check, MoreHorizontal,
+  ChevronDown, Eye, EyeOff, MessageCircle, ImagePlus, Check, MoreHorizontal, Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { buildQuoteHtml, loadBrand, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';

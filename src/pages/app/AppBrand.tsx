@@ -70,6 +70,8 @@ export default function AppBrand() {
   const [companyEmail, setCompanyEmail] = useState('');
   const [companyPhone, setCompanyPhone] = useState('');
   const [companyAddress, setCompanyAddress] = useState('');
+  const [paymentMbway, setPaymentMbway] = useState('');
+  const [paymentIban, setPaymentIban] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);

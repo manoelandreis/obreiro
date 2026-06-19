@@ -24,7 +24,7 @@ import { QuoteWorkView } from '@/components/app/QuoteWorkView';
 import { FeatureGate } from '@/components/app/FeatureGate';
 import {
   ArrowLeft, Download, Mail, Copy, History, Sparkles, Loader2, ExternalLink,
-  ChevronDown, Eye, EyeOff, MessageCircle, ImagePlus, Check, MoreHorizontal,
+  ChevronDown, Eye, EyeOff, MessageCircle, ImagePlus, Check, MoreHorizontal, Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { buildQuoteHtml, loadBrand, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';
@@ -528,6 +528,9 @@ export default function AppQuoteDetail() {
                   <DropdownMenuItem onClick={() => setSendOpen(true)} className="gap-2">
                     <Mail className="h-4 w-4" /> Enviar por email
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => toast.info('Edição em breve.')} className="gap-2">
+                    <Pencil className="h-4 w-4" /> Editar
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
@@ -552,60 +555,60 @@ export default function AppQuoteDetail() {
               </Button>
             </div>
 
-            {/* Desktop layout */}
+            {/* Desktop / tablet layout: PDF + Email + WhatsApp + Mais ações */}
             <div className="hidden sm:flex items-center gap-2">
-              <Button
-                variant="outline"
-                asChild
-                className="h-10 w-10 p-0 md:w-auto md:px-3"
-                title="Ver como o cliente vê"
-              >
-                <a href={publicUrl} target="_blank" rel="noreferrer">
-                  <ExternalLink className="h-4 w-4" />
-                  <span className="hidden md:inline ml-1.5">Ver como o cliente vê</span>
-                </a>
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={copyLink}
-                className="h-10 w-10 p-0 md:w-auto md:px-3"
-                title="Copiar link"
-              >
-                <Copy className="h-4 w-4" />
-                <span className="hidden md:inline ml-1.5">Copiar link</span>
-              </Button>
-
               <Button
                 variant="outline"
                 onClick={handleDownload}
                 disabled={generating}
-                className="h-10 w-10 p-0 md:w-auto md:px-3"
+                className="h-10 gap-1.5"
                 title="Descarregar PDF"
               >
                 {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                <span className="hidden md:inline ml-1.5">PDF</span>
+                PDF
               </Button>
 
               <Button
                 variant="outline"
                 onClick={() => setSendOpen(true)}
-                className="h-10 w-10 p-0 md:w-auto md:px-3"
+                className="h-10 gap-1.5"
                 title="Enviar por email"
               >
                 <Mail className="h-4 w-4" />
-                <span className="hidden md:inline ml-1.5">Email</span>
+                Email
               </Button>
 
               <Button
                 onClick={handleSendByWhatsApp}
                 disabled={!hasPhone}
-                className="h-10 gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+                className="h-10 gap-1.5 bg-accent hover:bg-accent/90 text-accent-foreground"
                 title={hasPhone ? 'Enviar por WhatsApp' : 'Cliente sem telefone preenchido'}
               >
                 <MessageCircle className="h-4 w-4" />
                 WhatsApp
               </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="h-10 gap-1.5" aria-label="Mais ações">
+                    <MoreHorizontal className="h-4 w-4" />
+                    Mais ações
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <a href={publicUrl} target="_blank" rel="noreferrer" className="gap-2">
+                      <ExternalLink className="h-4 w-4" /> Ver como o cliente vê
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={copyLink} className="gap-2">
+                    <Copy className="h-4 w-4" /> Copiar link
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => toast.info('Edição em breve.')} className="gap-2">
+                    <Pencil className="h-4 w-4" /> Editar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

@@ -243,6 +243,7 @@ export default function IndexV2() {
         </div>
       </nav>
 
+      <main>
       {/* ─────── HERO ─────── */}
       <section
         className="relative px-6 pt-20 pb-16 md:pt-28 md:pb-20 bg-cover bg-center"
@@ -399,7 +400,7 @@ export default function IndexV2() {
             <span className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
               <FileText className="h-3 w-3" /> Experimente agora
             </span>
-            <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-foreground text-balance">Crie o seu orçamento</h2>
+            <h2 className="mt-4 font-heading text-3xl md:text-4xl font-bold text-foreground text-balance">Gerador de Orçamentos de Construção</h2>
             <p className="mt-3 text-muted-foreground">Tudo numa só página. Sem registo. Sem demoras.</p>
           </div>
 
@@ -471,7 +472,7 @@ export default function IndexV2() {
                           <Wrench className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} /> Serviço {idx + 1}
                         </span>
                         {services.length > 1 && (
-                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeService(svc.id)}>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Remover serviço" onClick={() => removeService(svc.id)}>
                             <Trash2 className="h-3 w-3 text-destructive" />
                           </Button>
                         )}
@@ -509,7 +510,7 @@ export default function IndexV2() {
                           <div key={mat.id} className="border border-border rounded-lg p-3 space-y-2 mb-2 bg-card">
                             <div className="flex justify-between items-center">
                               <span className="text-xs text-muted-foreground">Material {mIdx + 1}</span>
-                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeMaterial(svc.id, mat.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                              <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="Remover material" onClick={() => removeMaterial(svc.id, mat.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
                             </div>
                             <div><Label className="text-xs">Material</Label><Input value={mat.name} onChange={(e) => updateMaterial(svc.id, mat.id, 'name', e.target.value)} placeholder="Ex: Tinta Interior" /></div>
                             <div className="grid grid-cols-3 gap-2">
@@ -864,6 +865,7 @@ export default function IndexV2() {
           </div>
         </div>
       </section>
+      </main>
 
 
       {/* ─────── FOOTER ─────── */}

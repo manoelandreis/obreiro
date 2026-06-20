@@ -12,3 +12,8 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /app
+Disallow: /q/
+
+Sitemap: https://obreiro.pt/sitemap.xml

@@ -1,0 +1,11 @@
+# Obreiro
+
+> Ferramentas para construtores portugueses: gerador de orçamentos profissionais com IVA 23%, NIF e PDF pronto a enviar.
+
+Obreiro ajuda profissionais de construção em Portugal a criar orçamentos detalhados em minutos, capturar clientes e gerir o seu negócio.
+
+## Pages
+
+- [Página inicial](/): Visão geral do Obreiro, exemplos de orçamentos e funcionalidades.
+- [Gerador de orçamentos](/quote): Crie um orçamento de construção passo-a-passo e envie por email em PDF.
+- [Política de Privacidade](/privacidade): Como tratamos dados pessoais (RGPD).

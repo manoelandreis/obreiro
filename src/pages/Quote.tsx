@@ -350,7 +350,7 @@ export default function Quote() {
                       <Wrench className="h-5 w-5" /> Serviço {idx + 1}
                     </span>
                     {services.length > 1 && (
-                      <Button variant="ghost" size="icon" onClick={() => removeService(svc.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      <Button variant="ghost" size="icon" aria-label="Remover serviço" onClick={() => removeService(svc.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                     )}
                   </CardTitle>
                 </CardHeader>
@@ -392,7 +392,7 @@ export default function Quote() {
                       <div key={mat.id} className="border rounded-lg p-3 space-y-3 mb-3 bg-muted/30">
                         <div className="flex justify-between items-center">
                           <span className="text-xs font-medium text-muted-foreground">Material {mIdx + 1}</span>
-                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeMaterial(svc.id, mat.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Remover material" onClick={() => removeMaterial(svc.id, mat.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
                         </div>
                         <div><Label className="text-xs">Material</Label><Input value={mat.name} onChange={(e) => updateMaterial(svc.id, mat.id, 'name', e.target.value)} placeholder="Ex: Tinta Interior" /></div>
                         <div className="grid grid-cols-3 gap-3">

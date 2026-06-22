@@ -303,20 +303,26 @@ export default function AppQuoteNew() {
         </button>
         {expanded.client && (
           <CardContent className="space-y-4 pt-0">
-            <div className="flex gap-3 items-end flex-wrap">
-              <div className="flex-1 min-w-[240px]">
-                <Label>Selecionar cliente existente</Label>
-                <Select value={selectedClientId} onValueChange={setSelectedClientId}>
-                  <SelectTrigger><SelectValue placeholder="Escolher cliente..." /></SelectTrigger>
-                  <SelectContent>
-                    {clients.length === 0 && <div className="p-2 text-sm text-muted-foreground">Nenhum cliente ainda.</div>}
-                    {clients.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button variant="outline" className="gap-2" onClick={() => setOpenNewClient(true)}>
-                <Plus className="h-4 w-4" /> Novo Cliente
-              </Button>
+            <div>
+              <Label>Selecionar cliente existente</Label>
+              <Select
+                value={selectedClientId}
+                onValueChange={(v) => {
+                  if (v === '__new') {
+                    setOpenNewClient(true);
+                    return;
+                  }
+                  setSelectedClientId(v);
+                }}
+              >
+                <SelectTrigger><SelectValue placeholder="Escolher cliente..." /></SelectTrigger>
+                <SelectContent>
+                  {clients.length === 0 && <div className="p-2 text-sm text-muted-foreground">Nenhum cliente ainda.</div>}
+                  {clients.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  {clients.length > 0 && <div className="my-1 border-t" />}
+                  <SelectItem value="__new" className="text-primary font-medium">+ Novo Cliente</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {selectedClient && (

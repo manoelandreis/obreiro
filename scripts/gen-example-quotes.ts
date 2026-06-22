@@ -1,3 +1,5 @@
+// @ts-ignore
+globalThis.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {}, clear: () => {}, key: () => null, length: 0 } as any;
 import { buildQuoteHtml, type QuoteRenderData } from '../src/lib/quotePdf';
 import { PAYMENT_PRESETS } from '../src/lib/paymentTerms';
 import { writeFileSync, mkdirSync } from 'fs';

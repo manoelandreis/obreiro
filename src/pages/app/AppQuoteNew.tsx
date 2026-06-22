@@ -38,7 +38,7 @@ export default function AppQuoteNew() {
   const navigate = useNavigate();
 
   // Company snapshot (from settings)
-  const [company, setCompany] = useState({ name: '', email: '', phone: '', address: '', nif: '' });
+  const [company, setCompany] = useState({ name: '', email: '', phone: '', address: '', nif: '', iban: '', mbway: '' });
 
   // Clients
   const [clients, setClients] = useState<ClientRow[]>([]);

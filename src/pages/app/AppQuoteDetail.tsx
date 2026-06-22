@@ -148,6 +148,15 @@ export default function AppQuoteDetail() {
     const cs = quote.company_snapshot || {};
     const cl = quote.client_snapshot || {};
 
+    const { data: settings } = await supabase
+      .from('app_user_settings')
+      .select(
+        'payment_iban, payment_mbway, company_name, company_nif, company_email, company_phone, company_address' as any
+      )
+      .eq('user_id', user.id)
+      .maybeSingle();
+    const s = (settings as any) || {};
+
     let attachmentUrls: { url: string; caption: string | null }[] = [];
     if (limits.attachments) {
       const { data: atts } = await supabase
@@ -171,14 +180,15 @@ export default function AppQuoteDetail() {
     const data: QuoteRenderData = {
       title: quote.title,
       company: {
-        name: cs.name ?? cs.company_name,
-        nif: cs.nif ?? cs.company_nif,
-        email: cs.email ?? cs.company_email,
-        phone: cs.phone ?? cs.company_phone,
-        address: cs.address ?? cs.company_address,
-        iban: cs.iban ?? cs.payment_iban,
-        mbway: cs.mbway ?? cs.payment_mbway,
+        name: cs.name ?? cs.company_name ?? s.company_name,
+        nif: cs.nif ?? cs.company_nif ?? s.company_nif,
+        email: cs.email ?? cs.company_email ?? s.company_email,
+        phone: cs.phone ?? cs.company_phone ?? s.company_phone,
+        address: cs.address ?? cs.company_address ?? s.company_address,
+        iban: cs.iban ?? cs.payment_iban ?? s.payment_iban,
+        mbway: cs.mbway ?? cs.payment_mbway ?? s.payment_mbway,
       },
+
       client: { name: cl.name, email: cl.email, phone: cl.phone, address: cl.address },
       services: quote.services || [],
       notes: quote.notes,

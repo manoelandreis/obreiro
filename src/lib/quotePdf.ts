@@ -239,36 +239,34 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 <body>
   <div class="header">
     <div class="header-left">
-      ${logo ? `<img class="logo" src="${esc(logo)}" alt="Logo" />` : ''}
-      <div>
+      <div class="brand-row">
+        ${logo ? `<img class="logo" src="${esc(logo)}" alt="Logo" />` : ''}
         <div class="company-name">${esc(q.company.name || 'A Sua Empresa')}</div>
-        <div class="company-meta">
-          ${q.company.nif ? `<p><span class="meta-label">NIF:</span> ${esc(q.company.nif)}</p>` : ''}
-          ${q.company.email ? `<p><span class="meta-label">EMAIL:</span> ${esc(q.company.email)}</p>` : ''}
-          ${q.company.phone ? `<p><span class="meta-label">TELEMÓVEL:</span> ${esc(q.company.phone)}</p>` : ''}
-          ${q.company.address ? `<p><span class="meta-label">MORADA:</span> ${esc(q.company.address)}</p>` : ''}
-        </div>
+      </div>
+      <div class="company-meta">
+        ${q.company.nif ? `<p>NIF: ${esc(q.company.nif)}</p>` : ''}
+        ${q.company.email ? `<p>${esc(q.company.email)}</p>` : ''}
+        ${q.company.phone ? `<p>${esc(q.company.phone)}</p>` : ''}
+        ${q.company.address ? `<p>${esc(q.company.address)}</p>` : ''}
       </div>
     </div>
     <div class="header-right">
-      <h2>ORÇAMENTO</h2>
-      <p>Data: ${new Date(q.createdAt).toLocaleDateString('pt-PT')}</p>
+      <div class="label">ORÇAMENTO</div>
+      <div class="date">${new Date(q.createdAt).toLocaleDateString('pt-PT')}</div>
+      ${validityLine}
     </div>
   </div>
 
   <div class="quote-title">${esc(q.title)}</div>
   ${description ? `<div class="description">${esc(description)}</div>` : ''}
 
-  <div class="client-row">
-    <div class="info-block">
-      <h3>Cliente</h3>
-      <p class="name">${esc(q.client.name || '—')}</p>
-      ${q.client.email ? `<p>${esc(q.client.email)}</p>` : ''}
-      ${q.client.phone ? `<p>${esc(q.client.phone)}</p>` : ''}
-      ${q.client.address ? `<p>${esc(q.client.address)}</p>` : ''}
-    </div>
-    ${validityHtml ? `<div class="validity-wrap">${validityHtml}</div>` : ''}
-  </div>
+  ${q.client.name || q.client.email || q.client.phone || q.client.address ? `<div class="client-line">
+    ${[q.client.name, q.client.email, q.client.phone, q.client.address]
+      .filter(Boolean)
+      .map((v) => esc(v))
+      .join('<span class="sep">·</span>')}
+  </div>` : ''}
+
 
 
   ${servicesHtml}

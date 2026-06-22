@@ -628,31 +628,18 @@ export default function AppQuoteNew() {
         </CardContent>
       </Card>
 
-      {/* New client dialog */}
-      <Dialog open={openNewClient} onOpenChange={setOpenNewClient}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="font-heading text-xl">Novo Cliente</DialogTitle>
-            <DialogDescription>Adicione um cliente ao seu CRM.</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleCreateClient} className="space-y-4">
-            <div><Label>Nome *</Label><Input required value={newClient.name} onChange={(e) => setNewClient({ ...newClient, name: e.target.value })} /></div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Email</Label><Input type="email" value={newClient.email} onChange={(e) => setNewClient({ ...newClient, email: e.target.value })} /></div>
-              <div><Label>Telefone</Label><Input value={newClient.phone} onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })} /></div>
-            </div>
-            <div><Label>Morada</Label><Input value={newClient.address} onChange={(e) => setNewClient({ ...newClient, address: e.target.value })} /></div>
-            <label className="flex items-start gap-2 text-sm">
-              <Checkbox checked={newClient.rgpd} onCheckedChange={(v) => setNewClient({ ...newClient, rgpd: !!v })} className="mt-0.5" />
-              <span className="text-muted-foreground">Confirmo que tenho consentimento RGPD do cliente para guardar estes dados.</span>
-            </label>
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => setOpenNewClient(false)}>Cancelar</Button>
-              <Button type="submit">Criar Cliente</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      {/* New client bottom sheet */}
+      <ClientFormSheet
+        open={openNewClient}
+        onOpenChange={setOpenNewClient}
+        userId={user?.id}
+        onCreated={(c) => {
+          setClients([...clients, {
+            id: c.id, name: c.name, email: c.email, phone: c.phone, address: c.address,
+          }]);
+          setSelectedClientId(c.id);
+        }}
+      />
     </div>
   );
 }

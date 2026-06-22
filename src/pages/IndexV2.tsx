@@ -679,7 +679,21 @@ export default function IndexV2() {
                       <p style={{ fontSize: 14, color: '#555' }}>IVA (23%): {fmt(iva)}</p>
                       <p style={{ fontSize: 20, fontWeight: 700, color: '#1B3A5C', borderTop: '2px solid #1B3A5C', paddingTop: 8, marginTop: 8, display: 'inline-block', fontFamily: 'Poppins, sans-serif' }}>Total: {fmt(total)}</p>
                     </div>
-                    {notes && <div style={{ marginTop: 24, padding: 16, background: '#FFF2E3', borderRadius: 8, fontSize: 13, color: '#555' }}><strong>Notas:</strong><br />{notes}</div>}
+                    <div style={{ marginTop: 24, padding: 16, background: '#F5F8FB', border: '1px solid #E3EAF2', borderRadius: 8, fontSize: 13, color: '#0F1B2A' }}>
+                      <strong style={{ color: '#1B3A5C' }}>Condições de Pagamento:</strong>
+                      <div style={{ marginTop: 6, color: '#555' }}>
+                        {presetById(paymentPreset).installments.map((i, idx) => (
+                          <span key={idx}>{idx > 0 ? ' · ' : ''}{i.percent}% {i.label}</span>
+                        ))}
+                      </div>
+                      {(company.iban || company.mbway) && (
+                        <div style={{ marginTop: 8, color: '#555' }}>
+                          {company.iban && <div><strong>IBAN:</strong> {company.iban}</div>}
+                          {company.mbway && <div><strong>MBWAY:</strong> {company.mbway}</div>}
+                        </div>
+                      )}
+                    </div>
+                    {notes && <div style={{ marginTop: 16, padding: 16, background: '#FFF2E3', borderRadius: 8, fontSize: 13, color: '#555' }}><strong>Notas:</strong><br />{notes}</div>}
                   </div>
 
                   {/* Delivery — 3 ações */}

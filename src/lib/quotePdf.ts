@@ -350,12 +350,9 @@ export function openPrintWindow(html: string) {
   if (!win) {
     return false;
   }
+  win.document.open();
   win.document.write(html);
   win.document.close();
-  setTimeout(() => {
-    win.focus();
-    win.print();
-  }, 500);
   return true;
 }
 

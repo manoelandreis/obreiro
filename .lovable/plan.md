@@ -1,39 +1,16 @@
-## Objetivo
-Melhorar a criação de orçamentos na landing page (`/v2`):
-1. Adicionar **IBAN** e **MBWAY** aos dados da empresa.
-2. Adicionar seleção de **Modelo de Pagamento** (apenas templates pré-definidos, sem personalização).
+## Diagnóstico
 
-## Alterações em `src/pages/IndexV2.tsx`
+O servidor de dev está a responder normalmente (HTTP 200 em `localhost:8080`) e não há erros de runtime registados. O ecrã preto com apenas o tooltip "Project preview" no screenshot indica que o iframe do preview no editor não carregou o conteúdo — é um problema do iframe/cache do editor, não do código da app.
 
-### 1. Dados da Empresa
-Estender o tipo `CompanyInfo` e o estado inicial com:
-- `iban: string` — campo "IBAN" (placeholder `PT50...`)
-- `mbway: string` — campo "MBWAY" (placeholder telefone, ex: `+351 9XX XXX XXX`)
+Causas típicas:
+1. O iframe ficou preso após o último deploy/build (S3 rate limit anterior).
+2. Cache do browser do editor.
+3. HMR em estado inconsistente após muitas edições seguidas.
 
-Adicionar ambos os inputs na secção "Dados da Empresa", numa nova linha em grid de 2 colunas, depois do telefone e antes da morada.
+## Plano de ação
 
-Mostrar os dois campos (quando preenchidos) no preview/PDF do orçamento, junto aos restantes dados da empresa.
+1. Forçar um flush do HMR do dev server (`POST /__hmr_flush`) para reentregar os módulos atualizados ao iframe.
+2. Reiniciar o dev server do sandbox como segundo passo se o flush não resolver.
+3. Pedir ao utilizador para clicar no botão de refresh (⟳) acima do preview ou abrir o preview em nova aba (ícone ↗) — isto resolve >90% dos casos em que o iframe fica preto.
 
-### 2. Modelo de Pagamento
-- Adicionar nova secção colapsável **"Pagamento"** entre "Serviços" e "Notas" (mesmo padrão visual: header com chevron + conteúdo).
-- Conteúdo: um único `Select` com label "Modelo" listando apenas os 4 presets fixos (sem "Personalizado", sem botão "+ Novo modelo personalizado"):
-  - 100% à conclusão
-  - 50% adiantamento + 50% final
-  - 30% adiantamento + 70% final
-  - Pagamento a 30 dias
-- Reaproveitar `PAYMENT_PRESETS` de `src/lib/paymentTerms.ts` filtrando `id !== 'custom'`.
-- Estado: `const [paymentPreset, setPaymentPreset] = useState<PaymentPreset>('100_end')`.
-- Atualizar `expandedSections` para incluir `payment: false`.
-
-### 3. Render no preview/PDF
-Adicionar bloco "Condições de Pagamento" no preview (e no HTML de impressão) listando as parcelas do preset selecionado, com percentagem e label — apenas texto, sem cálculo de datas (já que não há data âncora pedida na landing).
-
-Exemplo no preview:
-> **Condições de Pagamento:** 50% adiantamento · 50% final
-
-Incluir também IBAN/MBWAY numa pequena caixa "Dados de pagamento" quando preenchidos.
-
-## Fora de âmbito
-- Sem persistência de templates personalizados.
-- Sem alterações ao app autenticado (`/app/*`).
-- Sem alterações ao backend.
+Nenhuma alteração de código necessária. Se após estes passos o preview continuar preto, investigamos `console`/`network` do iframe.

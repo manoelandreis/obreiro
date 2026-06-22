@@ -126,9 +126,10 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
         </div>`
       : '';
 
-  const validityHtml = q.expiresAt
-    ? `<div class="validity">Válido até <strong>${new Date(q.expiresAt).toLocaleDateString('pt-PT')}</strong></div>`
+  const validityLine = q.expiresAt
+    ? `<p class="validity-line">Válido até ${new Date(q.expiresAt).toLocaleDateString('pt-PT')}</p>`
     : '';
+
 
   const paymentTermsHtml = (() => {
     if (!q.paymentTerms) return '';

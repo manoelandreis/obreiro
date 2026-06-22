@@ -256,7 +256,7 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   </div>
 
   <div class="quote-title">${esc(q.title)}</div>
-  ${description ? `<div class="description">${esc(description)}</div>` : ''}
+  
 
   ${q.client.name || q.client.email || q.client.phone || q.client.address ? `<div class="client-line">
     ${[q.client.name, q.client.email, q.client.phone, q.client.address]

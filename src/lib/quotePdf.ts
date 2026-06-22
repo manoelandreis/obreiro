@@ -7,7 +7,7 @@ interface ServiceItem { name: string; description?: string; pricePerHour: number
 
 export interface QuoteRenderData {
   title: string;
-  company: { name?: string; nif?: string; email?: string; phone?: string; address?: string };
+  company: { name?: string; nif?: string; email?: string; phone?: string; address?: string; iban?: string; mbway?: string };
   client: { name?: string; email?: string; phone?: string; address?: string };
   services: ServiceItem[];
   notes?: string | null;

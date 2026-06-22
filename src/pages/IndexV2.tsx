@@ -427,6 +427,10 @@ export default function IndexV2() {
                     <div><Label>Email</Label><Input type="email" value={company.email} onChange={(e) => setCompany({ ...company, email: e.target.value })} /></div>
                     <div><Label>Telefone</Label><Input value={company.phone} onChange={(e) => setCompany({ ...company, phone: e.target.value })} /></div>
                   </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div><Label>IBAN</Label><Input value={company.iban} onChange={(e) => setCompany({ ...company, iban: e.target.value })} placeholder="PT50 0000 0000 0000 0000 0000 0" /></div>
+                    <div><Label>MBWAY</Label><Input value={company.mbway} onChange={(e) => setCompany({ ...company, mbway: e.target.value })} placeholder="+351 9XX XXX XXX" /></div>
+                  </div>
                   <div><Label>Morada</Label><Input value={company.address} onChange={(e) => setCompany({ ...company, address: e.target.value })} /></div>
                 </CardContent>
               )}

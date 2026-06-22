@@ -74,6 +74,8 @@ const App = () => {
               {/* App (separate user accounts) */}
               <Route path="/app/login" element={<AppLogin />} />
               <Route path="/app/signup" element={<AppSignup />} />
+              <Route path="/app/forgot-password" element={<AppForgotPassword />} />
+              <Route path="/app/reset-password" element={<AppResetPassword />} />
               <Route path="/app" element={<AppLayout />}>
                 <Route index element={<Navigate to="/app/quotes" replace />} />
                 <Route path="jobs" element={<AppJobs />} />

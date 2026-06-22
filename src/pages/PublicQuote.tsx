@@ -186,10 +186,16 @@ export default function PublicQuote() {
             </div>
 
             {/* Totals */}
-            <div className="text-right border-t pt-4 space-y-1">
-              <div className="text-sm text-muted-foreground">Subtotal: {fmt(quote.subtotal)}</div>
-              <div className="text-sm text-muted-foreground">IVA (23%): {fmt(quote.iva)}</div>
-              <div className="text-2xl font-bold text-primary">Total: {fmt(quote.total)}</div>
+            <div className="border-t pt-4 flex justify-between items-end gap-4 flex-wrap">
+              <div className="text-sm text-muted-foreground space-y-1">
+                {cs.mbway && <div><span className="font-semibold">MBWAY:</span> {cs.mbway}</div>}
+                {cs.iban && <div><span className="font-semibold">IBAN:</span> {cs.iban}</div>}
+              </div>
+              <div className="text-right space-y-1 ml-auto">
+                <div className="text-sm text-muted-foreground">Subtotal: {fmt(quote.subtotal)}</div>
+                <div className="text-sm text-muted-foreground">IVA (23%): {fmt(quote.iva)}</div>
+                <div className="text-2xl font-bold text-primary">Total: {fmt(quote.total)}</div>
+              </div>
             </div>
 
             <PaymentTermsCard

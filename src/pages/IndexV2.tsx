@@ -60,7 +60,7 @@ export default function IndexV2() {
   const [content, setContent] = useState<Record<string, ContentSection>>({});
 
   // ── Quote builder state ──
-  const [company, setCompany] = useState<CompanyInfo>({ name: '', email: '', phone: '', address: '', nif: '' });
+  const [company, setCompany] = useState<CompanyInfo>({ name: '', email: '', phone: '', address: '', nif: '', iban: '', mbway: '' });
   const [client, setClient] = useState<ClientInfo>({ name: '', email: '', phone: '', address: '' });
   const [services, setServices] = useState<ServiceItem[]>([emptyService()]);
   const [notes, setNotes] = useState('');

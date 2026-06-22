@@ -7,7 +7,7 @@ interface ServiceItem { name: string; description?: string; pricePerHour: number
 
 export interface QuoteRenderData {
   title: string;
-  company: { name?: string; nif?: string; email?: string; phone?: string; address?: string };
+  company: { name?: string; nif?: string; email?: string; phone?: string; address?: string; iban?: string; mbway?: string };
   client: { name?: string; email?: string; phone?: string; address?: string };
   services: ServiceItem[];
   notes?: string | null;
@@ -186,7 +186,10 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   td.num { text-align: right; } td.center { text-align: center; }
   td.strong { font-weight: 600; }
   .service-total { text-align: right; font-size: 12px; color: ${primary}; margin-top: 4px; }
-  .totals { margin-top: 16px; text-align: right; page-break-inside: avoid; }
+  .totals-row { margin-top: 16px; display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; page-break-inside: avoid; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+  .payment-info { font-size: 11px; color: #475569; }
+  .payment-info p { margin: 2px 0; }
+  .totals { text-align: right; page-break-inside: avoid; }
   .totals p { font-size: 12px; color: #475569; margin: 2px 0; }
   .totals .grand { font-size: 17px; font-weight: 700; color: ${primary}; border-top: 2px solid ${primary}; padding-top: 6px; margin-top: 6px; display: inline-block; }
   .accent-bar { height: 3px; background: ${accent}; width: 60px; margin: 14px 0 4px; }
@@ -253,10 +256,16 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 
   ${servicesHtml}
 
-  ${opts.hideTotals ? '' : `<div class="totals">
-    <p>Subtotal: ${euro(q.subtotal)}</p>
-    <p>IVA (23%): ${euro(q.iva)}</p>
-    <p class="grand">Total: ${euro(q.total)}</p>
+  ${opts.hideTotals ? '' : `<div class="totals-row">
+    <div class="payment-info">
+      ${q.company.mbway ? `<p><strong>MBWAY:</strong> ${esc(q.company.mbway)}</p>` : ''}
+      ${q.company.iban ? `<p><strong>IBAN:</strong> ${esc(q.company.iban)}</p>` : ''}
+    </div>
+    <div class="totals">
+      <p>Subtotal: ${euro(q.subtotal)}</p>
+      <p>IVA (23%): ${euro(q.iva)}</p>
+      <p class="grand">Total: ${euro(q.total)}</p>
+    </div>
   </div>`}
 
   ${paymentTermsHtml}

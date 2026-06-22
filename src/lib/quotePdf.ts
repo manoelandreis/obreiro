@@ -253,10 +253,16 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 
   ${servicesHtml}
 
-  ${opts.hideTotals ? '' : `<div class="totals">
-    <p>Subtotal: ${euro(q.subtotal)}</p>
-    <p>IVA (23%): ${euro(q.iva)}</p>
-    <p class="grand">Total: ${euro(q.total)}</p>
+  ${opts.hideTotals ? '' : `<div class="totals-row">
+    <div class="payment-info">
+      ${q.company.mbway ? `<p><strong>MBWAY:</strong> ${esc(q.company.mbway)}</p>` : ''}
+      ${q.company.iban ? `<p><strong>IBAN:</strong> ${esc(q.company.iban)}</p>` : ''}
+    </div>
+    <div class="totals">
+      <p>Subtotal: ${euro(q.subtotal)}</p>
+      <p>IVA (23%): ${euro(q.iva)}</p>
+      <p class="grand">Total: ${euro(q.total)}</p>
+    </div>
   </div>`}
 
   ${paymentTermsHtml}

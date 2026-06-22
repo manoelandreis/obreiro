@@ -4,16 +4,11 @@ import { useAppAuth } from '@/hooks/useAppAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Mail, Phone, MapPin, Trash2, UserCheck } from 'lucide-react';
-import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
-} from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { MobilePrimaryAction } from '@/components/app/MobilePrimaryAction';
+import { ClientFormSheet } from '@/components/app/ClientFormSheet';
 
 interface Client {
   id: string;
@@ -29,8 +24,6 @@ export default function AppClients() {
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', phone: '', address: '', consent: false });
-  const [saving, setSaving] = useState(false);
 
   const load = async () => {
     const { data } = await supabase.from('app_clients').select('*').order('name');
@@ -38,33 +31,6 @@ export default function AppClients() {
   };
   useEffect(() => { if (user) void load(); }, [user]);
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.consent) {
-      toast.error('Confirme o consentimento RGPD do cliente.');
-      return;
-    }
-    if (!user) return;
-    setSaving(true);
-    const { error } = await supabase.from('app_clients').insert({
-      user_id: user.id,
-      name: form.name.trim(),
-      email: form.email.trim() || null,
-      phone: form.phone.trim() || null,
-      address: form.address.trim() || null,
-      rgpd_consent: true,
-      rgpd_consent_at: new Date().toISOString(),
-    });
-    setSaving(false);
-    if (error) {
-      toast.error('Erro a guardar cliente.');
-      return;
-    }
-    toast.success('Cliente guardado.');
-    setOpen(false);
-    setForm({ name: '', email: '', phone: '', address: '', consent: false });
-    void load();
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Eliminar este cliente? Os trabalhos associados ficarão sem cliente.')) return;
@@ -85,53 +51,20 @@ export default function AppClients() {
           <h1 className="font-heading text-3xl font-bold">Clientes</h1>
           <p className="text-muted-foreground">Gerir contactos e conformidade RGPD.</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <MobilePrimaryAction
-            label="Novo Cliente"
-            onFloatingClick={() => setOpen(true)}
-          >
-            <DialogTrigger asChild>
-              <Button className="gap-2 w-full md:w-auto"><Plus className="h-4 w-4" /> Novo Cliente</Button>
-            </DialogTrigger>
-          </MobilePrimaryAction>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle className="font-heading text-xl">Novo Cliente</DialogTitle>
-              <DialogDescription>Registo seguro e em conformidade com o RGPD.</DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSave} className="space-y-4">
-              <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">Dados Pessoais</div>
-              <div>
-                <Label>Nome Completo</Label>
-                <Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>Email</Label>
-                  <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-                </div>
-                <div>
-                  <Label>Telefone</Label>
-                  <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-                </div>
-              </div>
-              <div>
-                <Label>Morada</Label>
-                <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
-              </div>
-              <label className="flex gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20 cursor-pointer">
-                <Checkbox checked={form.consent} onCheckedChange={(v) => setForm({ ...form, consent: !!v })} className="mt-0.5" />
-                <span className="text-sm text-primary">
-                  Declaro que obtive consentimento explícito do cliente para armazenar e processar estes dados para fins comerciais e de faturação (RGPD - Regulamento UE 2016/679).
-                </span>
-              </label>
-              <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button>
-                <Button type="submit" disabled={saving}>{saving ? 'A guardar...' : 'Guardar Cliente'}</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <MobilePrimaryAction
+          label="Novo Cliente"
+          onFloatingClick={() => setOpen(true)}
+        >
+          <Button className="gap-2 w-full md:w-auto" onClick={() => setOpen(true)}>
+            <Plus className="h-4 w-4" /> Novo Cliente
+          </Button>
+        </MobilePrimaryAction>
+        <ClientFormSheet
+          open={open}
+          onOpenChange={setOpen}
+          userId={user?.id}
+          onCreated={() => void load()}
+        />
       </div>
 
       <Card>

@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import {
   Building2, Users, Wrench, Package, Plus, Trash2, ArrowLeft, FileText, Save, ChevronDown, ChevronUp, Wallet,
 } from 'lucide-react';
+import { ClientFormSheet } from '@/components/app/ClientFormSheet';
 import {
   PAYMENT_PRESETS, DEFAULT_PAYMENT_TERMS, presetById, expandInstallments, totalPercent,
   createEmptyTemplate,
@@ -44,7 +45,7 @@ export default function AppQuoteNew() {
   const [clients, setClients] = useState<ClientRow[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string>('');
   const [openNewClient, setOpenNewClient] = useState(false);
-  const [newClient, setNewClient] = useState({ name: '', email: '', phone: '', address: '', rgpd: false });
+  // (new client form lives in <ClientFormSheet />)
 
   // Quote
   const [title, setTitle] = useState('Orçamento');
@@ -103,26 +104,6 @@ export default function AppQuoteNew() {
 
   const selectedClient = clients.find((c) => c.id === selectedClientId);
 
-  const handleCreateClient = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-    if (!newClient.rgpd) return toast.error('É necessário consentimento RGPD.');
-    const { data, error } = await supabase.from('app_clients').insert({
-      user_id: user.id,
-      name: newClient.name.trim(),
-      email: newClient.email.trim() || null,
-      phone: newClient.phone.trim() || null,
-      address: newClient.address.trim() || null,
-      rgpd_consent: true,
-      rgpd_consent_at: new Date().toISOString(),
-    }).select().single();
-    if (error || !data) return toast.error('Erro a criar cliente.');
-    setClients([...clients, data]);
-    setSelectedClientId(data.id);
-    setOpenNewClient(false);
-    setNewClient({ name: '', email: '', phone: '', address: '', rgpd: false });
-    toast.success('Cliente criado.');
-  };
 
   // Service helpers
   const addService = () => setServices([...services, emptyService()]);
@@ -302,20 +283,26 @@ export default function AppQuoteNew() {
         </button>
         {expanded.client && (
           <CardContent className="space-y-4 pt-0">
-            <div className="flex gap-3 items-end flex-wrap">
-              <div className="flex-1 min-w-[240px]">
-                <Label>Selecionar cliente existente</Label>
-                <Select value={selectedClientId} onValueChange={setSelectedClientId}>
-                  <SelectTrigger><SelectValue placeholder="Escolher cliente..." /></SelectTrigger>
-                  <SelectContent>
-                    {clients.length === 0 && <div className="p-2 text-sm text-muted-foreground">Nenhum cliente ainda.</div>}
-                    {clients.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button variant="outline" className="gap-2" onClick={() => setOpenNewClient(true)}>
-                <Plus className="h-4 w-4" /> Novo Cliente
-              </Button>
+            <div>
+              <Label>Selecionar cliente existente</Label>
+              <Select
+                value={selectedClientId}
+                onValueChange={(v) => {
+                  if (v === '__new') {
+                    setOpenNewClient(true);
+                    return;
+                  }
+                  setSelectedClientId(v);
+                }}
+              >
+                <SelectTrigger><SelectValue placeholder="Escolher cliente..." /></SelectTrigger>
+                <SelectContent>
+                  {clients.length === 0 && <div className="p-2 text-sm text-muted-foreground">Nenhum cliente ainda.</div>}
+                  {clients.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  {clients.length > 0 && <div className="my-1 border-t" />}
+                  <SelectItem value="__new" className="text-primary font-medium">+ Novo Cliente</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {selectedClient && (
@@ -621,31 +608,18 @@ export default function AppQuoteNew() {
         </CardContent>
       </Card>
 
-      {/* New client dialog */}
-      <Dialog open={openNewClient} onOpenChange={setOpenNewClient}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="font-heading text-xl">Novo Cliente</DialogTitle>
-            <DialogDescription>Adicione um cliente ao seu CRM.</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleCreateClient} className="space-y-4">
-            <div><Label>Nome *</Label><Input required value={newClient.name} onChange={(e) => setNewClient({ ...newClient, name: e.target.value })} /></div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Email</Label><Input type="email" value={newClient.email} onChange={(e) => setNewClient({ ...newClient, email: e.target.value })} /></div>
-              <div><Label>Telefone</Label><Input value={newClient.phone} onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })} /></div>
-            </div>
-            <div><Label>Morada</Label><Input value={newClient.address} onChange={(e) => setNewClient({ ...newClient, address: e.target.value })} /></div>
-            <label className="flex items-start gap-2 text-sm">
-              <Checkbox checked={newClient.rgpd} onCheckedChange={(v) => setNewClient({ ...newClient, rgpd: !!v })} className="mt-0.5" />
-              <span className="text-muted-foreground">Confirmo que tenho consentimento RGPD do cliente para guardar estes dados.</span>
-            </label>
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => setOpenNewClient(false)}>Cancelar</Button>
-              <Button type="submit">Criar Cliente</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      {/* New client bottom sheet */}
+      <ClientFormSheet
+        open={openNewClient}
+        onOpenChange={setOpenNewClient}
+        userId={user?.id}
+        onCreated={(c) => {
+          setClients([...clients, {
+            id: c.id, name: c.name, email: c.email, phone: c.phone, address: c.address,
+          }]);
+          setSelectedClientId(c.id);
+        }}
+      />
     </div>
   );
 }

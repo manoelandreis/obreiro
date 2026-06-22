@@ -4,10 +4,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle2, XCircle, FileText, Loader2, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, XCircle, FileText, Loader2, ShieldCheck, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { PaymentTermsCard } from '@/components/app/PaymentTermsCard';
 import { DEFAULT_PAYMENT_TERMS, type PaymentTerms } from '@/lib/paymentTerms';
+import { buildQuoteHtml, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';
+
 
 interface PublicQuote {
   id: string;
@@ -72,6 +74,55 @@ export default function PublicQuote() {
     setDone(result.status);
     toast.success(action === 'accept' ? 'Orçamento aceite!' : 'Resposta registada.');
   };
+
+  const handleDownloadPdf = () => {
+    if (!quote) return;
+    const cs = quote.company_snapshot || {};
+    const cl = quote.client_snapshot || {};
+    const logoUrl = cs.logo_path && token
+      ? `https://cprysybqjtsynxofljxc.supabase.co/functions/v1/get-quote-logo?token=${token}`
+      : null;
+    const data: QuoteRenderData = {
+      title: quote.title,
+      company: {
+        name: cs.name ?? cs.company_name,
+        nif: cs.nif ?? cs.company_nif,
+        email: cs.email ?? cs.company_email,
+        phone: cs.phone ?? cs.company_phone,
+        address: cs.address ?? cs.company_address,
+        iban: cs.iban ?? cs.payment_iban,
+        mbway: cs.mbway ?? cs.payment_mbway,
+      },
+      client: { name: cl.name, email: cl.email, phone: cl.phone, address: cl.address },
+      services: quote.services || [],
+      notes: quote.notes,
+      subtotal: Number(quote.subtotal),
+      iva: Number(quote.iva),
+      total: Number(quote.total),
+      createdAt: quote.created_at,
+      expiresAt: quote.expires_at,
+      status: quote.status,
+      paymentTerms: quote.payment_terms ?? DEFAULT_PAYMENT_TERMS,
+      paymentAnchor: quote.responded_at ?? quote.sent_at ?? quote.created_at,
+    };
+    const html = buildQuoteHtml(data, {
+      brand: {
+        logoUrl,
+        primary: cs.brand_primary || '#1B3A5C',
+        accent: cs.brand_accent || '#E8730A',
+        description: null,
+        terms: cs.terms || null,
+        paymentConditions: null,
+        validityDays: 30,
+      },
+      withWatermark: false,
+    });
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return toast.error('Pop-up bloqueado.');
+    openPrintWindow(html, printWindow);
+  };
+
+
 
   if (loading) {
     return (
@@ -244,7 +295,17 @@ export default function PublicQuote() {
           </CardContent>
         </Card>
 
+        <Button
+          variant="outline"
+          onClick={handleDownloadPdf}
+          className="w-full h-12 gap-2 bg-white"
+        >
+          <Download className="h-4 w-4" />
+          Descarregar PDF
+        </Button>
+
         {/* Action card */}
+
         {responded ? (
           <Card className={finalStatus === 'aceite' ? 'border-emerald-300 bg-emerald-50' : 'border-red-200 bg-red-50'}>
             <CardContent className="pt-6 text-center">

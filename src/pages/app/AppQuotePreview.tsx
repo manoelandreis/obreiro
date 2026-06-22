@@ -87,6 +87,8 @@ export default function AppQuotePreview() {
           email: cs.email ?? cs.company_email,
           phone: cs.phone ?? cs.company_phone,
           address: cs.address ?? cs.company_address,
+          iban: cs.iban ?? cs.payment_iban,
+          mbway: cs.mbway ?? cs.payment_mbway,
         },
         client: { name: cl.name, email: cl.email, phone: cl.phone, address: cl.address },
         services: (q.services as any) || [],

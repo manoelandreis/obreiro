@@ -259,7 +259,7 @@ export default function IndexV2() {
               {hero?.title || 'Crie orçamentos profissionais em minutos'}
             </h1>
             <p className="mt-5 mx-auto max-w-xl text-lg text-foreground/70 leading-relaxed">
-              {hero?.subtitle || 'Sem comissões, sem letras pequenas. Fica com 100% do que ganha em cada trabalho.'}
+              {hero?.subtitle || 'Fica com 100% do que ganha em cada trabalho.'}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button size="lg" variant="accent" onClick={scrollToQuote} className="gap-2 h-12 px-6">

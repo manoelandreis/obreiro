@@ -57,44 +57,57 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 
   const servicesHtml = q.services
     .map((s, idx) => {
-      const labor = s.pricePerHour * s.hours;
-      const matsHtml = s.materials?.length
-        ? `<table>
-            <thead>
-              <tr>
-                <th>Material</th>
-                <th class="num">Qtd</th>
-                <th class="center">Un.</th>
-                <th class="num">Preço</th>
-                <th class="num">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${s.materials
-                .map(
-                  (m) => `<tr>
-                    <td>${esc(m.name)}</td>
-                    <td class="num">${m.quantity}</td>
-                    <td class="center">${esc(m.unit)}</td>
-                    <td class="num">${euro(m.unitPrice)}</td>
-                    <td class="num strong">${euro(m.quantity * m.unitPrice)}</td>
-                  </tr>`
-                )
-                .join('')}
-            </tbody>
-          </table>`
-        : '';
-      const matsTotal = s.materials.reduce((a, m) => a + m.quantity * m.unitPrice, 0);
+      const labor = (s.pricePerHour || 0) * (s.hours || 0);
+      const matsTotal = (s.materials || []).reduce(
+        (a, m) => a + (m.quantity || 0) * (m.unitPrice || 0),
+        0
+      );
       const total = labor + matsTotal;
+      const laborRow =
+        s.hours > 0
+          ? `<tr>
+              <td><strong>Mão de obra</strong></td>
+              <td class="num">${s.hours}</td>
+              <td class="center">h</td>
+              <td class="num">${euro(s.pricePerHour)}</td>
+              <td class="num strong">${euro(labor)}</td>
+            </tr>`
+          : '';
+      const matRows = (s.materials || [])
+        .map(
+          (m) => `<tr>
+            <td>${esc(m.name)}</td>
+            <td class="num">${m.quantity}</td>
+            <td class="center">${esc(m.unit)}</td>
+            <td class="num">${euro(m.unitPrice)}</td>
+            <td class="num strong">${euro(m.quantity * m.unitPrice)}</td>
+          </tr>`
+        )
+        .join('');
+      const tableHtml =
+        laborRow || matRows
+          ? `<table>
+              <thead>
+                <tr>
+                  <th>Descrição</th>
+                  <th class="num">Qtd</th>
+                  <th class="center">Un.</th>
+                  <th class="num">Preço</th>
+                  <th class="num">Total</th>
+                </tr>
+              </thead>
+              <tbody>${laborRow}${matRows}</tbody>
+            </table>`
+          : '';
       return `<div class="service">
         <div class="service-title">${idx + 1}. ${esc(s.name || 'Serviço ' + (idx + 1))}</div>
         ${s.description ? `<div class="service-desc">${esc(s.description)}</div>` : ''}
-        <div class="service-labor">Mão de obra: ${euro(s.pricePerHour)}/hora × ${s.hours}h = <strong>${euro(labor)}</strong></div>
-        ${matsHtml}
+        ${tableHtml}
         <div class="service-total">Total Serviço: <strong>${euro(total)}</strong></div>
       </div>`;
     })
     .join('');
+
 
   const attachmentsHtml =
     opts.attachmentUrls && opts.attachmentUrls.length
@@ -163,16 +176,19 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   .header-left { flex: 1; display: flex; gap: 16px; align-items: center; }
   .logo { max-height: 70px; max-width: 140px; object-fit: contain; }
   .company-name { font-size: 20px; font-weight: 700; color: ${primary}; line-height: 1; text-box-trim: trim-both; text-box-edge: cap alphabetic; }
-  .company-meta p { font-size: 11px; color: #555; }
+  .company-meta { margin-top: 6px; }
+  .company-meta p { font-size: 11px; color: #475569; line-height: 1.6; }
+  .meta-label { color: #94a3b8; font-weight: 600; letter-spacing: 0.3px; margin-right: 2px; }
   .header-right { text-align: right; }
-  .header-right h2 { font-size: 18px; color: #1e293b; letter-spacing: 1px; }
+  .header-right h2 { font-size: 18px; color: ${primary}; letter-spacing: 1px; }
   .header-right p { font-size: 11px; color: #555; margin-top: 2px; }
-  .quote-title { font-size: 16px; font-weight: 600; color: ${primary}; margin: 6px 0 18px; }
-  .description { font-size: 12px; color: #475569; margin-bottom: 18px; font-style: italic; }
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 22px; }
-  .info-block h3 { font-size: 10px; color: #6b7280; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
-  .info-block p { font-size: 12px; }
-  .info-block .name { font-weight: 600; font-size: 13px; }
+  .quote-title { font-size: 18px; font-weight: 700; color: #1e293b; margin: 14px 0 6px; }
+  .description { font-size: 12px; color: #475569; margin-bottom: 14px; font-style: italic; }
+  .client-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin: 6px 0 22px; }
+  .client-row .validity-wrap { flex-shrink: 0; max-width: 45%; }
+  .info-block h3 { font-size: 10px; color: ${accent}; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.8px; font-weight: 700; }
+  .info-block p { font-size: 12px; color: #334155; line-height: 1.5; }
+  .info-block .name { font-weight: 700; font-size: 14px; color: #0f172a; margin-bottom: 2px; }
   .service { margin-bottom: 18px; page-break-inside: avoid; }
   .service-title { font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 3px; }
   .service-desc { font-size: 11px; color: #475569; margin-bottom: 5px; }
@@ -224,10 +240,10 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
       <div>
         <div class="company-name">${esc(q.company.name || 'A Sua Empresa')}</div>
         <div class="company-meta">
-          ${q.company.nif ? `<p>NIF: ${esc(q.company.nif)}</p>` : ''}
-          ${q.company.email ? `<p>${esc(q.company.email)}</p>` : ''}
-          ${q.company.phone ? `<p>${esc(q.company.phone)}</p>` : ''}
-          ${q.company.address ? `<p>${esc(q.company.address)}</p>` : ''}
+          ${q.company.nif ? `<p><span class="meta-label">NIF:</span> ${esc(q.company.nif)}</p>` : ''}
+          ${q.company.email ? `<p><span class="meta-label">EMAIL:</span> ${esc(q.company.email)}</p>` : ''}
+          ${q.company.phone ? `<p><span class="meta-label">TELEMÓVEL:</span> ${esc(q.company.phone)}</p>` : ''}
+          ${q.company.address ? `<p><span class="meta-label">MORADA:</span> ${esc(q.company.address)}</p>` : ''}
         </div>
       </div>
     </div>
@@ -239,9 +255,8 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 
   <div class="quote-title">${esc(q.title)}</div>
   ${description ? `<div class="description">${esc(description)}</div>` : ''}
-  <div class="accent-bar"></div>
 
-  <div class="info-grid">
+  <div class="client-row">
     <div class="info-block">
       <h3>Cliente</h3>
       <p class="name">${esc(q.client.name || '—')}</p>
@@ -249,10 +264,9 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
       ${q.client.phone ? `<p>${esc(q.client.phone)}</p>` : ''}
       ${q.client.address ? `<p>${esc(q.client.address)}</p>` : ''}
     </div>
-    <div class="info-block" style="text-align:right">
-      ${validityHtml}
-    </div>
+    ${validityHtml ? `<div class="validity-wrap">${validityHtml}</div>` : ''}
   </div>
+
 
   ${servicesHtml}
 

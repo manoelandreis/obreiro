@@ -239,10 +239,10 @@ export default function IndexV2() {
             <a href="#conta" className="hover:text-foreground transition-colors">Conta</a>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="secondary" asChild>
-              <Link to="/app/login">Entrar</Link>
+            <Button size="sm" variant="ghost" onClick={scrollToQuote}>Criar orçamento</Button>
+            <Button size="sm" variant="accent" asChild>
+              <Link to="/app/signup">Criar conta grátis</Link>
             </Button>
-            <Button size="sm" variant="accent" onClick={scrollToQuote}>Criar orçamento</Button>
           </div>
         </div>
       </nav>
@@ -266,12 +266,14 @@ export default function IndexV2() {
               {hero?.subtitle || 'Fica com 100% do que ganha em cada trabalho.'}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Button size="lg" variant="accent" onClick={scrollToQuote} className="gap-2 h-12 px-6">
-                Criar Orçamento Agora <ArrowRight className="h-4 w-4" />
+              <Button size="lg" variant="accent" asChild className="gap-2 h-12 px-6">
+                <Link to="/app/signup">
+                  Criar conta grátis <ArrowRight className="h-4 w-4" />
+                </Link>
               </Button>
-              <a href="#conta">
-                <Button size="lg" variant="outline" className="h-12 px-6 border-foreground/20 bg-white/60 backdrop-blur-sm">Criar conta grátis</Button>
-              </a>
+              <Button size="lg" variant="outline" onClick={scrollToQuote} className="h-12 px-6 border-foreground/20 bg-white/60 backdrop-blur-sm">
+                Experimentar orçamento
+              </Button>
             </div>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-foreground/60">
               <span className="flex items-center gap-1.5">

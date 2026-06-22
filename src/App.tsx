@@ -23,6 +23,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AppLayout from "./components/AppLayout";
 import AppLogin from "./pages/app/AppLogin";
 import AppSignup from "./pages/app/AppSignup";
+import AppForgotPassword from "./pages/app/AppForgotPassword";
+import AppResetPassword from "./pages/app/AppResetPassword";
 import { Navigate } from "react-router-dom";
 import AppJobs from "./pages/app/AppJobs";
 import AppClients from "./pages/app/AppClients";
@@ -72,6 +74,8 @@ const App = () => {
               {/* App (separate user accounts) */}
               <Route path="/app/login" element={<AppLogin />} />
               <Route path="/app/signup" element={<AppSignup />} />
+              <Route path="/app/forgot-password" element={<AppForgotPassword />} />
+              <Route path="/app/reset-password" element={<AppResetPassword />} />
               <Route path="/app" element={<AppLayout />}>
                 <Route index element={<Navigate to="/app/quotes" replace />} />
                 <Route path="jobs" element={<AppJobs />} />

@@ -272,7 +272,7 @@ export default function IndexV2() {
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-foreground/60">
               <span className="flex items-center gap-1.5">
                 <Check className="h-3.5 w-3.5 text-success shrink-0" strokeWidth={2.5} />
-                Orçamentos com tua marca e Condições
+                Orçamentos com tua marca
               </span>
               <span className="flex items-center gap-1.5">
                 <Check className="h-3.5 w-3.5 text-success shrink-0" strokeWidth={2.5} />

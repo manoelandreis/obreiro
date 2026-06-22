@@ -259,7 +259,7 @@ export default function IndexV2() {
               {hero?.title || 'Crie orçamentos profissionais em minutos'}
             </h1>
             <p className="mt-5 mx-auto max-w-xl text-lg text-foreground/70 leading-relaxed">
-              {hero?.subtitle || 'Organize o seu negócio de construção num só lugar — orçamentos, clientes e trabalhos, sempre consigo no telemóvel.'}
+              {hero?.subtitle || 'Sem comissões, sem letras pequenas. Fica com 100% do que ganha em cada trabalho.'}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button size="lg" variant="accent" onClick={scrollToQuote} className="gap-2 h-12 px-6">
@@ -271,16 +271,16 @@ export default function IndexV2() {
             </div>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-foreground/60">
               <span className="flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />
-                100% seguro · Os seus dados nunca são guardados
+                <Check className="h-3.5 w-3.5 text-success shrink-0" strokeWidth={2.5} />
+                Orçamentos com tua marca e Condições
               </span>
               <span className="flex items-center gap-1.5">
                 <Check className="h-3.5 w-3.5 text-success shrink-0" strokeWidth={2.5} />
-                PDF profissional com o teu logo, sempre alinhado
+                Partilhe por WhatsApp, email ou link
               </span>
               <span className="flex items-center gap-1.5">
                 <Check className="h-3.5 w-3.5 text-success shrink-0" strokeWidth={2.5} />
-                Templates reutilizáveis. Próximo orçamento em segundos
+                PDF gerado automaticamente, com IVA
               </span>
             </div>
           </div>

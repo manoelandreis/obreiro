@@ -24,8 +24,6 @@ export default function AppClients() {
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', phone: '', address: '', consent: false });
-  const [saving, setSaving] = useState(false);
 
   const load = async () => {
     const { data } = await supabase.from('app_clients').select('*').order('name');
@@ -33,33 +31,6 @@ export default function AppClients() {
   };
   useEffect(() => { if (user) void load(); }, [user]);
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.consent) {
-      toast.error('Confirme o consentimento RGPD do cliente.');
-      return;
-    }
-    if (!user) return;
-    setSaving(true);
-    const { error } = await supabase.from('app_clients').insert({
-      user_id: user.id,
-      name: form.name.trim(),
-      email: form.email.trim() || null,
-      phone: form.phone.trim() || null,
-      address: form.address.trim() || null,
-      rgpd_consent: true,
-      rgpd_consent_at: new Date().toISOString(),
-    });
-    setSaving(false);
-    if (error) {
-      toast.error('Erro a guardar cliente.');
-      return;
-    }
-    toast.success('Cliente guardado.');
-    setOpen(false);
-    setForm({ name: '', email: '', phone: '', address: '', consent: false });
-    void load();
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Eliminar este cliente? Os trabalhos associados ficarão sem cliente.')) return;

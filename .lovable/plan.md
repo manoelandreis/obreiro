@@ -1,25 +1,39 @@
 ## Objetivo
+Melhorar a criação de orçamentos na landing page (`/v2`):
+1. Adicionar **IBAN** e **MBWAY** aos dados da empresa.
+2. Adicionar seleção de **Modelo de Pagamento** (apenas templates pré-definidos, sem personalização).
 
-No mobile, transformar os dois dropdowns da lista de orçamentos ("Ações" e "Partilhar") num bottom sheet full-width que sobe de baixo, mantendo o comportamento atual de dropdown em tablet/desktop.
+## Alterações em `src/pages/IndexV2.tsx`
 
-## Mudanças
+### 1. Dados da Empresa
+Estender o tipo `CompanyInfo` e o estado inicial com:
+- `iban: string` — campo "IBAN" (placeholder `PT50...`)
+- `mbway: string` — campo "MBWAY" (placeholder telefone, ex: `+351 9XX XXX XXX`)
 
-**`src/pages/app/AppQuotes.tsx`**
+Adicionar ambos os inputs na secção "Dados da Empresa", numa nova linha em grid de 2 colunas, depois do telefone e antes da morada.
 
-1. Adicionar hook para detectar mobile (`useIsMobile` de `@/hooks/use-mobile`, já existente no projeto).
-2. Adicionar estado `sheetQuote: { quote, kind: 'actions' | 'share' } | null`.
-3. No mobile:
-   - Os botões "Ações" e "Partilhar" deixam de ser `DropdownMenuTrigger` e passam a abrir o bottom sheet via `setSheetQuote(...)`.
-   - Renderizar um único `Sheet` (shadcn, `side="bottom"`) no fundo da página com o conteúdo dinâmico consoante `kind`:
-     - **Ações**: lista vertical grande com Editar, separador "Mudar estado" + 6 opções de status (com check no atual), separador, Eliminar (vermelho).
-     - **Partilhar**: Enviar por email, WhatsApp, Copiar link.
-   - Itens são botões altos (`h-14`, `text-base`, ícone à esquerda) para toque confortável.
-   - Sheet com `rounded-t-2xl`, padding generoso, título no topo (ex.: "Ações" / "Partilhar") e handle visual.
-4. No tablet/desktop (`!isMobile`): manter exatamente os `DropdownMenu` atuais.
+Mostrar os dois campos (quando preenchidos) no preview/PDF do orçamento, junto aos restantes dados da empresa.
 
-Sem mudanças de lógica de negócio — apenas apresentação. Mesmas funções `updateStatus`, `handleDelete`, `shareEmail`, `shareWhatsapp`, `copyLink`.
+### 2. Modelo de Pagamento
+- Adicionar nova secção colapsável **"Pagamento"** entre "Serviços" e "Notas" (mesmo padrão visual: header com chevron + conteúdo).
+- Conteúdo: um único `Select` com label "Modelo" listando apenas os 4 presets fixos (sem "Personalizado", sem botão "+ Novo modelo personalizado"):
+  - 100% à conclusão
+  - 50% adiantamento + 50% final
+  - 30% adiantamento + 70% final
+  - Pagamento a 30 dias
+- Reaproveitar `PAYMENT_PRESETS` de `src/lib/paymentTerms.ts` filtrando `id !== 'custom'`.
+- Estado: `const [paymentPreset, setPaymentPreset] = useState<PaymentPreset>('100_end')`.
+- Atualizar `expandedSections` para incluir `payment: false`.
 
-## Componentes usados
+### 3. Render no preview/PDF
+Adicionar bloco "Condições de Pagamento" no preview (e no HTML de impressão) listando as parcelas do preset selecionado, com percentagem e label — apenas texto, sem cálculo de datas (já que não há data âncora pedida na landing).
 
-- `@/components/ui/sheet` (já existe no shadcn setup)
-- `@/hooks/use-mobile`
+Exemplo no preview:
+> **Condições de Pagamento:** 50% adiantamento · 50% final
+
+Incluir também IBAN/MBWAY numa pequena caixa "Dados de pagamento" quando preenchidos.
+
+## Fora de âmbito
+- Sem persistência de templates personalizados.
+- Sem alterações ao app autenticado (`/app/*`).
+- Sem alterações ao backend.

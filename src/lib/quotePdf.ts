@@ -57,44 +57,57 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 
   const servicesHtml = q.services
     .map((s, idx) => {
-      const labor = s.pricePerHour * s.hours;
-      const matsHtml = s.materials?.length
-        ? `<table>
-            <thead>
-              <tr>
-                <th>Material</th>
-                <th class="num">Qtd</th>
-                <th class="center">Un.</th>
-                <th class="num">Preço</th>
-                <th class="num">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${s.materials
-                .map(
-                  (m) => `<tr>
-                    <td>${esc(m.name)}</td>
-                    <td class="num">${m.quantity}</td>
-                    <td class="center">${esc(m.unit)}</td>
-                    <td class="num">${euro(m.unitPrice)}</td>
-                    <td class="num strong">${euro(m.quantity * m.unitPrice)}</td>
-                  </tr>`
-                )
-                .join('')}
-            </tbody>
-          </table>`
-        : '';
-      const matsTotal = s.materials.reduce((a, m) => a + m.quantity * m.unitPrice, 0);
+      const labor = (s.pricePerHour || 0) * (s.hours || 0);
+      const matsTotal = (s.materials || []).reduce(
+        (a, m) => a + (m.quantity || 0) * (m.unitPrice || 0),
+        0
+      );
       const total = labor + matsTotal;
+      const laborRow =
+        s.hours > 0
+          ? `<tr>
+              <td><strong>Mão de obra</strong></td>
+              <td class="num">${s.hours}</td>
+              <td class="center">h</td>
+              <td class="num">${euro(s.pricePerHour)}</td>
+              <td class="num strong">${euro(labor)}</td>
+            </tr>`
+          : '';
+      const matRows = (s.materials || [])
+        .map(
+          (m) => `<tr>
+            <td>${esc(m.name)}</td>
+            <td class="num">${m.quantity}</td>
+            <td class="center">${esc(m.unit)}</td>
+            <td class="num">${euro(m.unitPrice)}</td>
+            <td class="num strong">${euro(m.quantity * m.unitPrice)}</td>
+          </tr>`
+        )
+        .join('');
+      const tableHtml =
+        laborRow || matRows
+          ? `<table>
+              <thead>
+                <tr>
+                  <th>Descrição</th>
+                  <th class="num">Qtd</th>
+                  <th class="center">Un.</th>
+                  <th class="num">Preço</th>
+                  <th class="num">Total</th>
+                </tr>
+              </thead>
+              <tbody>${laborRow}${matRows}</tbody>
+            </table>`
+          : '';
       return `<div class="service">
         <div class="service-title">${idx + 1}. ${esc(s.name || 'Serviço ' + (idx + 1))}</div>
         ${s.description ? `<div class="service-desc">${esc(s.description)}</div>` : ''}
-        <div class="service-labor">Mão de obra: ${euro(s.pricePerHour)}/hora × ${s.hours}h = <strong>${euro(labor)}</strong></div>
-        ${matsHtml}
+        ${tableHtml}
         <div class="service-total">Total Serviço: <strong>${euro(total)}</strong></div>
       </div>`;
     })
     .join('');
+
 
   const attachmentsHtml =
     opts.attachmentUrls && opts.attachmentUrls.length

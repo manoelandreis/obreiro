@@ -246,7 +246,17 @@ export default function PublicQuote() {
           </CardContent>
         </Card>
 
+        <Button
+          variant="outline"
+          onClick={handleDownloadPdf}
+          className="w-full h-12 gap-2 bg-white"
+        >
+          <Download className="h-4 w-4" />
+          Descarregar PDF
+        </Button>
+
         {/* Action card */}
+
         {responded ? (
           <Card className={finalStatus === 'aceite' ? 'border-emerald-300 bg-emerald-50' : 'border-red-200 bg-red-50'}>
             <CardContent className="pt-6 text-center">

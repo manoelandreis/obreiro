@@ -200,11 +200,16 @@ export default function AppQuoteDetail() {
   };
 
   const handleDownload = async () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return toast.error('Pop-up bloqueado.');
     setGenerating(true);
     const html = await buildHtml(false);
     setGenerating(false);
-    if (!html) return toast.error('Não foi possível gerar o PDF.');
-    if (!openPrintWindow(html)) toast.error('Pop-up bloqueado.');
+    if (!html) {
+      printWindow.close();
+      return toast.error('Não foi possível gerar o PDF.');
+    }
+    openPrintWindow(html, printWindow);
   };
 
   const recordSent = async (channel: 'email' | 'whatsapp') => {

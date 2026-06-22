@@ -289,26 +289,6 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   ${termsHtml}
 
   ${watermarkHtml}
-  <script>
-    (function () {
-      function triggerPrint() {
-        try { window.focus(); window.print(); } catch (e) {}
-      }
-      var imgs = Array.from(document.images || []);
-      var pending = imgs.filter(function (img) { return !img.complete; });
-      if (pending.length === 0) {
-        setTimeout(triggerPrint, 200);
-        return;
-      }
-      var remaining = pending.length;
-      var done = function () { remaining--; if (remaining <= 0) setTimeout(triggerPrint, 200); };
-      pending.forEach(function (img) {
-        img.addEventListener('load', done);
-        img.addEventListener('error', done);
-      });
-      setTimeout(triggerPrint, 4000);
-    })();
-  </script>
 </body>
 </html>`;
 }
@@ -345,14 +325,48 @@ export async function loadBrand(userId: string, allowed: boolean): Promise<Brand
   };
 }
 
-export function openPrintWindow(html: string) {
-  const win = window.open('', '_blank');
+function withAutoPrint(html: string) {
+  const script = `<script data-obreiro-auto-print>
+    (function () {
+      var printed = false;
+      function triggerPrint() {
+        if (printed) return;
+        printed = true;
+        setTimeout(function () {
+          try { window.focus(); window.print(); } catch (e) {}
+        }, 250);
+      }
+      function imageReady(img) {
+        if (img.complete) return Promise.resolve();
+        if (img.decode) return img.decode().catch(function () {});
+        return new Promise(function (resolve) {
+          img.addEventListener('load', resolve, { once: true });
+          img.addEventListener('error', resolve, { once: true });
+        });
+      }
+      function ready() {
+        var images = Array.prototype.slice.call(document.images || []);
+        var fonts = document.fonts && document.fonts.ready ? document.fonts.ready.catch(function () {}) : Promise.resolve();
+        Promise.all([fonts, Promise.all(images.map(imageReady))]).then(triggerPrint);
+        setTimeout(triggerPrint, 5000);
+      }
+      if (document.readyState === 'complete') ready();
+      else window.addEventListener('load', ready, { once: true });
+    })();
+  </script>`;
+  return html.replace('</body>', `${script}</body>`);
+}
+
+export function openPrintWindow(html: string, targetWindow?: Window | null) {
+  const printHtml = withAutoPrint(html);
+  const blobUrl = URL.createObjectURL(new Blob([printHtml], { type: 'text/html;charset=utf-8' }));
+  const win = targetWindow ?? window.open('', '_blank');
   if (!win) {
+    URL.revokeObjectURL(blobUrl);
     return false;
   }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
+  win.location.href = blobUrl;
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
   return true;
 }
 

@@ -237,10 +237,10 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
       <div>
         <div class="company-name">${esc(q.company.name || 'A Sua Empresa')}</div>
         <div class="company-meta">
-          ${q.company.nif ? `<p>NIF: ${esc(q.company.nif)}</p>` : ''}
-          ${q.company.email ? `<p>${esc(q.company.email)}</p>` : ''}
-          ${q.company.phone ? `<p>${esc(q.company.phone)}</p>` : ''}
-          ${q.company.address ? `<p>${esc(q.company.address)}</p>` : ''}
+          ${q.company.nif ? `<p><span class="meta-label">NIF:</span> ${esc(q.company.nif)}</p>` : ''}
+          ${q.company.email ? `<p><span class="meta-label">EMAIL:</span> ${esc(q.company.email)}</p>` : ''}
+          ${q.company.phone ? `<p><span class="meta-label">TELEMÓVEL:</span> ${esc(q.company.phone)}</p>` : ''}
+          ${q.company.address ? `<p><span class="meta-label">MORADA:</span> ${esc(q.company.address)}</p>` : ''}
         </div>
       </div>
     </div>
@@ -252,9 +252,8 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 
   <div class="quote-title">${esc(q.title)}</div>
   ${description ? `<div class="description">${esc(description)}</div>` : ''}
-  <div class="accent-bar"></div>
 
-  <div class="info-grid">
+  <div class="client-row">
     <div class="info-block">
       <h3>Cliente</h3>
       <p class="name">${esc(q.client.name || '—')}</p>
@@ -262,10 +261,9 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
       ${q.client.phone ? `<p>${esc(q.client.phone)}</p>` : ''}
       ${q.client.address ? `<p>${esc(q.client.address)}</p>` : ''}
     </div>
-    <div class="info-block" style="text-align:right">
-      ${validityHtml}
-    </div>
+    ${validityHtml ? `<div class="validity-wrap">${validityHtml}</div>` : ''}
   </div>
+
 
   ${servicesHtml}
 

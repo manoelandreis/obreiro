@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import {
   Building2, Users, Wrench, Package, Plus, Trash2, ArrowLeft, FileText, Save, ChevronDown, ChevronUp, Wallet,
 } from 'lucide-react';
+import { ClientFormSheet } from '@/components/app/ClientFormSheet';
 import {
   PAYMENT_PRESETS, DEFAULT_PAYMENT_TERMS, presetById, expandInstallments, totalPercent,
   createEmptyTemplate,

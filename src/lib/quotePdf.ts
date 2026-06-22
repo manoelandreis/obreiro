@@ -76,12 +76,13 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
       const matRows = (s.materials || [])
         .map(
           (m) => `<tr>
-            <td>${esc(m.name)}</td>
+            <td><strong>${esc(m.name)}</strong></td>
             <td class="num">${m.quantity}</td>
             <td class="center">${esc(m.unit)}</td>
             <td class="num">${euro(m.unitPrice)}</td>
             <td class="num strong">${euro(m.quantity * m.unitPrice)}</td>
           </tr>`
+
         )
         .join('');
       const tableHtml =
@@ -166,11 +167,11 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 <meta charset="UTF-8">
 <title>${esc(q.title)} — ${esc(q.company.name || 'Obreiro')}</title>
 <style>
-  @page { size: A4; margin: 18mm 14mm 22mm 14mm; }
+  @page { size: A4; margin: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: #fff; }
   body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 12px; line-height: 1.45; padding: 18mm 14mm 22mm 14mm; }
-  @media print { body { padding: 0; } }
+
   .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #e2e8f0; }
   .header-left { flex: 1; min-width: 0; }
   .brand-row { display: flex; gap: 12px; align-items: center; }
@@ -255,7 +256,7 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   </div>
 
   <div class="quote-title">${esc(q.title)}</div>
-  ${description ? `<div class="description">${esc(description)}</div>` : ''}
+  
 
   ${q.client.name || q.client.email || q.client.phone || q.client.address ? `<div class="client-line">
     ${[q.client.name, q.client.email, q.client.phone, q.client.address]

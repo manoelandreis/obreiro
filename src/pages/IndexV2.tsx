@@ -14,6 +14,9 @@ import {
   Zap, Lock, Sparkles, Check, FileCheck, Repeat, HelpCircle, BookmarkPlus,
 } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PAYMENT_PRESETS, type PaymentPreset, presetById } from '@/lib/paymentTerms';
+import { Wallet } from 'lucide-react';
 import mockupTemplate from '@/assets/mockup-template.jpg';
 import mockupTool from '@/assets/mockup-tool.jpg';
 import heroBg from '@/assets/hero_background.png.asset.json';
@@ -21,7 +24,7 @@ import heroBg from '@/assets/hero_background.png.asset.json';
 // ── Types ──
 interface MaterialItem { id: string; name: string; quantity: number; unit: string; unitPrice: number; }
 interface ServiceItem { id: string; name: string; description: string; pricePerHour: number; hours: number; materials: MaterialItem[]; }
-interface CompanyInfo { name: string; email: string; phone: string; address: string; nif: string; }
+interface CompanyInfo { name: string; email: string; phone: string; address: string; nif: string; iban: string; mbway: string; }
 interface ClientInfo { name: string; email: string; phone: string; address: string; }
 interface QuoteTemplate { id: string; name: string; description: string | null; unit: string | null; default_price: number | null; category: string | null; }
 interface ContentSection { section_key: string; title: string | null; subtitle: string | null; body: string | null; }
@@ -57,16 +60,17 @@ export default function IndexV2() {
   const [content, setContent] = useState<Record<string, ContentSection>>({});
 
   // ── Quote builder state ──
-  const [company, setCompany] = useState<CompanyInfo>({ name: '', email: '', phone: '', address: '', nif: '' });
+  const [company, setCompany] = useState<CompanyInfo>({ name: '', email: '', phone: '', address: '', nif: '', iban: '', mbway: '' });
   const [client, setClient] = useState<ClientInfo>({ name: '', email: '', phone: '', address: '' });
   const [services, setServices] = useState<ServiceItem[]>([emptyService()]);
   const [notes, setNotes] = useState('');
+  const [paymentPreset, setPaymentPreset] = useState<PaymentPreset>('100_end');
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [sendEmail, setSendEmail] = useState('');
   const [consentChecked, setConsentChecked] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [expandedSections, setExpandedSections] = useState({ company: true, client: false, services: false, notes: false });
+  const [expandedSections, setExpandedSections] = useState({ company: true, client: false, services: false, payment: false, notes: false });
   const printRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef(crypto.randomUUID());
   const quoteRef = useRef<HTMLDivElement>(null);
@@ -210,7 +214,7 @@ export default function IndexV2() {
 
   const scrollToQuote = () => {
     quoteRef.current?.scrollIntoView({ behavior: 'smooth' });
-    setExpandedSections({ company: true, client: false, services: false, notes: false });
+    setExpandedSections({ company: true, client: false, services: false, payment: false, notes: false });
   };
 
   const hero = content['hero'];
@@ -423,6 +427,10 @@ export default function IndexV2() {
                     <div><Label>Email</Label><Input type="email" value={company.email} onChange={(e) => setCompany({ ...company, email: e.target.value })} /></div>
                     <div><Label>Telefone</Label><Input value={company.phone} onChange={(e) => setCompany({ ...company, phone: e.target.value })} /></div>
                   </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div><Label>IBAN</Label><Input value={company.iban} onChange={(e) => setCompany({ ...company, iban: e.target.value })} placeholder="PT50 0000 0000 0000 0000 0000 0" /></div>
+                    <div><Label>MBWAY</Label><Input value={company.mbway} onChange={(e) => setCompany({ ...company, mbway: e.target.value })} placeholder="+351 9XX XXX XXX" /></div>
+                  </div>
                   <div><Label>Morada</Label><Input value={company.address} onChange={(e) => setCompany({ ...company, address: e.target.value })} /></div>
                 </CardContent>
               )}
@@ -539,6 +547,32 @@ export default function IndexV2() {
               )}
             </Card>
 
+            {/* ── Payment ── */}
+            <Card className="shadow-soft border-border">
+              <button onClick={() => toggleSection('payment')} className="w-full text-left">
+                <CardHeader className="flex flex-row items-center justify-between cursor-pointer py-4">
+                  <CardTitle className="flex items-center gap-2 text-base font-heading">
+                    <Wallet className="h-5 w-5 text-accent" strokeWidth={1.5} /> Pagamento
+                    <span className="ml-2 text-sm font-normal text-muted-foreground">— {presetById(paymentPreset).label}</span>
+                  </CardTitle>
+                  {expandedSections.payment ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                </CardHeader>
+              </button>
+              {expandedSections.payment && (
+                <CardContent className="pt-0">
+                  <Label>Modelo</Label>
+                  <Select value={paymentPreset} onValueChange={(v) => setPaymentPreset(v as PaymentPreset)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {PAYMENT_PRESETS.filter((p) => p.id !== 'custom').map((p) => (
+                        <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </CardContent>
+              )}
+            </Card>
+
             {/* ── Notes ── */}
             <Card className="shadow-soft border-border">
               <button onClick={() => toggleSection('notes')} className="w-full text-left">
@@ -597,6 +631,8 @@ export default function IndexV2() {
                         {company.email && <p style={{ fontSize: 13, color: '#555' }}>{company.email}</p>}
                         {company.phone && <p style={{ fontSize: 13, color: '#555' }}>{company.phone}</p>}
                         {company.address && <p style={{ fontSize: 13, color: '#555' }}>{company.address}</p>}
+                        {company.iban && <p style={{ fontSize: 13, color: '#555' }}>IBAN: {company.iban}</p>}
+                        {company.mbway && <p style={{ fontSize: 13, color: '#555' }}>MBWAY: {company.mbway}</p>}
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0F1B2A', fontFamily: 'Poppins, sans-serif' }}>ORÇAMENTO</h2>
@@ -645,7 +681,21 @@ export default function IndexV2() {
                       <p style={{ fontSize: 14, color: '#555' }}>IVA (23%): {fmt(iva)}</p>
                       <p style={{ fontSize: 20, fontWeight: 700, color: '#1B3A5C', borderTop: '2px solid #1B3A5C', paddingTop: 8, marginTop: 8, display: 'inline-block', fontFamily: 'Poppins, sans-serif' }}>Total: {fmt(total)}</p>
                     </div>
-                    {notes && <div style={{ marginTop: 24, padding: 16, background: '#FFF2E3', borderRadius: 8, fontSize: 13, color: '#555' }}><strong>Notas:</strong><br />{notes}</div>}
+                    <div style={{ marginTop: 24, padding: 16, background: '#F5F8FB', border: '1px solid #E3EAF2', borderRadius: 8, fontSize: 13, color: '#0F1B2A' }}>
+                      <strong style={{ color: '#1B3A5C' }}>Condições de Pagamento:</strong>
+                      <div style={{ marginTop: 6, color: '#555' }}>
+                        {presetById(paymentPreset).installments.map((i, idx) => (
+                          <span key={idx}>{idx > 0 ? ' · ' : ''}{i.percent}% {i.label}</span>
+                        ))}
+                      </div>
+                      {(company.iban || company.mbway) && (
+                        <div style={{ marginTop: 8, color: '#555' }}>
+                          {company.iban && <div><strong>IBAN:</strong> {company.iban}</div>}
+                          {company.mbway && <div><strong>MBWAY:</strong> {company.mbway}</div>}
+                        </div>
+                      )}
+                    </div>
+                    {notes && <div style={{ marginTop: 16, padding: 16, background: '#FFF2E3', borderRadius: 8, fontSize: 13, color: '#555' }}><strong>Notas:</strong><br />{notes}</div>}
                   </div>
 
                   {/* Delivery — 3 ações */}

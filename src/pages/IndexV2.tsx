@@ -24,7 +24,7 @@ import heroBg from '@/assets/hero_background.png.asset.json';
 // ── Types ──
 interface MaterialItem { id: string; name: string; quantity: number; unit: string; unitPrice: number; }
 interface ServiceItem { id: string; name: string; description: string; pricePerHour: number; hours: number; materials: MaterialItem[]; }
-interface CompanyInfo { name: string; email: string; phone: string; address: string; nif: string; }
+interface CompanyInfo { name: string; email: string; phone: string; address: string; nif: string; iban: string; mbway: string; }
 interface ClientInfo { name: string; email: string; phone: string; address: string; }
 interface QuoteTemplate { id: string; name: string; description: string | null; unit: string | null; default_price: number | null; category: string | null; }
 interface ContentSection { section_key: string; title: string | null; subtitle: string | null; body: string | null; }

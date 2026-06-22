@@ -214,7 +214,7 @@ export default function IndexV2() {
 
   const scrollToQuote = () => {
     quoteRef.current?.scrollIntoView({ behavior: 'smooth' });
-    setExpandedSections({ company: true, client: false, services: false, notes: false });
+    setExpandedSections({ company: true, client: false, services: false, payment: false, notes: false });
   };
 
   const hero = content['hero'];

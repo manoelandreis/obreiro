@@ -547,6 +547,32 @@ export default function IndexV2() {
               )}
             </Card>
 
+            {/* ── Payment ── */}
+            <Card className="shadow-soft border-border">
+              <button onClick={() => toggleSection('payment')} className="w-full text-left">
+                <CardHeader className="flex flex-row items-center justify-between cursor-pointer py-4">
+                  <CardTitle className="flex items-center gap-2 text-base font-heading">
+                    <Wallet className="h-5 w-5 text-accent" strokeWidth={1.5} /> Pagamento
+                    <span className="ml-2 text-sm font-normal text-muted-foreground">— {presetById(paymentPreset).label}</span>
+                  </CardTitle>
+                  {expandedSections.payment ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                </CardHeader>
+              </button>
+              {expandedSections.payment && (
+                <CardContent className="pt-0">
+                  <Label>Modelo</Label>
+                  <Select value={paymentPreset} onValueChange={(v) => setPaymentPreset(v as PaymentPreset)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {PAYMENT_PRESETS.filter((p) => p.id !== 'custom').map((p) => (
+                        <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </CardContent>
+              )}
+            </Card>
+
             {/* ── Notes ── */}
             <Card className="shadow-soft border-border">
               <button onClick={() => toggleSection('notes')} className="w-full text-left">

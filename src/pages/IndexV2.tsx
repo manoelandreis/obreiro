@@ -14,6 +14,9 @@ import {
   Zap, Lock, Sparkles, Check, FileCheck, Repeat, HelpCircle, BookmarkPlus,
 } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PAYMENT_PRESETS, type PaymentPreset, presetById } from '@/lib/paymentTerms';
+import { Wallet } from 'lucide-react';
 import mockupTemplate from '@/assets/mockup-template.jpg';
 import mockupTool from '@/assets/mockup-tool.jpg';
 import heroBg from '@/assets/hero_background.png.asset.json';

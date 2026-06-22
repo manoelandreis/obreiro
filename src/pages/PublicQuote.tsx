@@ -185,22 +185,26 @@ export default function PublicQuote() {
                     {s.description && (
                       <div className="text-sm text-muted-foreground mt-1">{s.description}</div>
                     )}
-                    <div className="text-sm mt-2">
-                      Mão de obra: {fmt(s.pricePerHour)}/h × {s.hours}h ={' '}
-                      <strong>{fmt(labor)}</strong>
+                    <div className="mt-3 divide-y">
+                      {s.hours > 0 && (
+                        <div className="flex items-center justify-between gap-3 py-2 text-sm">
+                          <div className="min-w-0">
+                            <span className="font-semibold">Mão de obra</span>
+                            <span className="text-muted-foreground"> · {s.hours}h × {fmt(s.pricePerHour)}/h</span>
+                          </div>
+                          <span className="font-semibold whitespace-nowrap">{fmt(labor)}</span>
+                        </div>
+                      )}
+                      {s.materials?.map((m: any, mi: number) => (
+                        <div key={mi} className="flex items-center justify-between gap-3 py-2 text-sm">
+                          <div className="min-w-0">
+                            <span className="font-semibold">{m.name}</span>
+                            <span className="text-muted-foreground"> · {m.quantity} {m.unit} × {fmt(m.unitPrice)}</span>
+                          </div>
+                          <span className="font-semibold whitespace-nowrap">{fmt(m.quantity * m.unitPrice)}</span>
+                        </div>
+                      ))}
                     </div>
-                    {s.materials?.length > 0 && (
-                      <ul className="mt-2 space-y-1 text-sm">
-                        {s.materials.map((m: any, mi: number) => (
-                          <li key={mi} className="flex justify-between">
-                            <span>
-                              {m.name} ({m.quantity} {m.unit})
-                            </span>
-                            <span>{fmt(m.quantity * m.unitPrice)}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
                     <div className="text-right text-sm font-semibold text-primary mt-2 border-t pt-2">
                       Total: {fmt(total)}
                     </div>
@@ -208,6 +212,7 @@ export default function PublicQuote() {
                 );
               })}
             </div>
+
 
             {/* Totals */}
             <div className="border-t pt-4 flex justify-between items-end gap-4 flex-wrap">

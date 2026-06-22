@@ -176,16 +176,19 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   .header-left { flex: 1; display: flex; gap: 16px; align-items: center; }
   .logo { max-height: 70px; max-width: 140px; object-fit: contain; }
   .company-name { font-size: 20px; font-weight: 700; color: ${primary}; line-height: 1; text-box-trim: trim-both; text-box-edge: cap alphabetic; }
-  .company-meta p { font-size: 11px; color: #555; }
+  .company-meta { margin-top: 6px; }
+  .company-meta p { font-size: 11px; color: #475569; line-height: 1.6; }
+  .meta-label { color: #94a3b8; font-weight: 600; letter-spacing: 0.3px; margin-right: 2px; }
   .header-right { text-align: right; }
-  .header-right h2 { font-size: 18px; color: #1e293b; letter-spacing: 1px; }
+  .header-right h2 { font-size: 18px; color: ${primary}; letter-spacing: 1px; }
   .header-right p { font-size: 11px; color: #555; margin-top: 2px; }
-  .quote-title { font-size: 16px; font-weight: 600; color: ${primary}; margin: 6px 0 18px; }
-  .description { font-size: 12px; color: #475569; margin-bottom: 18px; font-style: italic; }
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 22px; }
-  .info-block h3 { font-size: 10px; color: #6b7280; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
-  .info-block p { font-size: 12px; }
-  .info-block .name { font-weight: 600; font-size: 13px; }
+  .quote-title { font-size: 18px; font-weight: 700; color: #1e293b; margin: 14px 0 6px; }
+  .description { font-size: 12px; color: #475569; margin-bottom: 14px; font-style: italic; }
+  .client-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin: 6px 0 22px; }
+  .client-row .validity-wrap { flex-shrink: 0; max-width: 45%; }
+  .info-block h3 { font-size: 10px; color: ${accent}; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.8px; font-weight: 700; }
+  .info-block p { font-size: 12px; color: #334155; line-height: 1.5; }
+  .info-block .name { font-weight: 700; font-size: 14px; color: #0f172a; margin-bottom: 2px; }
   .service { margin-bottom: 18px; page-break-inside: avoid; }
   .service-title { font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 3px; }
   .service-desc { font-size: 11px; color: #475569; margin-bottom: 5px; }

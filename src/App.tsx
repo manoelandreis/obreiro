@@ -23,6 +23,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AppLayout from "./components/AppLayout";
 import AppLogin from "./pages/app/AppLogin";
 import AppSignup from "./pages/app/AppSignup";
+import AppForgotPassword from "./pages/app/AppForgotPassword";
+import AppResetPassword from "./pages/app/AppResetPassword";
 import { Navigate } from "react-router-dom";
 import AppJobs from "./pages/app/AppJobs";
 import AppClients from "./pages/app/AppClients";

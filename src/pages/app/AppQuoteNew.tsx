@@ -45,7 +45,7 @@ export default function AppQuoteNew() {
   const [clients, setClients] = useState<ClientRow[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string>('');
   const [openNewClient, setOpenNewClient] = useState(false);
-  const [newClient, setNewClient] = useState({ name: '', email: '', phone: '', address: '', rgpd: false });
+  // (new client form lives in <ClientFormSheet />)
 
   // Quote
   const [title, setTitle] = useState('Orçamento');

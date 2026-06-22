@@ -167,10 +167,12 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 <meta charset="UTF-8">
 <title>${esc(q.title)} — ${esc(q.company.name || 'Obreiro')}</title>
 <style>
-  @page { size: A4; margin: 0; }
+  @page { size: A4; margin: 16mm 14mm 18mm 14mm; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: #fff; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 12px; line-height: 1.45; padding: 18mm 14mm 22mm 14mm; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 12px; line-height: 1.45; padding: 16mm 14mm 18mm 14mm; }
+  @media print { body { padding: 0; } }
+
 
   .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #e2e8f0; }
   .header-left { flex: 1; min-width: 0; }

@@ -4,16 +4,11 @@ import { useAppAuth } from '@/hooks/useAppAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Mail, Phone, MapPin, Trash2, UserCheck } from 'lucide-react';
-import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
-} from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { MobilePrimaryAction } from '@/components/app/MobilePrimaryAction';
+import { ClientFormSheet } from '@/components/app/ClientFormSheet';
 
 interface Client {
   id: string;

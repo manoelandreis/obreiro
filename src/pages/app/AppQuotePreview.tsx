@@ -51,13 +51,18 @@ export default function AppQuotePreview() {
       const cs = (q.company_snapshot as any) || {};
       const cl = (q.client_snapshot as any) || {};
 
-      // Fallback to user's default payment terms when quote has none
+      // Fallback to user's default payment terms and brand fields when the
+      // quote snapshot is missing them (older quotes created before the
+      // fields were added).
       const { data: settings } = await supabase
         .from('app_user_settings')
-        .select('default_payment_terms' as any)
+        .select(
+          'default_payment_terms, payment_iban, payment_mbway, company_name, company_nif, company_email, company_phone, company_address' as any
+        )
         .eq('user_id', user.id)
         .maybeSingle();
       const defaultTerms = (settings as any)?.default_payment_terms ?? null;
+      const s = (settings as any) || {};
 
       let attachmentUrls: { url: string; caption: string | null }[] = [];
       if (limits.attachments) {
@@ -82,13 +87,13 @@ export default function AppQuotePreview() {
       const data: QuoteRenderData = {
         title: q.title,
         company: {
-          name: cs.name ?? cs.company_name,
-          nif: cs.nif ?? cs.company_nif,
-          email: cs.email ?? cs.company_email,
-          phone: cs.phone ?? cs.company_phone,
-          address: cs.address ?? cs.company_address,
-          iban: cs.iban ?? cs.payment_iban,
-          mbway: cs.mbway ?? cs.payment_mbway,
+          name: cs.name ?? cs.company_name ?? s.company_name,
+          nif: cs.nif ?? cs.company_nif ?? s.company_nif,
+          email: cs.email ?? cs.company_email ?? s.company_email,
+          phone: cs.phone ?? cs.company_phone ?? s.company_phone,
+          address: cs.address ?? cs.company_address ?? s.company_address,
+          iban: cs.iban ?? cs.payment_iban ?? s.payment_iban,
+          mbway: cs.mbway ?? cs.payment_mbway ?? s.payment_mbway,
         },
         client: { name: cl.name, email: cl.email, phone: cl.phone, address: cl.address },
         services: (q.services as any) || [],

@@ -162,7 +162,7 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 3px solid ${primary}; }
   .header-left { flex: 1; display: flex; gap: 16px; align-items: center; }
   .logo { max-height: 70px; max-width: 140px; object-fit: contain; }
-  .company-name { font-size: 20px; font-weight: 700; color: ${primary}; line-height: 1.2; }
+  .company-name { font-size: 20px; font-weight: 700; color: ${primary}; line-height: 1; text-box-trim: trim-both; text-box-edge: cap alphabetic; }
   .company-meta p { font-size: 11px; color: #555; }
   .header-right { text-align: right; }
   .header-right h2 { font-size: 18px; color: #1e293b; letter-spacing: 1px; }

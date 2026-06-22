@@ -115,10 +115,29 @@ export default function PublicQuote() {
           <CardContent className="pt-8 space-y-6">
             <div className="flex items-start justify-between flex-wrap gap-4">
               <div>
-                <div className="text-xl font-heading font-bold text-primary">
-                  {cs.name || cs.company_name || 'A Sua Empresa'}
+                <div className="flex items-center gap-3">
+                  {cs.logo_path && (
+                    <img
+                      src={`https://cprysybqjtsynxofljxc.supabase.co/functions/v1/get-quote-logo?token=${token}`}
+                      alt="Logo"
+                      className="h-12 w-12 object-contain rounded-md shrink-0"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  )}
+                  <div
+                    className="text-xl font-heading font-bold text-primary"
+                    style={{
+                      lineHeight: 1,
+                      textBoxTrim: 'trim-both',
+                      textBoxEdge: 'cap alphabetic',
+                    } as React.CSSProperties}
+                  >
+                    {cs.name || cs.company_name || 'A Sua Empresa'}
+                  </div>
                 </div>
-                {cs.nif && <div className="text-xs text-muted-foreground">NIF: {cs.nif}</div>}
+                {cs.nif && <div className="text-xs text-muted-foreground mt-2">NIF: {cs.nif}</div>}
                 {cs.email && <div className="text-xs text-muted-foreground">{cs.email}</div>}
                 {cs.phone && <div className="text-xs text-muted-foreground">{cs.phone}</div>}
               </div>

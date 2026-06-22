@@ -1,4 +1,5 @@
 import { buildQuoteHtml, type QuoteRenderData } from '../src/lib/quotePdf';
+import { PAYMENT_PRESETS } from '../src/lib/paymentTerms';
 import { writeFileSync, mkdirSync } from 'fs';
 import { chromium } from 'playwright';
 

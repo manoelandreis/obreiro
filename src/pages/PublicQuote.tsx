@@ -140,7 +140,12 @@ export default function PublicQuote() {
             <div className="border-t pt-4">
               <h1 className="font-heading text-2xl font-bold">{quote.title}</h1>
               {cl.name && (
-                <p className="text-sm text-muted-foreground mt-1">Para: {cl.name}</p>
+                <div className="text-sm text-muted-foreground mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
+                  <span>{cl.name}</span>
+                  {cl.email && <span>· {cl.email}</span>}
+                  {cl.phone && <span>· {cl.phone}</span>}
+                  {cl.address && <span>· {cl.address}</span>}
+                </div>
               )}
             </div>
 

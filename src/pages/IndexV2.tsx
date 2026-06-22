@@ -64,6 +64,7 @@ export default function IndexV2() {
   const [client, setClient] = useState<ClientInfo>({ name: '', email: '', phone: '', address: '' });
   const [services, setServices] = useState<ServiceItem[]>([emptyService()]);
   const [notes, setNotes] = useState('');
+  const [paymentPreset, setPaymentPreset] = useState<PaymentPreset>('100_end');
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [sendEmail, setSendEmail] = useState('');
   const [consentChecked, setConsentChecked] = useState(false);

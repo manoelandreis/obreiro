@@ -173,23 +173,25 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   html, body { background: #fff; }
   body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 12px; line-height: 1.45; padding: 18mm 14mm 22mm 14mm; }
   @media print { body { padding: 0; } }
-  .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 3px solid ${primary}; }
-  .header-left { flex: 1; display: flex; gap: 16px; align-items: center; }
-  .logo { max-height: 70px; max-width: 140px; object-fit: contain; }
-  .company-name { font-size: 20px; font-weight: 700; color: ${primary}; line-height: 1; text-box-trim: trim-both; text-box-edge: cap alphabetic; }
-  .company-meta { margin-top: 6px; }
-  .company-meta p { font-size: 11px; color: #475569; line-height: 1.6; }
-  .meta-label { color: #94a3b8; font-weight: 600; letter-spacing: 0.3px; margin-right: 2px; }
-  .header-right { text-align: right; }
-  .header-right h2 { font-size: 18px; color: ${primary}; letter-spacing: 1px; }
-  .header-right p { font-size: 11px; color: #555; margin-top: 2px; }
-  .quote-title { font-size: 18px; font-weight: 700; color: #1e293b; margin: 14px 0 6px; }
-  .description { font-size: 12px; color: #475569; margin-bottom: 14px; font-style: italic; }
-  .client-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin: 6px 0 22px; }
-  .client-row .validity-wrap { flex-shrink: 0; max-width: 45%; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #e2e8f0; }
+  .header-left { flex: 1; min-width: 0; }
+  .brand-row { display: flex; gap: 12px; align-items: center; }
+  .logo { height: 44px; width: 44px; object-fit: contain; border-radius: 8px; flex-shrink: 0; }
+  .company-name { font-size: 20px; font-weight: 700; color: ${primary}; line-height: 1.1; }
+  .company-meta { margin-top: 10px; }
+  .company-meta p { font-size: 11px; color: #64748b; line-height: 1.5; }
+  .header-right { text-align: right; flex-shrink: 0; }
+  .header-right .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; color: #64748b; }
+  .header-right .date { font-size: 12px; color: #475569; margin-top: 4px; }
+  .header-right .validity-line { font-size: 11px; color: #64748b; margin-top: 4px; }
+  .quote-title { font-size: 22px; font-weight: 700; color: #0f172a; margin: 6px 0 6px; }
+  .description { font-size: 12px; color: #475569; margin-bottom: 10px; font-style: italic; }
+  .client-line { font-size: 12px; color: #64748b; margin-bottom: 22px; }
+  .client-line .sep { margin: 0 6px; color: #cbd5e1; }
   .info-block h3 { font-size: 10px; color: ${accent}; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.8px; font-weight: 700; }
   .info-block p { font-size: 12px; color: #334155; line-height: 1.5; }
   .info-block .name { font-weight: 700; font-size: 14px; color: #0f172a; margin-bottom: 2px; }
+
   .service { margin-bottom: 18px; page-break-inside: avoid; }
   .service-title { font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 3px; }
   .service-desc { font-size: 11px; color: #475569; margin-bottom: 5px; }

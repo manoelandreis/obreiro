@@ -4,10 +4,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle2, XCircle, FileText, Loader2, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, XCircle, FileText, Loader2, ShieldCheck, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { PaymentTermsCard } from '@/components/app/PaymentTermsCard';
 import { DEFAULT_PAYMENT_TERMS, type PaymentTerms } from '@/lib/paymentTerms';
+import { buildQuoteHtml, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';
+
 
 interface PublicQuote {
   id: string;

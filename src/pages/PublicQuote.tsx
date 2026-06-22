@@ -75,6 +75,55 @@ export default function PublicQuote() {
     toast.success(action === 'accept' ? 'Orçamento aceite!' : 'Resposta registada.');
   };
 
+  const handleDownloadPdf = () => {
+    if (!quote) return;
+    const cs = quote.company_snapshot || {};
+    const cl = quote.client_snapshot || {};
+    const logoUrl = cs.logo_path && token
+      ? `https://cprysybqjtsynxofljxc.supabase.co/functions/v1/get-quote-logo?token=${token}`
+      : null;
+    const data: QuoteRenderData = {
+      title: quote.title,
+      company: {
+        name: cs.name ?? cs.company_name,
+        nif: cs.nif ?? cs.company_nif,
+        email: cs.email ?? cs.company_email,
+        phone: cs.phone ?? cs.company_phone,
+        address: cs.address ?? cs.company_address,
+        iban: cs.iban ?? cs.payment_iban,
+        mbway: cs.mbway ?? cs.payment_mbway,
+      },
+      client: { name: cl.name, email: cl.email, phone: cl.phone, address: cl.address },
+      services: quote.services || [],
+      notes: quote.notes,
+      subtotal: Number(quote.subtotal),
+      iva: Number(quote.iva),
+      total: Number(quote.total),
+      createdAt: quote.created_at,
+      expiresAt: quote.expires_at,
+      status: quote.status,
+      paymentTerms: quote.payment_terms ?? DEFAULT_PAYMENT_TERMS,
+      paymentAnchor: quote.responded_at ?? quote.sent_at ?? quote.created_at,
+    };
+    const html = buildQuoteHtml(data, {
+      brand: {
+        logoUrl,
+        primary: cs.brand_primary || '#1B3A5C',
+        accent: cs.brand_accent || '#E8730A',
+        description: null,
+        terms: cs.terms || null,
+        paymentConditions: null,
+        validityDays: 30,
+      },
+      withWatermark: false,
+    });
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return toast.error('Pop-up bloqueado.');
+    openPrintWindow(html, printWindow);
+  };
+
+
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-muted-foreground">

@@ -140,17 +140,15 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
         <div class="payment-label">Formato de pagamento</div>
         <div class="payment-preset">${esc(presetLabel)}</div>
       </div>
-      <div class="payment-cards">
-        ${parts.map((p, i) => `<div class="payment-card">
-          <div class="payment-card-top">
-            <span class="payment-pill">${i + 1}ª · ${p.percent}%</span>
-          </div>
-          <div class="payment-card-label">${esc(p.label)}</div>
-          <div class="payment-card-amount">${euro(p.amount)}</div>
+      <div class="payment-rows">
+        ${parts.map((p) => `<div class="payment-row">
+          <span class="payment-row-label">${esc(p.label)} <span class="payment-row-pct">(${p.percent}%)</span></span>
+          <span class="payment-row-amount">${euro(p.amount)}</span>
         </div>`).join('')}
       </div>
     </div>`;
   })();
+
 
   const paymentHtml = '';
 

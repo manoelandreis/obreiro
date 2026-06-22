@@ -113,17 +113,8 @@ const QUOTES: Array<{ slug: string; data: QuoteRenderData }> = [
 ];
 
 mkdirSync('public/exemplos', { recursive: true });
-const browser = await chromium.launch({ headless: true });
-const ctx = await browser.newContext({ viewport: { width: 794, height: 1123 }, deviceScaleFactor: 2 });
-
 for (const q of QUOTES) {
   const html = buildQuoteHtml(q.data, { brand: BRAND, withWatermark: false });
   writeFileSync(`/tmp/q-${q.slug}.html`, html);
-  const page = await ctx.newPage();
-  await page.goto(`file:///tmp/q-${q.slug}.html`, { waitUntil: 'load' });
-  await page.pdf({ path: `public/exemplos/orcamento-${q.slug}.pdf`, format: 'A4', printBackground: true, margin: { top: '0', bottom: '0', left: '0', right: '0' } });
-  await page.screenshot({ path: `public/exemplos/orcamento-${q.slug}.png`, clip: { x: 0, y: 0, width: 794, height: 794 } });
-  await page.close();
-  console.log('✓', q.slug);
+  console.log('html', q.slug);
 }
-await browser.close();

@@ -1,0 +1,1 @@
+UPDATE landing_content SET title = 'Crie orçamentos profissionais em minutos', subtitle = 'Sem comissões, sem letras pequenas. Fica com 100% do que ganha em cada trabalho.' WHERE section_key = 'hero';

@@ -289,6 +289,26 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   ${termsHtml}
 
   ${watermarkHtml}
+  <script>
+    (function () {
+      function triggerPrint() {
+        try { window.focus(); window.print(); } catch (e) {}
+      }
+      var imgs = Array.from(document.images || []);
+      var pending = imgs.filter(function (img) { return !img.complete; });
+      if (pending.length === 0) {
+        setTimeout(triggerPrint, 200);
+        return;
+      }
+      var remaining = pending.length;
+      var done = function () { remaining--; if (remaining <= 0) setTimeout(triggerPrint, 200); };
+      pending.forEach(function (img) {
+        img.addEventListener('load', done);
+        img.addEventListener('error', done);
+      });
+      setTimeout(triggerPrint, 4000);
+    })();
+  </script>
 </body>
 </html>`;
 }
@@ -330,12 +350,9 @@ export function openPrintWindow(html: string) {
   if (!win) {
     return false;
   }
+  win.document.open();
   win.document.write(html);
   win.document.close();
-  setTimeout(() => {
-    win.focus();
-    win.print();
-  }, 500);
   return true;
 }
 

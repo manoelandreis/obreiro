@@ -76,12 +76,13 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
       const matRows = (s.materials || [])
         .map(
           (m) => `<tr>
-            <td>${esc(m.name)}</td>
+            <td><strong>${esc(m.name)}</strong></td>
             <td class="num">${m.quantity}</td>
             <td class="center">${esc(m.unit)}</td>
             <td class="num">${euro(m.unitPrice)}</td>
             <td class="num strong">${euro(m.quantity * m.unitPrice)}</td>
           </tr>`
+
         )
         .join('');
       const tableHtml =

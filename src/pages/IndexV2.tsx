@@ -70,7 +70,7 @@ export default function IndexV2() {
   const [consentChecked, setConsentChecked] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [expandedSections, setExpandedSections] = useState({ company: true, client: false, services: false, notes: false });
+  const [expandedSections, setExpandedSections] = useState({ company: true, client: false, services: false, payment: false, notes: false });
   const printRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef(crypto.randomUUID());
   const quoteRef = useRef<HTMLDivElement>(null);

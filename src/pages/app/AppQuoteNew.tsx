@@ -104,26 +104,6 @@ export default function AppQuoteNew() {
 
   const selectedClient = clients.find((c) => c.id === selectedClientId);
 
-  const handleCreateClient = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-    if (!newClient.rgpd) return toast.error('É necessário consentimento RGPD.');
-    const { data, error } = await supabase.from('app_clients').insert({
-      user_id: user.id,
-      name: newClient.name.trim(),
-      email: newClient.email.trim() || null,
-      phone: newClient.phone.trim() || null,
-      address: newClient.address.trim() || null,
-      rgpd_consent: true,
-      rgpd_consent_at: new Date().toISOString(),
-    }).select().single();
-    if (error || !data) return toast.error('Erro a criar cliente.');
-    setClients([...clients, data]);
-    setSelectedClientId(data.id);
-    setOpenNewClient(false);
-    setNewClient({ name: '', email: '', phone: '', address: '', rgpd: false });
-    toast.success('Cliente criado.');
-  };
 
   // Service helpers
   const addService = () => setServices([...services, emptyService()]);

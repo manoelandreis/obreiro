@@ -140,17 +140,15 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
         <div class="payment-label">Formato de pagamento</div>
         <div class="payment-preset">${esc(presetLabel)}</div>
       </div>
-      <div class="payment-cards">
-        ${parts.map((p, i) => `<div class="payment-card">
-          <div class="payment-card-top">
-            <span class="payment-pill">${i + 1}ª · ${p.percent}%</span>
-          </div>
-          <div class="payment-card-label">${esc(p.label)}</div>
-          <div class="payment-card-amount">${euro(p.amount)}</div>
+      <div class="payment-rows">
+        ${parts.map((p) => `<div class="payment-row">
+          <span class="payment-row-label">${esc(p.label)} <span class="payment-row-pct">(${p.percent}%)</span></span>
+          <span class="payment-row-amount">${euro(p.amount)}</span>
         </div>`).join('')}
       </div>
     </div>`;
   })();
+
 
   const paymentHtml = '';
 
@@ -224,13 +222,12 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   .payment-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed ${accent}66; }
   .payment-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: ${primary}; font-weight: 700; }
   .payment-preset { font-size: 12px; color: ${accent}; font-weight: 600; }
-  .payment-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
-  .payment-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; }
-  .payment-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .payment-pill { background: ${primary}; color: #fff; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; }
-  .payment-due { font-size: 10px; color: #64748b; }
-  .payment-card-label { font-size: 11px; color: #475569; margin-bottom: 3px; }
-  .payment-card-amount { font-size: 14px; font-weight: 700; color: ${primary}; }
+  .payment-rows { display: flex; flex-direction: column; gap: 4px; }
+  .payment-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 12px; color: #334155; padding: 2px 0; }
+  .payment-row-label { flex: 1; min-width: 0; }
+  .payment-row-pct { color: #94a3b8; }
+  .payment-row-amount { font-weight: 700; color: ${accent}; white-space: nowrap; }
+
   .watermark { position: fixed; bottom: 8mm; left: 0; right: 0; text-align: center; font-size: 9px; color: #9ca3af; }
   .watermark a { color: ${accent}; text-decoration: none; }
   @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }

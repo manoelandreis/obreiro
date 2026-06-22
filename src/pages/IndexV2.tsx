@@ -631,6 +631,8 @@ export default function IndexV2() {
                         {company.email && <p style={{ fontSize: 13, color: '#555' }}>{company.email}</p>}
                         {company.phone && <p style={{ fontSize: 13, color: '#555' }}>{company.phone}</p>}
                         {company.address && <p style={{ fontSize: 13, color: '#555' }}>{company.address}</p>}
+                        {company.iban && <p style={{ fontSize: 13, color: '#555' }}>IBAN: {company.iban}</p>}
+                        {company.mbway && <p style={{ fontSize: 13, color: '#555' }}>MBWAY: {company.mbway}</p>}
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0F1B2A', fontFamily: 'Poppins, sans-serif' }}>ORÇAMENTO</h2>

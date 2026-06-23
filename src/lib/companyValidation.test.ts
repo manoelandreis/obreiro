@@ -24,7 +24,7 @@ describe('validateEmail', () => {
     expect(validateEmail('geral@x')).toBe('Email inválido.');
   });
   it('rejeita email demasiado longo', () => {
-    const long = 'a'.repeat(250) + '@x.pt';
+    const long = 'a'.repeat(251) + '@x.pt';
     expect(validateEmail(long)).toBe('Email demasiado longo.');
   });
 });

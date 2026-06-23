@@ -1,16 +1,27 @@
-## Diagnóstico
+## Objetivo
+Substituir o ícone "handyman" (Material Symbol branco dentro de caixa com gradiente laranja) pelo PNG `obreiro-logo.png` enviado, mantendo o `shadow-accent-glow` (sombra laranja) por baixo.
 
-O servidor de dev está a responder normalmente (HTTP 200 em `localhost:8080`) e não há erros de runtime registados. O ecrã preto com apenas o tooltip "Project preview" no screenshot indica que o iframe do preview no editor não carregou o conteúdo — é um problema do iframe/cache do editor, não do código da app.
+## Passos
 
-Causas típicas:
-1. O iframe ficou preso após o último deploy/build (S3 rate limit anterior).
-2. Cache do browser do editor.
-3. HMR em estado inconsistente após muitas edições seguidas.
+1. **Upload do PNG como Lovable Asset**
+   - `lovable-assets create --file /mnt/user-uploads/obreiro-logo.png --filename obreiro-logo.png > src/assets/obreiro-logo.png.asset.json`
 
-## Plano de ação
+2. **Substituir nas 4 ocorrências** (`rg handyman` confirmou):
+   - `src/components/AppLayout.tsx:80-85` — sidebar desktop (36×36)
+   - `src/components/AppLayout.tsx:156-161` — topbar mobile (28×28)
+   - `src/pages/IndexV2.tsx:40-43` — landing nav (tamanho dinâmico)
+   - `src/pages/PrivacyPolicy.tsx:12-15` — header (≈32px)
 
-1. Forçar um flush do HMR do dev server (`POST /__hmr_flush`) para reentregar os módulos atualizados ao iframe.
-2. Reiniciar o dev server do sandbox como segundo passo se o flush não resolver.
-3. Pedir ao utilizador para clicar no botão de refresh (⟳) acima do preview ou abrir o preview em nova aba (ícone ↗) — isto resolve >90% dos casos em que o iframe fica preto.
+   Em cada uma:
+   - Remover o gradiente `bg-gradient-to-br from-accent to-[hsl(27_92%_60%)]` e o `text-white` (o PNG já trás o fundo laranja).
+   - Manter `rounded-[10px]` + `shadow-accent-glow` no wrapper para preservar o glow laranja.
+   - Substituir o `<span class="material-symbols-outlined">handyman</span>` por `<img src={obreiroLogo.url} alt="Obreiro" className="w-full h-full object-contain" />`.
 
-Nenhuma alteração de código necessária. Se após estes passos o preview continuar preto, investigamos `console`/`network` do iframe.
+3. **Import** em cada ficheiro:
+   ```ts
+   import obreiroLogo from "@/assets/obreiro-logo.png.asset.json";
+   ```
+
+## Fora de scope
+- Não mexer no favicon (`public/favicon.ico`) — pedir separadamente se necessário.
+- Não mexer em `AdminLayout.tsx` nem nos PDFs (não usam este ícone).

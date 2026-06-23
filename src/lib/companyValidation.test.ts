@@ -140,7 +140,7 @@ describe('validateCompanyFields (bloqueio de save)', () => {
       email: 'invalido',
       phone: '12',
       mbway: '212345678',
-      iban: 'PT50000000000000000000001',
+      iban: 'NOT-AN-IBAN',
     });
     expect(errs.nif).toBeTruthy();
     expect(errs.email).toBeTruthy();

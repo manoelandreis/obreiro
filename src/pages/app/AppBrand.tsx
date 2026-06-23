@@ -256,8 +256,29 @@ export default function AppBrand() {
     toast.success('Logo removido.');
   };
 
+  const validateCompany = (): CompanyErrors => {
+    const errs: CompanyErrors = {};
+    const nif = validateNifPT(companyNif.trim());
+    if (nif) errs.nif = nif;
+    const email = validateEmail(companyEmail.trim());
+    if (email) errs.email = email;
+    const phone = validatePhonePT(companyPhone.trim());
+    if (phone) errs.phone = phone;
+    const mb = validateMbway(paymentMbway.trim());
+    if (mb) errs.mbway = mb;
+    const iban = validateIbanPT(paymentIban.trim());
+    if (iban) errs.iban = iban;
+    return errs;
+  };
+
   const saveCompany = async () => {
     if (!user) return;
+    const errs = validateCompany();
+    setCompanyErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      toast.error('Corrija os campos assinalados antes de guardar.');
+      return;
+    }
     setSaving(true);
     const { error } = await supabase
       .from('app_user_settings')
@@ -279,6 +300,7 @@ export default function AppBrand() {
     if (error) return toast.error('Erro a guardar.');
     toast.success('Dados atualizados.');
   };
+
 
   const saveBrand = async () => {
     if (!user) return;

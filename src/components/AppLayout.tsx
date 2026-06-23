@@ -11,6 +11,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import obreiroLogo from "@/assets/obreiro-logo.png.asset.json";
 
 const nav = [
   { to: '/app/quotes', label: 'Orçamentos', icon: FileText },

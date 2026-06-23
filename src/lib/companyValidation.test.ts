@@ -153,7 +153,7 @@ describe('validateCompanyFields (bloqueio de save)', () => {
   it('faz trim dos valores antes de validar', () => {
     const errs = validateCompanyFields({
       email: '  geral@silvaconstrucoes.pt  ',
-      nif: '  509123456  ',
+      nif: '  509123457  ',
     });
     expect(errs).toEqual({});
   });

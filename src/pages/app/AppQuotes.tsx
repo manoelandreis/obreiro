@@ -20,6 +20,7 @@ import {
   Share2,
   Mail,
   MessageCircle,
+  Link2,
   MoreHorizontal,
   Pencil,
   Trash2,
@@ -398,9 +399,8 @@ export default function AppQuotes() {
                           <DropdownMenuItem onClick={() => shareWhatsapp(q)}>
                             <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => copyLink(q)}>
-                            Copiar link
+                            <Link2 className="h-4 w-4 mr-2" /> Copiar link
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

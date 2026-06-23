@@ -155,10 +155,10 @@ export default function AppLayout() {
 
           <div className="flex items-center gap-2">
             <div
-              className="flex items-center justify-center rounded-md bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white"
-              style={{ width: 28, height: 28 }}
+              className="rounded-[10px] shadow-accent-glow overflow-hidden"
+              style={{ width: 40, height: 40 }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: 18, lineHeight: 1 }}>handyman</span>
+              <img src={obreiroLogo.url} alt="Obreiro" className="w-full h-full object-contain" />
             </div>
             <span className="font-heading text-base font-bold tracking-tight">Obreiro</span>
           </div>

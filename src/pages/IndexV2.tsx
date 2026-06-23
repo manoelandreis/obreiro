@@ -35,7 +35,6 @@ const emptyService = (): ServiceItem => ({ id: crypto.randomUUID(), name: '', de
 const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
 
 // ── Logo mark ──
-import obreiroLogo from "@/assets/obreiro-logo.png.asset.json";
 const LogoMark = ({ size = 32 }: { size?: number }) => (
   <div
     className="rounded-[10px] shadow-accent-glow overflow-hidden"

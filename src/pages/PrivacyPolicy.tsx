@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Shield, Clock, UserCheck, Trash2, Mail, Lock } from 'lucide-react';
+import obreiroLogo from "@/assets/obreiro-logo.png.asset.json";
 
 export default function PrivacyPolicy() {
   return (
@@ -9,10 +10,10 @@ export default function PrivacyPolicy() {
         <div className="mx-auto flex h-16 max-w-[1180px] items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2.5">
             <div
-              className="flex items-center justify-center rounded-[10px] bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white shadow-accent-glow"
+              className="rounded-[10px] shadow-accent-glow overflow-hidden"
               style={{ width: 32, height: 32 }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: 20, lineHeight: 1 }}>handyman</span>
+              <img src={obreiroLogo.url} alt="Obreiro" className="w-full h-full object-contain" />
             </div>
             <span className="font-heading font-bold text-lg tracking-tight text-foreground">
               Obreiro

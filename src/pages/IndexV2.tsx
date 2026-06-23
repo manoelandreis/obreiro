@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import obreiroLogo from "@/assets/obreiro-logo.png.asset.json";
 import {
   FileText, BarChart3, Users, ClipboardList, ArrowRight, ShieldCheck, Eye, Trash2,
   Plus, Download, Building2, Wrench, Package, Mail, ChevronDown, ChevronUp,
@@ -37,10 +38,10 @@ const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', curren
 // ── Logo mark ──
 const LogoMark = ({ size = 32 }: { size?: number }) => (
   <div
-    className="flex items-center justify-center rounded-[10px] bg-gradient-to-br from-accent to-[hsl(27_92%_60%)] text-white shadow-accent-glow"
+    className="rounded-[10px] shadow-accent-glow overflow-hidden"
     style={{ width: size, height: size }}
   >
-    <span className="material-symbols-outlined" style={{ fontSize: size * 0.6, lineHeight: 1 }}>handyman</span>
+    <img src={obreiroLogo.url} alt="Obreiro" className="w-full h-full object-contain" />
   </div>
 );
 

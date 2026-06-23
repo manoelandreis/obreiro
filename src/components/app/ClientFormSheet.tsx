@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,27 +30,89 @@ interface Props {
   onCreated?: (client: CreatedClient) => void;
 }
 
+const clientSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, { message: 'O nome deve ter pelo menos 2 caracteres.' })
+    .max(120, { message: 'O nome não pode ter mais de 120 caracteres.' }),
+  email: z
+    .string()
+    .trim()
+    .max(255, { message: 'O email é demasiado longo.' })
+    .email({ message: 'Email inválido.' })
+    .optional()
+    .or(z.literal('')),
+  phone: z
+    .string()
+    .trim()
+    .max(30, { message: 'O telefone é demasiado longo.' })
+    .regex(/^[0-9+()\s-]*$/, { message: 'Telefone só pode conter números e + ( ) - espaços.' })
+    .optional()
+    .or(z.literal('')),
+  address: z
+    .string()
+    .trim()
+    .max(255, { message: 'A morada é demasiado longa.' })
+    .optional()
+    .or(z.literal('')),
+}).refine((v) => (v.email && v.email.length > 0) || (v.phone && v.phone.length > 0), {
+  message: 'Indique pelo menos email ou telefone.',
+  path: ['email'],
+});
+
+type FieldErrors = Partial<Record<'name' | 'email' | 'phone' | 'address', string>>;
+
 export function ClientFormSheet({ open, onOpenChange, userId, onCreated }: Props) {
   const isMobile = useIsMobile();
   const [form, setForm] = useState({ name: '', email: '', phone: '', address: '', consent: false });
+  const [errors, setErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
 
-  const reset = () => setForm({ name: '', email: '', phone: '', address: '', consent: false });
+  const reset = () => {
+    setForm({ name: '', email: '', phone: '', address: '', consent: false });
+    setErrors({});
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userId) return;
+    if (!userId) {
+      toast.error('Sessão expirada. Inicie sessão novamente.');
+      return;
+    }
+
+    const parsed = clientSchema.safeParse({
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      address: form.address,
+    });
+
+    if (!parsed.success) {
+      const next: FieldErrors = {};
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0] as keyof FieldErrors;
+        if (key && !next[key]) next[key] = issue.message;
+      }
+      setErrors(next);
+      toast.error(parsed.error.issues[0]?.message ?? 'Verifique os campos do formulário.');
+      return;
+    }
+
     if (!form.consent) {
       toast.error('Confirme o consentimento RGPD do cliente.');
       return;
     }
+
+    setErrors({});
     setSaving(true);
+    const values = parsed.data;
     const { data, error } = await supabase.from('app_clients').insert({
       user_id: userId,
-      name: form.name.trim(),
-      email: form.email.trim() || null,
-      phone: form.phone.trim() || null,
-      address: form.address.trim() || null,
+      name: values.name,
+      email: values.email ? values.email : null,
+      phone: values.phone ? values.phone : null,
+      address: values.address ? values.address : null,
       rgpd_consent: true,
       rgpd_consent_at: new Date().toISOString(),
     }).select().single();
@@ -64,26 +127,58 @@ export function ClientFormSheet({ open, onOpenChange, userId, onCreated }: Props
     reset();
   };
 
+  const errorClass = 'border-destructive focus-visible:ring-destructive';
+
   const Form = (
-    <form onSubmit={handleSave} className="space-y-4">
+    <form onSubmit={handleSave} className="space-y-4" noValidate>
       <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">Dados Pessoais</div>
       <div>
-        <Label>Nome Completo</Label>
-        <Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+        <Label>Nome Completo *</Label>
+        <Input
+          value={form.name}
+          onChange={(e) => { setForm({ ...form, name: e.target.value }); if (errors.name) setErrors({ ...errors, name: undefined }); }}
+          aria-invalid={!!errors.name}
+          className={errors.name ? errorClass : ''}
+          maxLength={120}
+        />
+        {errors.name && <p className="text-xs text-destructive mt-1">{errors.name}</p>}
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label>Email</Label>
-          <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+          <Input
+            type="email"
+            value={form.email}
+            onChange={(e) => { setForm({ ...form, email: e.target.value }); if (errors.email) setErrors({ ...errors, email: undefined }); }}
+            aria-invalid={!!errors.email}
+            className={errors.email ? errorClass : ''}
+            maxLength={255}
+          />
+          {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
         </div>
         <div>
           <Label>Telefone</Label>
-          <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+          <Input
+            value={form.phone}
+            onChange={(e) => { setForm({ ...form, phone: e.target.value }); if (errors.phone) setErrors({ ...errors, phone: undefined }); }}
+            aria-invalid={!!errors.phone}
+            className={errors.phone ? errorClass : ''}
+            maxLength={30}
+            inputMode="tel"
+          />
+          {errors.phone && <p className="text-xs text-destructive mt-1">{errors.phone}</p>}
         </div>
       </div>
       <div>
         <Label>Morada</Label>
-        <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+        <Input
+          value={form.address}
+          onChange={(e) => { setForm({ ...form, address: e.target.value }); if (errors.address) setErrors({ ...errors, address: undefined }); }}
+          aria-invalid={!!errors.address}
+          className={errors.address ? errorClass : ''}
+          maxLength={255}
+        />
+        {errors.address && <p className="text-xs text-destructive mt-1">{errors.address}</p>}
       </div>
       <label className="flex gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20 cursor-pointer">
         <Checkbox checked={form.consent} onCheckedChange={(v) => setForm({ ...form, consent: !!v })} className="mt-0.5" />

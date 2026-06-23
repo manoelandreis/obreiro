@@ -183,10 +183,11 @@ export default function Quote() {
       return;
     }
 
+    const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     printWindow.document.write(`
       <html>
         <head>
-          <title>Orçamento - ${company.name || 'Obreiro'}</title>
+          <title>Orçamento - ${escHtml(company.name || 'Obreiro')}</title>
           <style>
             @page {
               size: A4;

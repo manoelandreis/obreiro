@@ -47,9 +47,13 @@ const esc = (s: any): string =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
+const HEX_COLOR_RE = /^#[0-9a-fA-F]{3,8}$/;
+const safeHex = (v: string | undefined, fallback: string): string =>
+  v && HEX_COLOR_RE.test(v) ? v : fallback;
+
 export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string {
-  const primary = opts.brand?.primary || '#1B3A5C';
-  const accent = opts.brand?.accent || '#E8730A';
+  const primary = safeHex(opts.brand?.primary, '#1B3A5C');
+  const accent = safeHex(opts.brand?.accent, '#E8730A');
   const logo = opts.brand?.logoUrl;
   const description = opts.brand?.description;
   const terms = opts.brand?.terms;

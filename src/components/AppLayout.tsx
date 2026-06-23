@@ -156,7 +156,7 @@ export default function AppLayout() {
           <div className="flex items-center gap-2">
             <div
               className="rounded-[10px] shadow-accent-glow overflow-hidden"
-              style={{ width: 40, height: 40 }}
+              style={{ width: 32, height: 32 }}
             >
               <img src={obreiroLogo.url} alt="Obreiro" className="w-full h-full object-contain" />
             </div>

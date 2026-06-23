@@ -203,24 +203,16 @@ export default function AppBrand() {
     toast.success('Logo removido.');
   };
 
-  const validateCompany = (): CompanyErrors => {
-    const errs: CompanyErrors = {};
-    const nif = validateNifPT(companyNif.trim());
-    if (nif) errs.nif = nif;
-    const email = validateEmail(companyEmail.trim());
-    if (email) errs.email = email;
-    const phone = validatePhonePT(companyPhone.trim());
-    if (phone) errs.phone = phone;
-    const mb = validateMbway(paymentMbway.trim());
-    if (mb) errs.mbway = mb;
-    const iban = validateIbanPT(paymentIban.trim());
-    if (iban) errs.iban = iban;
-    return errs;
-  };
-
   const saveCompany = async () => {
     if (!user) return;
-    const errs = validateCompany();
+    const errs = validateCompanyFields({
+      nif: companyNif,
+      email: companyEmail,
+      phone: companyPhone,
+      mbway: paymentMbway,
+      iban: paymentIban,
+    });
+
     setCompanyErrors(errs);
     if (Object.keys(errs).length > 0) {
       toast.error('Corrija os campos assinalados antes de guardar.');

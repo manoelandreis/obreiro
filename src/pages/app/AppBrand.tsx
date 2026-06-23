@@ -53,6 +53,71 @@ import { SectionHeader } from '@/components/app/SectionHeader';
 const MAX_LOGO_BYTES = 5 * 1024 * 1024;
 const fmt = (n: number) => new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(n);
 
+// ---------- Validators (Portugal) ----------
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+function validateEmail(v: string): string | null {
+  if (!v) return null;
+  if (v.length > 255) return 'Email demasiado longo.';
+  if (!EMAIL_RE.test(v)) return 'Email inválido.';
+  return null;
+}
+
+function validatePhonePT(v: string): string | null {
+  if (!v) return null;
+  const digits = v.replace(/[\s()-]/g, '');
+  if (!/^\+?\d+$/.test(digits)) return 'Use apenas números, espaços, + ( ) -.';
+  const national = digits.replace(/^\+351/, '').replace(/^00351/, '');
+  if (national.length !== 9) return 'Número português deve ter 9 dígitos.';
+  if (!/^[239]/.test(national)) return 'Número inválido (deve começar por 2, 3 ou 9).';
+  return null;
+}
+
+function validateMbway(v: string): string | null {
+  if (!v) return null;
+  const digits = v.replace(/[\s()-]/g, '');
+  if (!/^\+?\d+$/.test(digits)) return 'Use apenas números, espaços, + ( ) -.';
+  const national = digits.replace(/^\+351/, '').replace(/^00351/, '');
+  if (national.length !== 9) return 'Telemóvel português deve ter 9 dígitos.';
+  if (!/^9/.test(national)) return 'MBWay requer um número de telemóvel (começa por 9).';
+  return null;
+}
+
+function validateNifPT(v: string): string | null {
+  if (!v) return null;
+  const n = v.replace(/\s/g, '');
+  if (!/^\d{9}$/.test(n)) return 'NIF deve ter 9 dígitos.';
+  if (!/^[125689]|^3|^45|^70|^71|^72|^74|^75|^77|^78|^79|^90|^91|^98|^99/.test(n)) {
+    // Permitir, mas o checksum é o que confirma. Continua a validar checksum abaixo.
+  }
+  const digits = n.split('').map(Number);
+  const sum = digits.slice(0, 8).reduce((acc, d, i) => acc + d * (9 - i), 0);
+  const mod = sum % 11;
+  const check = mod < 2 ? 0 : 11 - mod;
+  if (check !== digits[8]) return 'NIF inválido (dígito de controlo).';
+  return null;
+}
+
+function validateIbanPT(v: string): string | null {
+  if (!v) return null;
+  const iban = v.replace(/\s+/g, '').toUpperCase();
+  if (!/^[A-Z]{2}\d{2}[A-Z0-9]+$/.test(iban)) return 'IBAN inválido.';
+  if (iban.startsWith('PT') && iban.length !== 25) return 'IBAN português deve ter 25 caracteres.';
+  if (iban.length < 15 || iban.length > 34) return 'IBAN com tamanho inválido.';
+  // mod-97 check
+  const rearranged = iban.slice(4) + iban.slice(0, 4);
+  const expanded = rearranged.replace(/[A-Z]/g, (c) => (c.charCodeAt(0) - 55).toString());
+  let remainder = 0;
+  for (let i = 0; i < expanded.length; i++) {
+    remainder = (remainder * 10 + Number(expanded[i])) % 97;
+  }
+  if (remainder !== 1) return 'IBAN inválido (verificação falhou).';
+  return null;
+}
+
+type CompanyErrors = Partial<Record<'nif' | 'email' | 'phone' | 'mbway' | 'iban', string>>;
+
+
 
 export default function AppBrand() {
   const { user } = useAppAuth();
@@ -75,6 +140,8 @@ export default function AppBrand() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [companyErrors, setCompanyErrors] = useState<CompanyErrors>({});
+
   // Payment templates
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>(DEFAULT_PAYMENT_TERMS);
   const [templates, setTemplates] = useState<CustomPaymentTemplate[]>([]);
@@ -189,8 +256,29 @@ export default function AppBrand() {
     toast.success('Logo removido.');
   };
 
+  const validateCompany = (): CompanyErrors => {
+    const errs: CompanyErrors = {};
+    const nif = validateNifPT(companyNif.trim());
+    if (nif) errs.nif = nif;
+    const email = validateEmail(companyEmail.trim());
+    if (email) errs.email = email;
+    const phone = validatePhonePT(companyPhone.trim());
+    if (phone) errs.phone = phone;
+    const mb = validateMbway(paymentMbway.trim());
+    if (mb) errs.mbway = mb;
+    const iban = validateIbanPT(paymentIban.trim());
+    if (iban) errs.iban = iban;
+    return errs;
+  };
+
   const saveCompany = async () => {
     if (!user) return;
+    const errs = validateCompany();
+    setCompanyErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      toast.error('Corrija os campos assinalados antes de guardar.');
+      return;
+    }
     setSaving(true);
     const { error } = await supabase
       .from('app_user_settings')
@@ -212,6 +300,7 @@ export default function AppBrand() {
     if (error) return toast.error('Erro a guardar.');
     toast.success('Dados atualizados.');
   };
+
 
   const saveBrand = async () => {
     if (!user) return;
@@ -305,8 +394,26 @@ export default function AppBrand() {
               <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Ex: Silva Construções" />
             </div>
             <div>
-              <Label>NIF</Label>
-              <Input value={companyNif} onChange={(e) => setCompanyNif(e.target.value)} placeholder="Ex: 123456789" />
+              <Label htmlFor="company-nif">NIF</Label>
+              <Input
+                id="company-nif"
+                value={companyNif}
+                inputMode="numeric"
+                maxLength={9}
+                aria-invalid={!!companyErrors.nif}
+                className={companyErrors.nif ? 'border-destructive focus-visible:ring-destructive' : ''}
+                onChange={(e) => {
+                  const v = e.target.value.replace(/\D/g, '').slice(0, 9);
+                  setCompanyNif(v);
+                  if (companyErrors.nif) setCompanyErrors({ ...companyErrors, nif: undefined });
+                }}
+                onBlur={() => {
+                  const err = validateNifPT(companyNif.trim());
+                  setCompanyErrors((p) => ({ ...p, nif: err ?? undefined }));
+                }}
+                placeholder="Ex: 123456789"
+              />
+              {companyErrors.nif && <p className="text-xs text-destructive mt-1">{companyErrors.nif}</p>}
             </div>
           </div>
         </Subsection>
@@ -314,12 +421,44 @@ export default function AppBrand() {
         <Subsection title="Contactos" description="Como os clientes podem entrar em contacto consigo.">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label>Email</Label>
-              <Input type="email" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} placeholder="geral@empresa.pt" />
+              <Label htmlFor="company-email">Email</Label>
+              <Input
+                id="company-email"
+                type="email"
+                value={companyEmail}
+                aria-invalid={!!companyErrors.email}
+                className={companyErrors.email ? 'border-destructive focus-visible:ring-destructive' : ''}
+                onChange={(e) => {
+                  setCompanyEmail(e.target.value);
+                  if (companyErrors.email) setCompanyErrors({ ...companyErrors, email: undefined });
+                }}
+                onBlur={() => {
+                  const err = validateEmail(companyEmail.trim());
+                  setCompanyErrors((p) => ({ ...p, email: err ?? undefined }));
+                }}
+                placeholder="geral@empresa.pt"
+              />
+              {companyErrors.email && <p className="text-xs text-destructive mt-1">{companyErrors.email}</p>}
             </div>
             <div>
-              <Label>Telefone</Label>
-              <Input value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} placeholder="+351 912 345 678" />
+              <Label htmlFor="company-phone">Telefone</Label>
+              <Input
+                id="company-phone"
+                inputMode="tel"
+                value={companyPhone}
+                aria-invalid={!!companyErrors.phone}
+                className={companyErrors.phone ? 'border-destructive focus-visible:ring-destructive' : ''}
+                onChange={(e) => {
+                  setCompanyPhone(e.target.value);
+                  if (companyErrors.phone) setCompanyErrors({ ...companyErrors, phone: undefined });
+                }}
+                onBlur={() => {
+                  const err = validatePhonePT(companyPhone.trim());
+                  setCompanyErrors((p) => ({ ...p, phone: err ?? undefined }));
+                }}
+                placeholder="+351 912 345 678"
+              />
+              {companyErrors.phone && <p className="text-xs text-destructive mt-1">{companyErrors.phone}</p>}
             </div>
             <div className="md:col-span-2">
               <Label>Morada</Label>
@@ -331,24 +470,49 @@ export default function AppBrand() {
         <Subsection title="Métodos de pagamento" description="Aparecem nos orçamentos para o cliente poder pagar diretamente.">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label>MBWay</Label>
+              <Label htmlFor="payment-mbway">MBWay</Label>
               <Input
+                id="payment-mbway"
                 type="tel"
                 inputMode="tel"
                 value={paymentMbway}
-                onChange={(e) => setPaymentMbway(e.target.value)}
+                aria-invalid={!!companyErrors.mbway}
+                className={companyErrors.mbway ? 'border-destructive focus-visible:ring-destructive' : ''}
+                onChange={(e) => {
+                  setPaymentMbway(e.target.value);
+                  if (companyErrors.mbway) setCompanyErrors({ ...companyErrors, mbway: undefined });
+                }}
+                onBlur={() => {
+                  const err = validateMbway(paymentMbway.trim());
+                  setCompanyErrors((p) => ({ ...p, mbway: err ?? undefined }));
+                }}
                 placeholder="+351 912 345 678"
               />
-              <p className="text-xs text-muted-foreground mt-1">Número de telemóvel português associado ao MBWay.</p>
+              {companyErrors.mbway
+                ? <p className="text-xs text-destructive mt-1">{companyErrors.mbway}</p>
+                : <p className="text-xs text-muted-foreground mt-1">Número de telemóvel português associado ao MBWay.</p>}
             </div>
             <div>
-              <Label>IBAN</Label>
+              <Label htmlFor="payment-iban">IBAN</Label>
               <Input
+                id="payment-iban"
                 value={paymentIban}
-                onChange={(e) => setPaymentIban(e.target.value.toUpperCase())}
+                aria-invalid={!!companyErrors.iban}
+                className={companyErrors.iban ? 'border-destructive focus-visible:ring-destructive' : ''}
+                onChange={(e) => {
+                  setPaymentIban(e.target.value.toUpperCase());
+                  if (companyErrors.iban) setCompanyErrors({ ...companyErrors, iban: undefined });
+                }}
+                onBlur={() => {
+                  const err = validateIbanPT(paymentIban.trim());
+                  setCompanyErrors((p) => ({ ...p, iban: err ?? undefined }));
+                }}
                 placeholder="PT50 0000 0000 0000 0000 0000 0"
               />
-              <p className="text-xs text-muted-foreground mt-1">IBAN para transferência bancária.</p>
+              {companyErrors.iban
+                ? <p className="text-xs text-destructive mt-1">{companyErrors.iban}</p>
+                : <p className="text-xs text-muted-foreground mt-1">IBAN para transferência bancária.</p>}
+
             </div>
           </div>
         </Subsection>

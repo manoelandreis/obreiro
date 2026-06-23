@@ -394,8 +394,26 @@ export default function AppBrand() {
               <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Ex: Silva Construções" />
             </div>
             <div>
-              <Label>NIF</Label>
-              <Input value={companyNif} onChange={(e) => setCompanyNif(e.target.value)} placeholder="Ex: 123456789" />
+              <Label htmlFor="company-nif">NIF</Label>
+              <Input
+                id="company-nif"
+                value={companyNif}
+                inputMode="numeric"
+                maxLength={9}
+                aria-invalid={!!companyErrors.nif}
+                className={companyErrors.nif ? 'border-destructive focus-visible:ring-destructive' : ''}
+                onChange={(e) => {
+                  const v = e.target.value.replace(/\D/g, '').slice(0, 9);
+                  setCompanyNif(v);
+                  if (companyErrors.nif) setCompanyErrors({ ...companyErrors, nif: undefined });
+                }}
+                onBlur={() => {
+                  const err = validateNifPT(companyNif.trim());
+                  setCompanyErrors((p) => ({ ...p, nif: err ?? undefined }));
+                }}
+                placeholder="Ex: 123456789"
+              />
+              {companyErrors.nif && <p className="text-xs text-destructive mt-1">{companyErrors.nif}</p>}
             </div>
           </div>
         </Subsection>
@@ -403,12 +421,44 @@ export default function AppBrand() {
         <Subsection title="Contactos" description="Como os clientes podem entrar em contacto consigo.">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label>Email</Label>
-              <Input type="email" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} placeholder="geral@empresa.pt" />
+              <Label htmlFor="company-email">Email</Label>
+              <Input
+                id="company-email"
+                type="email"
+                value={companyEmail}
+                aria-invalid={!!companyErrors.email}
+                className={companyErrors.email ? 'border-destructive focus-visible:ring-destructive' : ''}
+                onChange={(e) => {
+                  setCompanyEmail(e.target.value);
+                  if (companyErrors.email) setCompanyErrors({ ...companyErrors, email: undefined });
+                }}
+                onBlur={() => {
+                  const err = validateEmail(companyEmail.trim());
+                  setCompanyErrors((p) => ({ ...p, email: err ?? undefined }));
+                }}
+                placeholder="geral@empresa.pt"
+              />
+              {companyErrors.email && <p className="text-xs text-destructive mt-1">{companyErrors.email}</p>}
             </div>
             <div>
-              <Label>Telefone</Label>
-              <Input value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} placeholder="+351 912 345 678" />
+              <Label htmlFor="company-phone">Telefone</Label>
+              <Input
+                id="company-phone"
+                inputMode="tel"
+                value={companyPhone}
+                aria-invalid={!!companyErrors.phone}
+                className={companyErrors.phone ? 'border-destructive focus-visible:ring-destructive' : ''}
+                onChange={(e) => {
+                  setCompanyPhone(e.target.value);
+                  if (companyErrors.phone) setCompanyErrors({ ...companyErrors, phone: undefined });
+                }}
+                onBlur={() => {
+                  const err = validatePhonePT(companyPhone.trim());
+                  setCompanyErrors((p) => ({ ...p, phone: err ?? undefined }));
+                }}
+                placeholder="+351 912 345 678"
+              />
+              {companyErrors.phone && <p className="text-xs text-destructive mt-1">{companyErrors.phone}</p>}
             </div>
             <div className="md:col-span-2">
               <Label>Morada</Label>
@@ -420,24 +470,49 @@ export default function AppBrand() {
         <Subsection title="Métodos de pagamento" description="Aparecem nos orçamentos para o cliente poder pagar diretamente.">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label>MBWay</Label>
+              <Label htmlFor="payment-mbway">MBWay</Label>
               <Input
+                id="payment-mbway"
                 type="tel"
                 inputMode="tel"
                 value={paymentMbway}
-                onChange={(e) => setPaymentMbway(e.target.value)}
+                aria-invalid={!!companyErrors.mbway}
+                className={companyErrors.mbway ? 'border-destructive focus-visible:ring-destructive' : ''}
+                onChange={(e) => {
+                  setPaymentMbway(e.target.value);
+                  if (companyErrors.mbway) setCompanyErrors({ ...companyErrors, mbway: undefined });
+                }}
+                onBlur={() => {
+                  const err = validateMbway(paymentMbway.trim());
+                  setCompanyErrors((p) => ({ ...p, mbway: err ?? undefined }));
+                }}
                 placeholder="+351 912 345 678"
               />
-              <p className="text-xs text-muted-foreground mt-1">Número de telemóvel português associado ao MBWay.</p>
+              {companyErrors.mbway
+                ? <p className="text-xs text-destructive mt-1">{companyErrors.mbway}</p>
+                : <p className="text-xs text-muted-foreground mt-1">Número de telemóvel português associado ao MBWay.</p>}
             </div>
             <div>
-              <Label>IBAN</Label>
+              <Label htmlFor="payment-iban">IBAN</Label>
               <Input
+                id="payment-iban"
                 value={paymentIban}
-                onChange={(e) => setPaymentIban(e.target.value.toUpperCase())}
+                aria-invalid={!!companyErrors.iban}
+                className={companyErrors.iban ? 'border-destructive focus-visible:ring-destructive' : ''}
+                onChange={(e) => {
+                  setPaymentIban(e.target.value.toUpperCase());
+                  if (companyErrors.iban) setCompanyErrors({ ...companyErrors, iban: undefined });
+                }}
+                onBlur={() => {
+                  const err = validateIbanPT(paymentIban.trim());
+                  setCompanyErrors((p) => ({ ...p, iban: err ?? undefined }));
+                }}
                 placeholder="PT50 0000 0000 0000 0000 0000 0"
               />
-              <p className="text-xs text-muted-foreground mt-1">IBAN para transferência bancária.</p>
+              {companyErrors.iban
+                ? <p className="text-xs text-destructive mt-1">{companyErrors.iban}</p>
+                : <p className="text-xs text-muted-foreground mt-1">IBAN para transferência bancária.</p>}
+
             </div>
           </div>
         </Subsection>

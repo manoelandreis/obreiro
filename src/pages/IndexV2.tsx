@@ -157,7 +157,8 @@ export default function IndexV2() {
     if (!printContent) return;
     const printWindow = window.open('', '_blank');
     if (!printWindow) { toast.error('Pop-up bloqueado. Permita pop-ups para fazer download.'); return; }
-    printWindow.document.write(`<html><head><title>Orçamento - ${company.name || 'Obreiro'}</title><style>
+    const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    printWindow.document.write(`<html><head><title>Orçamento - ${escHtml(company.name || 'Obreiro')}</title><style>
       @page { size: A4; margin: 20mm 15mm 25mm 15mm; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; color: #0F1B2A; }

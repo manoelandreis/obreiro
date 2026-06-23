@@ -140,6 +140,8 @@ export default function AppBrand() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [companyErrors, setCompanyErrors] = useState<CompanyErrors>({});
+
   // Payment templates
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>(DEFAULT_PAYMENT_TERMS);
   const [templates, setTemplates] = useState<CustomPaymentTemplate[]>([]);

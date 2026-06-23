@@ -77,11 +77,11 @@ describe('validateNifPT', () => {
     expect(validateNifPT('')).toBeNull();
   });
   it('aceita NIFs com dígito de controlo correto', () => {
-    // 509123456 — singular checksum válido (empresa)
-    expect(validateNifPT('509123456')).toBeNull();
-    // 123456789 — checksum válido conhecido
+    expect(validateNifPT('509123457')).toBeNull();
     expect(validateNifPT('123456789')).toBeNull();
+    expect(validateNifPT('500000000')).toBeNull();
   });
+
   it('rejeita comprimento errado', () => {
     expect(validateNifPT('12345678')).toBe('NIF deve ter 9 dígitos.');
     expect(validateNifPT('1234567890')).toBe('NIF deve ter 9 dígitos.');

@@ -50,72 +50,19 @@ import {
 } from '@/lib/termsTemplates';
 import { SectionHeader } from '@/components/app/SectionHeader';
 
+import {
+  validateEmail,
+  validatePhonePT,
+  validateMbway,
+  validateNifPT,
+  validateIbanPT,
+  validateCompanyFields,
+  type CompanyErrors,
+} from '@/lib/companyValidation';
+
 const MAX_LOGO_BYTES = 5 * 1024 * 1024;
 const fmt = (n: number) => new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(n);
 
-// ---------- Validators (Portugal) ----------
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-function validateEmail(v: string): string | null {
-  if (!v) return null;
-  if (v.length > 255) return 'Email demasiado longo.';
-  if (!EMAIL_RE.test(v)) return 'Email inválido.';
-  return null;
-}
-
-function validatePhonePT(v: string): string | null {
-  if (!v) return null;
-  const digits = v.replace(/[\s()-]/g, '');
-  if (!/^\+?\d+$/.test(digits)) return 'Use apenas números, espaços, + ( ) -.';
-  const national = digits.replace(/^\+351/, '').replace(/^00351/, '');
-  if (national.length !== 9) return 'Número português deve ter 9 dígitos.';
-  if (!/^[239]/.test(national)) return 'Número inválido (deve começar por 2, 3 ou 9).';
-  return null;
-}
-
-function validateMbway(v: string): string | null {
-  if (!v) return null;
-  const digits = v.replace(/[\s()-]/g, '');
-  if (!/^\+?\d+$/.test(digits)) return 'Use apenas números, espaços, + ( ) -.';
-  const national = digits.replace(/^\+351/, '').replace(/^00351/, '');
-  if (national.length !== 9) return 'Telemóvel português deve ter 9 dígitos.';
-  if (!/^9/.test(national)) return 'MBWay requer um número de telemóvel (começa por 9).';
-  return null;
-}
-
-function validateNifPT(v: string): string | null {
-  if (!v) return null;
-  const n = v.replace(/\s/g, '');
-  if (!/^\d{9}$/.test(n)) return 'NIF deve ter 9 dígitos.';
-  if (!/^[125689]|^3|^45|^70|^71|^72|^74|^75|^77|^78|^79|^90|^91|^98|^99/.test(n)) {
-    // Permitir, mas o checksum é o que confirma. Continua a validar checksum abaixo.
-  }
-  const digits = n.split('').map(Number);
-  const sum = digits.slice(0, 8).reduce((acc, d, i) => acc + d * (9 - i), 0);
-  const mod = sum % 11;
-  const check = mod < 2 ? 0 : 11 - mod;
-  if (check !== digits[8]) return 'NIF inválido (dígito de controlo).';
-  return null;
-}
-
-function validateIbanPT(v: string): string | null {
-  if (!v) return null;
-  const iban = v.replace(/\s+/g, '').toUpperCase();
-  if (!/^[A-Z]{2}\d{2}[A-Z0-9]+$/.test(iban)) return 'IBAN inválido.';
-  if (iban.startsWith('PT') && iban.length !== 25) return 'IBAN português deve ter 25 caracteres.';
-  if (iban.length < 15 || iban.length > 34) return 'IBAN com tamanho inválido.';
-  // mod-97 check
-  const rearranged = iban.slice(4) + iban.slice(0, 4);
-  const expanded = rearranged.replace(/[A-Z]/g, (c) => (c.charCodeAt(0) - 55).toString());
-  let remainder = 0;
-  for (let i = 0; i < expanded.length; i++) {
-    remainder = (remainder * 10 + Number(expanded[i])) % 97;
-  }
-  if (remainder !== 1) return 'IBAN inválido (verificação falhou).';
-  return null;
-}
-
-type CompanyErrors = Partial<Record<'nif' | 'email' | 'phone' | 'mbway' | 'iban', string>>;
 
 
 

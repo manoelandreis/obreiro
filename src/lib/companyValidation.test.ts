@@ -121,7 +121,7 @@ describe('validateIbanPT', () => {
 describe('validateCompanyFields (bloqueio de save)', () => {
   it('devolve objecto vazio quando tudo é válido', () => {
     const errs = validateCompanyFields({
-      nif: '509123456',
+      nif: '509123457',
       email: 'geral@silvaconstrucoes.pt',
       phone: '+351 912 345 678',
       mbway: '912345678',

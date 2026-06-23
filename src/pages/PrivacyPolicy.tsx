@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Shield, Clock, UserCheck, Trash2, Mail, Lock } from 'lucide-react';
+import obreiroLogo from "@/assets/obreiro-logo.png.asset.json";
 
 export default function PrivacyPolicy() {
   return (

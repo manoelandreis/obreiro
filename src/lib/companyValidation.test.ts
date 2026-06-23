@@ -90,8 +90,9 @@ describe('validateNifPT', () => {
     expect(validateNifPT('12345678A')).toBe('NIF deve ter 9 dígitos.');
   });
   it('rejeita NIF com checksum errado', () => {
-    expect(validateNifPT('509123450')).toBe('NIF inválido (dígito de controlo).');
+    expect(validateNifPT('509123456')).toBe('NIF inválido (dígito de controlo).');
     expect(validateNifPT('111111111')).toBe('NIF inválido (dígito de controlo).');
+
   });
 });
 

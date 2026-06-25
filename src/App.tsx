@@ -38,6 +38,7 @@ import AppBrand from "./pages/app/AppBrand";
 import AppHelp from "./pages/app/AppHelp";
 import PublicQuote from "./pages/PublicQuote";
 import CookieConsent from "./components/CookieConsent";
+import Unsubscribe from "./pages/Unsubscribe";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => {
               <Route path="/quote" element={<Quote />} />
               <Route path="/privacidade" element={<PrivacyPolicy />} />
               <Route path="/q/:token" element={<PublicQuote />} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
 
               {/* Admin */}
               <Route path="/admin" element={<AdminLogin />} />

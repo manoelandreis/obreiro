@@ -1,68 +1,53 @@
-# Redesign dos Emails da Obreiro
+## Objetivo
 
-## Situação atual
+Quando um novo utilizador se regista no Obreiro:
+1. **Equipa recebe alerta** em `suporte@obreiro.pt`.
+2. **Utilizador recebe boas-vindas** vindo de `no-reply@notify.obreiro.pt` (Reply-To: `suporte@obreiro.pt`).
 
-- O projeto **não tem domínio de email configurado** nem templates de auth/app.
-- A única função de email existente é `send-quote-email` (envio de orçamentos para clientes), não relacionada aos 6 templates do documento.
-- Os 6 emails do briefing **ainda não existem** — vão ser criados de raiz.
+## Como vai funcionar
 
-## O que vai ser feito
+Ambos os emails são disparados pelo mesmo evento: criação de um registo na tabela `profiles` (que já acontece automaticamente via trigger `handle_new_user` no signup).
 
-### 1. Configurar domínio de envio
-Abrir o diálogo de setup de email para registar um subdomínio dedicado (sugestão: `notify.obreiro.pt`). O endereço visível continua a poder ser `suporte@obreiro.pt` no remetente; o subdomínio serve para autenticação DNS (SPF/DKIM). Após o setup, infraestrutura de fila (pgmq, cron, log de envios, supressões) é provisionada automaticamente.
+Vou adicionar um segundo trigger nesse evento que chama uma Edge Function `notify-new-signup`, que por sua vez enfileira **dois** emails na infraestrutura de email já existente (`notify.obreiro.pt`):
 
-### 2. Templates de Autenticação (4)
-Criados via scaffold oficial em `supabase/functions/_shared/email-templates/` + `auth-email-hook`:
+```text
+auth.users INSERT
+   └─ handle_new_user (existente) → cria profiles
+   └─ on_new_profile (novo)       → invoca notify-new-signup
+                                       ├─ enqueue: signup-alert    → suporte@obreiro.pt
+                                       └─ enqueue: welcome         → utilizador
+```
 
-| # | Template | Assunto | Trigger |
-|---|---|---|---|
-| 1 | **signup** (Bem-vindo + Confirmação) | Bem-vindo à Obreiro.pt 🎉 | Criação de conta |
-| 2 | **recovery** (Recuperação) | Redefina a sua senha | Esqueci a senha |
-| 3 | **email-change** (Alteração de dados) | Confirme o seu novo email | Mudança de email |
-| 4 | **magic-link / reauthentication** | Confirme o seu acesso | Reautenticação |
+## Passos
 
-*Nota:* "Bem-vindo" e "Confirmação de email" do documento são o mesmo evento técnico no Supabase Auth (`signup`) — um único template cobre ambos com o copy do "Bem-vindo".
+1. **Templates de email** (React Email, em `supabase/functions/_shared/transactional-email-templates/`):
+   - `signup-alert.tsx` — alerta interno: nome, email, data, plano inicial.
+   - `welcome.tsx` — boas-vindas ao utilizador com tom Obreiro (saudação, próximos passos, link para `/app`, CTA "Criar primeiro orçamento").
+   - Registar ambos em `registry.ts`.
+   - Estilo: Navy `#1B3A5C` + Burnt Orange `#E8730A`, Poppins/Inter, logo Obreiro no topo, fundo branco. Reply-To: `suporte@obreiro.pt`.
 
-### 3. Templates de App (2)
-Criados via scaffold transacional em `supabase/functions/_shared/transactional-email-templates/` + `send-transactional-email`:
+2. **Edge Function `notify-new-signup`**:
+   - Recebe `{ user_id, email, display_name }`.
+   - Invoca `send-transactional-email` 2x com `idempotencyKey` baseado no `user_id` (evita duplicados).
+   - Endereço interno configurável via secret `SIGNUP_ALERT_TO` (default `suporte@obreiro.pt`).
 
-| # | Template | Assunto | Trigger |
-|---|---|---|---|
-| 5 | **account-deleted** | A sua conta foi cancelada | Eliminação da conta (cascade GDPR) |
-| 6 | **security-alert** | ⚠️ Atividade anormal na sua conta | Login suspeito (manual/admin por agora) |
+3. **Trigger SQL** em `profiles` (AFTER INSERT) que chama a função via `pg_net` ou wrapper RPC. Alternativa mais simples: chamar a função diretamente do client após `signUp` bem-sucedido em `AppSignup.tsx` — menos confiável se o utilizador fechar a aba. **Recomendo o trigger DB** para garantir entrega.
 
-### 4. Identidade visual (aplicada a todos os 6)
-Baseado no mockup anexo e no design system existente (`src/index.css`):
+4. **Infra de email** já está pronta (`notify.obreiro.pt` configurado, queue + cron ativos). Não é preciso reconfigurar.
 
-- **Fundo da página**: `#FFF5EB` (creme claro, off-white quente)
-- **Card principal**: `#FFFFFF`, cantos arredondados ~16px, sombra suave
-- **Logo**: ícone Obreiro (laranja com chave-de-fendas) + wordmark "Obreiro" em Poppins bold no topo
-- **Headings**: Poppins, peso 700, cor `#1B3A5C` (Navy primário)
-- **Corpo**: Inter / Arial fallback, ~16px, cor cinza-escura
-- **Botão CTA**: Burnt Orange `#E8730A`, full-width no card, branco, peso 600, cantos ~10px, sombra laranja suave (glow)
-- **Link de fallback**: texto cinza pequeno abaixo do botão
-- **Footer**: fora do card, com tagline "Simples como uma chave de fendas.", linha de contactos (`www.obreiro.pt • suporte@obreiro.pt • +351 925 195 230`), copyright `© 2026 Obreiro.pt` e badge "🇵🇹 Feito em Portugal."
-- Copy 100% em **português de Portugal**, conforme briefing
-
-### 5. Wiring & deploy
-- Deploy de `auth-email-hook`, `send-transactional-email`, `process-email-queue` e `handle-email-unsubscribe`
-- Hook de eliminação de conta na app (`AppSettings`) chama `send-transactional-email` com template `account-deleted` antes do delete cascade
-- Página `/unsubscribe` simples para o link de footer dos emails de app
-
-## Fora do âmbito
-
-- Alterar o `send-quote-email` existente (continua igual)
-- Email de alerta de segurança automático por geolocalização — fica como template pronto, mas o trigger automático de "login suspeito" requer infraestrutura extra (proposta separada se quiser)
-- Imagens de redes sociais no footer (não há contas indicadas)
+5. **Deploy** das funções e migração.
 
 ## Detalhes técnicos
 
-- **Stack**: React Email (`@react-email/components@0.0.22`) em `.tsx`, runtime Deno
-- **Variáveis dinâmicas**: `siteName`, `siteUrl`, `recipient`, `confirmationUrl`, `userName` (extraído de `raw_user_meta_data.display_name`)
-- **Idempotência**: chave `account-deleted-<userId>` para evitar duplicados em retries
-- **Fila**: TTL auth 15min, app 60min; retry automático até 5 tentativas; bounces vão para `suppressed_emails`
-- **Footer obrigatório**: o sistema acrescenta link de unsubscribe nos emails de app — não duplicar no template
+- Templates usam `@react-email/components@0.0.22` e seguem o padrão dos templates de auth já existentes.
+- `welcome.tsx` props: `displayName`, `appUrl` (`https://www.obreiro.pt/app`).
+- `signup-alert.tsx` props: `userEmail`, `displayName`, `signedUpAt`, `userId`.
+- Idempotência: `idempotencyKey: \`welcome-${user_id}\`` e `signup-alert-${user_id}`.
+- O trigger DB usa `SECURITY DEFINER` e chama `net.http_post` para a Edge Function com header de autorização interno.
+- Sem dados sensíveis no alerta (sem palavra-passe, sem IP).
 
-## Antes de avançar
+## Fora de âmbito
 
-Antes da implementação começo por abrir o **diálogo de setup do domínio de email**. Vai precisar de adicionar 2 registos NS no seu provedor de DNS (onde está registado `obreiro.pt`) para delegar o subdomínio `notify.obreiro.pt` ao Lovable. Os emails só começam a sair após a verificação DNS, mas o código fica todo pronto entretanto.
+- Notificação por Slack/WhatsApp (pode ser adicionado depois).
+- Digest diário em vez de email por cadastro (volume ainda baixo).
+- Email de confirmação de endereço — já tratado pelos templates de auth scaffolded.

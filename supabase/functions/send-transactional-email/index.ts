@@ -25,9 +25,10 @@ function generateToken(): string {
     .join('')
 }
 
-// Auth note: this function uses verify_jwt = true in config.toml, so Supabase's
-// gateway validates the caller's JWT (anon or service_role) before the request
-// reaches this code. No in-function auth check is needed.
+// Auth note: verify_jwt = true in config.toml validates the JWT signature,
+// but the anon key is public — anyone can mint an anon JWT. This function
+// must only be callable by service_role (server-side callers), so we enforce
+// that by requiring the Authorization header to carry the service-role key.
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -48,6 +49,21 @@ Deno.serve(async (req) => {
       }
     )
   }
+
+  // Enforce service-role only: reject anon and user JWTs.
+  const authHeader = req.headers.get('Authorization') || ''
+  const bearer = authHeader.replace(/^Bearer\s+/i, '').trim()
+  if (!bearer || bearer !== supabaseServiceKey) {
+    return new Response(
+      JSON.stringify({ error: 'Forbidden' }),
+      {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    )
+  }
+
+
 
   // Parse request body
   let templateName: string
@@ -88,11 +104,13 @@ Deno.serve(async (req) => {
   const template = TEMPLATES[templateName]
 
   if (!template) {
-    console.error('Template not found in registry', { templateName })
+    console.error('Template not found in registry', {
+      templateName,
+      available: Object.keys(TEMPLATES),
+    })
     return new Response(
-      JSON.stringify({
-        error: `Template '${templateName}' not found. Available: ${Object.keys(TEMPLATES).join(', ')}`,
-      }),
+      JSON.stringify({ error: 'Template not found.' }),
+
       {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

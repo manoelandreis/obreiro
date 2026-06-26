@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { toast } from 'sonner';
-import { Briefcase } from 'lucide-react';
+import obreiroLogo from '@/assets/obreiro-logo.png.asset.json';
 
 export default function AppLogin() {
   const [email, setEmail] = useState('');
@@ -33,8 +33,8 @@ export default function AppLogin() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-3">
-          <div className="mx-auto h-14 w-14 rounded-2xl bg-primary flex items-center justify-center">
-            <Briefcase className="h-7 w-7 text-primary-foreground" />
+          <div className="mx-auto rounded-[10px] shadow-accent-glow overflow-hidden" style={{ width: 56, height: 56 }}>
+            <img src={obreiroLogo.url} alt="Obreiro" className="w-full h-full object-contain" />
           </div>
           <CardTitle className="font-heading text-2xl">Entrar no Obreiro</CardTitle>
           <p className="text-sm text-muted-foreground">Aceda ao seu negócio.</p>
@@ -47,7 +47,7 @@ export default function AppLogin() {
             </div>
             <div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Palavra-passe</Label>
                 <Link to="/app/forgot-password" className="text-xs text-primary hover:underline">
                   Esqueci a palavra-passe
                 </Link>

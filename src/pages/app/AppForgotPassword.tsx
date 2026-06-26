@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Briefcase } from 'lucide-react';
+import obreiroLogo from '@/assets/obreiro-logo.png.asset.json';
 
 export default function AppForgotPassword() {
   const [email, setEmail] = useState('');
@@ -32,8 +32,8 @@ export default function AppForgotPassword() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-3">
-          <div className="mx-auto h-14 w-14 rounded-2xl bg-primary flex items-center justify-center">
-            <Briefcase className="h-7 w-7 text-primary-foreground" />
+          <div className="mx-auto rounded-[10px] shadow-accent-glow overflow-hidden" style={{ width: 56, height: 56 }}>
+            <img src={obreiroLogo.url} alt="Obreiro" className="w-full h-full object-contain" />
           </div>
           <CardTitle className="font-heading text-2xl">Recuperar palavra-passe</CardTitle>
           <p className="text-sm text-muted-foreground">

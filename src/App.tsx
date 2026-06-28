@@ -63,14 +63,13 @@ const App = () => {
 
               {/* Admin */}
               <Route path="/admin" element={<AdminLogin />} />
-              <Route path="/admin/*" element={<AdminLayout />}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="dashboard" element={<AdminDashboard />} />
-                <Route path="users" element={<AdminUsers />} />
-                <Route path="leads" element={<AdminLeads />} />
-                <Route path="content" element={<AdminContent />} />
-                <Route path="templates" element={<AdminTemplates />} />
-                <Route path="analytics" element={<AdminAnalytics />} />
+              <Route element={<AdminLayout />}>
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/admin/leads" element={<AdminLeads />} />
+                <Route path="/admin/content" element={<AdminContent />} />
+                <Route path="/admin/templates" element={<AdminTemplates />} />
+                <Route path="/admin/analytics" element={<AdminAnalytics />} />
               </Route>
 
               {/* App (separate user accounts) */}

@@ -15,6 +15,7 @@ import AdminTemplates from "./pages/admin/AdminTemplates";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminDns from "./pages/admin/AdminDns";
 import { useEffect } from "react";
 import { initPosthog, initCrisp } from "./lib/integrations";
 import NotFound from "./pages/NotFound";

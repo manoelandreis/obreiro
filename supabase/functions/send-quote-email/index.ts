@@ -103,7 +103,8 @@ Deno.serve(async (req) => {
       };
     }
 
-    const ipRaw = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown';
+    const xffParts = (req.headers.get('x-forwarded-for') ?? '').split(',').filter((p) => p.trim().length > 0);
+    const ipRaw = xffParts.length > 0 ? xffParts[xffParts.length - 1].trim() : 'unknown';
     const ipHash = await sha256(ipRaw + '|' + (Deno.env.get('SUPABASE_JWKS') ?? 'salt'));
 
     const admin = createClient(supabaseUrl, serviceKey);

@@ -1,6 +1,6 @@
 import { Navigate, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Users, FileText, BarChart3, Layout, LogOut, LayoutDashboard, UserCog, ShieldCheck } from 'lucide-react';
+import { Users, FileText, BarChart3, Layout, LogOut, LayoutDashboard, UserCog, ShieldCheck, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { title: 'Conteúdo', url: '/admin/content', icon: Layout },
   { title: 'Templates', url: '/admin/templates', icon: FileText },
   { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
+  { title: 'DNS', url: '/admin/dns', icon: Globe },
 ];
 
 export default function AdminLayout() {

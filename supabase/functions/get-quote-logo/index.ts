@@ -54,7 +54,8 @@ Deno.serve(async (req) => {
 
     return Response.redirect(signed.signedUrl, 302);
   } catch (e) {
-    return new Response(`error: ${(e as Error).message}`, {
+    console.error('get-quote-logo error', e);
+    return new Response('internal server error', {
       status: 500,
       headers: corsHeaders,
     });

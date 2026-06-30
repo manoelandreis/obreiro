@@ -71,6 +71,7 @@ const App = () => {
                 <Route path="/admin/content" element={<AdminContent />} />
                 <Route path="/admin/templates" element={<AdminTemplates />} />
                 <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                <Route path="/admin/dns" element={<AdminDns />} />
               </Route>
 
               {/* App (separate user accounts) */}

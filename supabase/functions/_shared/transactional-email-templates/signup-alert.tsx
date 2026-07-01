@@ -1,17 +1,8 @@
 /// <reference types="npm:@types/react@18.3.1" />
 import * as React from 'npm:react@18.3.1'
-import {
-  Body,
-  Container,
-  Head,
-  Heading,
-  Hr,
-  Html,
-  Preview,
-  Section,
-  Text,
-} from 'npm:@react-email/components@0.0.22'
+import { Text } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
+import { EmailShell, h1, bodyText, smallMuted, COLORS, FONT_STACK } from '../email-templates/_layout.tsx'
 
 interface Props {
   userEmail?: string
@@ -38,41 +29,51 @@ const SignupAlert = ({
     }
   })()
 
+  const row: React.CSSProperties = {
+    fontFamily: FONT_STACK,
+    fontSize: '15px',
+    lineHeight: '24px',
+    color: COLORS.body,
+    margin: '4px 0',
+  }
+  const label: React.CSSProperties = {
+    color: COLORS.ink,
+    display: 'inline-block',
+    minWidth: '70px',
+  }
+  const card: React.CSSProperties = {
+    backgroundColor: '#FBF6EF',
+    border: `1px solid ${COLORS.border}`,
+    borderRadius: '12px',
+    padding: '20px 22px',
+    margin: '0 0 8px',
+  }
+
   return (
-    <Html lang="pt" dir="ltr">
-      <Head />
-      <Preview>Novo cadastro no Obreiro: {displayName || userEmail}</Preview>
-      <Body style={main}>
-        <Container style={container}>
-          <Section style={brand}>
-            <Text style={brandText}>Obreiro</Text>
-          </Section>
-          <Heading style={h1}>Novo cadastro 🎉</Heading>
-          <Text style={text}>Acabou de chegar um novo utilizador ao Obreiro.</Text>
+    <EmailShell preview={`Novo cadastro na Obreiro: ${displayName || userEmail}`}>
+      <Text style={h1 as any}>Novo cadastro 🎉</Text>
+      <Text style={bodyText}>Acabou de chegar um novo utilizador à Obreiro.pt.</Text>
 
-          <Section style={card}>
-            <Text style={row}>
-              <strong style={label}>Nome:</strong> {displayName}
-            </Text>
-            <Text style={row}>
-              <strong style={label}>Email:</strong> {userEmail}
-            </Text>
-            <Text style={row}>
-              <strong style={label}>Data:</strong> {formatted}
-            </Text>
-            <Text style={rowMuted}>
-              <strong style={label}>ID:</strong> {userId}
-            </Text>
-          </Section>
+      <div style={card}>
+        <Text style={row}>
+          <strong style={label}>Nome:</strong> {displayName}
+        </Text>
+        <Text style={row}>
+          <strong style={label}>Email:</strong> {userEmail}
+        </Text>
+        <Text style={row}>
+          <strong style={label}>Data:</strong> {formatted}
+        </Text>
+        <Text style={{ ...row, fontSize: '12px', color: COLORS.faint, margin: '10px 0 0' }}>
+          <strong style={label}>ID:</strong> {userId}
+        </Text>
+      </div>
 
-          <Hr style={hr} />
-          <Text style={footer}>
-            Notificação automática do Obreiro. Para responder, contacte o utilizador
-            diretamente pelo email acima.
-          </Text>
-        </Container>
-      </Body>
-    </Html>
+      <Text style={smallMuted}>
+        Notificação automática. Para responder, contacte o utilizador diretamente pelo
+        email acima.
+      </Text>
+    </EmailShell>
   )
 }
 
@@ -90,36 +91,3 @@ export const template = {
     userId: 'usr_abc123',
   },
 } satisfies TemplateEntry
-
-const main = {
-  backgroundColor: '#ffffff',
-  fontFamily:
-    'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-}
-const container = { padding: '32px 24px', maxWidth: '560px', margin: '0 auto' }
-const brand = { paddingBottom: '16px' }
-const brandText = {
-  margin: 0,
-  fontSize: '20px',
-  fontWeight: 700,
-  color: '#1B3A5C',
-  letterSpacing: '-0.02em',
-}
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 600,
-  color: '#1B3A5C',
-  margin: '8px 0 12px',
-}
-const text = { fontSize: '15px', lineHeight: '24px', color: '#334155', margin: '0 0 16px' }
-const card = {
-  backgroundColor: '#F8FAFC',
-  borderRadius: '8px',
-  padding: '20px',
-  border: '1px solid #E2E8F0',
-}
-const row = { fontSize: '15px', lineHeight: '22px', color: '#0F172A', margin: '4px 0' }
-const rowMuted = { fontSize: '12px', lineHeight: '18px', color: '#64748B', margin: '12px 0 0' }
-const label = { color: '#1B3A5C', display: 'inline-block', minWidth: '60px' }
-const hr = { borderColor: '#E2E8F0', margin: '24px 0' }
-const footer = { fontSize: '12px', color: '#94A3B8', lineHeight: '18px', margin: 0 }

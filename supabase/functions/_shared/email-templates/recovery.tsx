@@ -1,71 +1,41 @@
 /// <reference types="npm:@types/react@18.3.1" />
 
 import * as React from 'npm:react@18.3.1'
-
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Text,
-} from 'npm:@react-email/components@0.0.22'
+import { Button, Link, Text } from 'npm:@react-email/components@0.0.22'
+import { EmailShell, h1, bodyText, button, smallMuted, linkText } from './_layout.tsx'
 
 interface RecoveryEmailProps {
   siteName: string
   confirmationUrl: string
+  recipient?: string
 }
 
-export const RecoveryEmail = ({
-  siteName,
-  confirmationUrl,
-}: RecoveryEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
-    <Preview>Reset your password for {siteName}</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={h1}>Reset your password</Heading>
-        <Text style={text}>
-          We received a request to reset your password for {siteName}. Click
-          the button below to choose a new password.
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Reset Password
-        </Button>
-        <Text style={footer}>
-          If you didn't request a password reset, you can safely ignore this
-          email. Your password will not be changed.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+export const RecoveryEmail = ({ recipient, confirmationUrl }: RecoveryEmailProps) => {
+  const firstName = recipient?.split('@')[0] || 'utilizador'
+  return (
+    <EmailShell preview="Redefina a sua palavra-passe na Obreiro.pt">
+      <Text style={h1 as any}>Olá {firstName},</Text>
+      <Text style={bodyText}>
+        Recebemos um pedido para redefinir a palavra-passe da sua conta Obreiro.pt.
+        Clique no botão abaixo para escolher uma nova palavra-passe. Este link é válido
+        durante 1 hora.
+      </Text>
+      <Button style={button} href={confirmationUrl}>
+        Redefinir palavra-passe
+      </Button>
+      <Text style={smallMuted}>
+        Se não pediu esta alteração, pode ignorar este email — a sua palavra-passe atual
+        continuará ativa.
+        <br />
+        <br />
+        Ou copie e cole este link no seu navegador:
+        <br />
+        <Link href={confirmationUrl} style={linkText}>
+          {confirmationUrl}
+        </Link>
+      </Text>
+    </EmailShell>
+  )
+}
 
 export default RecoveryEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
-}
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
-}
-const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
-  fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
-  textDecoration: 'none',
-}
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }

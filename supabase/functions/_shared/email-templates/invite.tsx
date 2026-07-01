@@ -1,79 +1,41 @@
 /// <reference types="npm:@types/react@18.3.1" />
 
 import * as React from 'npm:react@18.3.1'
-
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Link,
-  Preview,
-  Text,
-} from 'npm:@react-email/components@0.0.22'
+import { Button, Link, Text } from 'npm:@react-email/components@0.0.22'
+import { EmailShell, h1, bodyText, button, smallMuted, linkText } from './_layout.tsx'
 
 interface InviteEmailProps {
   siteName: string
   siteUrl: string
   confirmationUrl: string
+  recipient?: string
 }
 
-export const InviteEmail = ({
-  siteName,
-  siteUrl,
-  confirmationUrl,
-}: InviteEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
-    <Preview>You've been invited to join {siteName}</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={h1}>You've been invited</Heading>
-        <Text style={text}>
-          You've been invited to join{' '}
-          <Link href={siteUrl} style={link}>
-            <strong>{siteName}</strong>
-          </Link>
-          . Click the button below to accept the invitation and create your
-          account.
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Accept Invitation
-        </Button>
-        <Text style={footer}>
-          If you weren't expecting this invitation, you can safely ignore this
-          email.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+export const InviteEmail = ({ recipient, confirmationUrl }: InviteEmailProps) => {
+  const firstName = recipient?.split('@')[0] || 'utilizador'
+  return (
+    <EmailShell preview="Foi convidado(a) para a Obreiro.pt">
+      <Text style={h1 as any}>Olá {firstName},</Text>
+      <Text style={bodyText}>
+        Foi convidado(a) para juntar-se à Obreiro.pt — a plataforma para criar
+        orçamentos profissionais em minutos, sem comissões. Clique no botão abaixo para
+        aceitar o convite e criar a sua conta.
+      </Text>
+      <Button style={button} href={confirmationUrl}>
+        Aceitar convite
+      </Button>
+      <Text style={smallMuted}>
+        Se não estava à espera deste convite, pode ignorar este email.
+        <br />
+        <br />
+        Ou copie e cole este link no seu navegador:
+        <br />
+        <Link href={confirmationUrl} style={linkText}>
+          {confirmationUrl}
+        </Link>
+      </Text>
+    </EmailShell>
+  )
+}
 
 export default InviteEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
-}
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
-}
-const link = { color: 'inherit', textDecoration: 'underline' }
-const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
-  fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
-  textDecoration: 'none',
-}
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }

@@ -1,45 +1,60 @@
-## Situação actual
+# Redesign de emails no estilo Obreiro
 
-| Componente | Estado |
-|---|---|
-| Delegação NS `notify.obreiro.pt` → `ns3/ns4.lovable.cloud` | ✅ OK (confirmado por DoH) |
-| NS "informativos" no apex mostrados pela Dominios.pt | ✅ Irrelevante (confirmado pelo suporte) |
-| Zoho / `manoel@obreiro.pt` (MX + SPF apex) | ✅ A funcionar |
-| **Provisionamento Lovable de SPF/DKIM/MX em `notify.obreiro.pt`** | ❌ **Failed — timeout** |
-| Auth hook (`auth-email-hook`) deployado e a enfileirar | ✅ OK |
-| Templates de auth e transactional | ✅ Existem |
-| `email_send_log` | Vazio (nada saiu ainda) |
+Aplicar o design da referência (Figma / imagem enviada) a **todos** os templates de email da plataforma, garantindo consistência visual entre auth emails e app emails.
 
-**Diagnóstico:** o único bloqueador é o provisionamento do subdomínio ter marcado *Failed*. Enquanto estiver assim, qualquer email (confirmação de conta, reset de password, envio de orçamento, notificações) é enfileirado mas nunca entregue — expira no DLQ (15 min auth / 60 min app).
+## Estilo visual a aplicar
 
-## O que falta para funcionar
+Baseado na referência:
+- **Fundo geral**: creme suave `#FBF6EF`
+- **Card interno**: branco `#FFFFFF`, cantos arredondados (16px), padding generoso
+- **Header**: logo Obreiro (ícone laranja em rounded square) + wordmark "Obreiro" em bold escuro, alinhado à esquerda, fora do card
+- **Título (H1)**: Poppins/sans bold, ~32px, cor `#1B1B1B`
+- **Corpo**: sans-serif 16px, cor `#3A3A3A`, line-height generoso
+- **CTA button**: laranja `#E8730A` (accent do projeto), texto branco bold, full-width, radius 12px, sombra laranja suave
+- **Link fallback**: texto pequeno cinza com link
+- **Footer** (fora do card):
+  - Tagline em bold: "Simples como uma chave de fendas."
+  - Linha de contactos: `www.obreiro.pt · suporte@obreiro.pt · +351 925 195 230` em cinza
+  - Linha final: `© 2026 Obreiro.pt. Todos os direitos reservados.` à esquerda, `🇵🇹 Feito em Portugal.` em vermelho à direita
 
-### 1. Re-executar setup da infraestrutura de email (idempotente)
-Chamar `email_domain--setup_email_infra`. Reconcilia queues, cron, vault e — mais importante — força um novo ciclo de provisionamento DNS na Lovable para `notify.obreiro.pt`. Não mexe em nada no lado da Dominios.pt.
+## Ficheiros a atualizar
 
-### 2. Redeploy do `auth-email-hook`
-Garantir que o hook está na última versão e a apontar para as queues actuais.
+**Auth emails** (`supabase/functions/_shared/email-templates/`):
+1. `signup.tsx` — "Olá [Nome], Muito bem! A sua conta na Obreiro.pt foi criada com sucesso…" + CTA "Confirmar email"
+2. `recovery.tsx` — Redefinição de palavra-passe, CTA "Redefinir palavra-passe"
+3. `magic-link.tsx` — Link mágico de acesso, CTA "Entrar na Obreiro"
+4. `invite.tsx` — Convite para a plataforma, CTA "Aceitar convite"
+5. `email-change.tsx` — Confirmação de novo email, CTA "Confirmar novo email"
+6. `reauthentication.tsx` — Código OTP em destaque (caixa com código grande) em vez de botão
 
-### 3. Verificar estado após ~2–5 min
-Chamar `email_domain--check_email_domain_status` até estado passar de *Failed* → *awaiting_dns* → *active*. Se ficar novamente *Failed* após retry, é problema do lado da Lovable e abre-se suporte (não há mais nada a fazer no DNS).
+**App emails** (`supabase/functions/_shared/transactional-email-templates/`):
+7. `welcome.tsx` — Boas-vindas depois de confirmar, CTA "Entrar na plataforma"
+8. `signup-alert.tsx` — Alerta interno para a equipa (manter minimalista mas com mesmo header/footer)
 
-### 4. Teste end-to-end
-- Disparar um reset de password para a minha conta.
-- Consultar `email_send_log` para confirmar `status = sent` (em vez de `pending`/`dlq`).
-- Confirmar recepção na inbox.
+## Componente partilhado
 
-### 5. (Opcional, recomendado) DMARC no apex
-Adicionar TXT `_dmarc.obreiro.pt` com política mínima `v=DMARC1; p=none; rua=mailto:manoel@obreiro.pt` para melhorar deliverability tanto do Zoho como do `notify.`. Isto sim requer entrar na Dominios.pt.
+Criar `supabase/functions/_shared/email-templates/_layout.tsx` com:
+- `<EmailShell>` — header (logo+wordmark), card branco, footer completo
+- Constantes de cores/estilos partilhadas
+- Assinatura tipada para receber `preview`, `heading`, `children`
 
-## O que **não** vou fazer
-- Não removo nem toco em NS do apex — o suporte confirmou que são informativos.
-- Não mudo MX/SPF do Zoho.
-- Não troco de provedor de email (Resend/SendGrid) — o problema é provisionamento, não escolha de serviço.
-- Não altero a página `/admin/dns` (não é a causa do problema).
+Todos os templates passam a importar este shell, eliminando duplicação e garantindo consistência.
 
-## Resultado esperado após execução
-- Confirmação de conta ao registar → chega em segundos.
-- Reset de palavra-passe → chega em segundos.
-- Envio de orçamento por email (quando o botão for usado) → chega em segundos.
-- Notificação interna de novo signup (`notify-new-signup`) → chega para `SIGNUP_ALERT_TO`.
-- Todos os envios ficam auditáveis em `email_send_log` e visíveis em Cloud → Emails.
+**Logo**: uso do PNG existente `obreiro-logo.png` via URL absoluto pública (upload prévio para bucket `email-assets` se ainda não existir, ou usar asset já publicado no site).
+
+## Copy (PT-PT)
+
+Reescrever todas as strings em português europeu, tom próximo ao da referência:
+- "Palavra-passe" (não "password")
+- "A sua conta", "confirme o seu endereço"
+- Tagline consistente no footer
+
+## Deploy
+
+Após edições, redeploy da função `auth-email-hook` (para novos templates auth) — não é necessário redeployar `send-transactional-email` só por mudança de templates, mas será feito por segurança.
+
+## Fora de scope
+
+- Não alterar lógica de envio, fila, ou infraestrutura de email
+- Não mexer em `auth-email-hook/index.ts` (apenas renderiza os templates)
+- Não criar novos tipos de email

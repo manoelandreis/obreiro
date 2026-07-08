@@ -20,7 +20,7 @@ export function PaymentTermsCard({ paymentTerms, total, anchor, className }: Pro
   return (
     <Card
       className={
-        'border-accent/40 border-l-4 border-l-accent bg-accent/5 ' + (className ?? '')
+        'border-accent/40 bg-accent/5 ' + (className ?? '')
       }
     >
       <CardContent className="p-4 space-y-3">

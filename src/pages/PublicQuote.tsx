@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -38,6 +38,19 @@ export default function PublicQuote() {
   const [responding, setResponding] = useState<'accept' | 'reject' | null>(null);
   const [message, setMessage] = useState('');
   const [done, setDone] = useState<'aceite' | 'rejeitado' | null>(null);
+  const downloadBtnRef = useRef<HTMLButtonElement | null>(null);
+  const [showFloatingDownload, setShowFloatingDownload] = useState(false);
+
+  useEffect(() => {
+    const el = downloadBtnRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowFloatingDownload(!entry.isIntersecting),
+      { threshold: 0, rootMargin: '0px 0px -20px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [quote]);
 
   useEffect(() => {
     if (!token) return;
@@ -296,9 +309,9 @@ export default function PublicQuote() {
         </Card>
 
         <Button
-          variant="outline"
+          ref={downloadBtnRef}
           onClick={handleDownloadPdf}
-          className="w-full h-12 gap-2 bg-white"
+          className="w-full h-12 gap-2 bg-accent hover:bg-accent/90 text-white shadow-sm"
         >
           <Download className="h-4 w-4" />
           Descarregar PDF
@@ -373,6 +386,23 @@ export default function PublicQuote() {
 
         <div className="text-center text-xs text-muted-foreground">
           Powered by <a href="/" className="text-primary hover:underline">Obreiro</a>
+        </div>
+      </div>
+
+      <div
+        className={`fixed bottom-4 inset-x-0 px-4 z-40 pointer-events-none transition-all duration-200 ${
+          showFloatingDownload ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        }`}
+        aria-hidden={!showFloatingDownload}
+      >
+        <div className="max-w-3xl mx-auto">
+          <Button
+            onClick={handleDownloadPdf}
+            className="pointer-events-auto w-full h-12 gap-2 bg-accent hover:bg-accent/90 text-white shadow-lg"
+          >
+            <Download className="h-4 w-4" />
+            Descarregar PDF
+          </Button>
         </div>
       </div>
     </div>

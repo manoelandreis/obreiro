@@ -390,7 +390,7 @@ export default function PublicQuote() {
       </div>
 
       <div
-        className={`fixed bottom-4 inset-x-0 px-4 z-40 pointer-events-none transition-all duration-200 ${
+        className={`fixed bottom-4 inset-x-0 px-4 z-40 md:hidden pointer-events-none transition-all duration-200 ${
           showFloatingDownload ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}
         aria-hidden={!showFloatingDownload}

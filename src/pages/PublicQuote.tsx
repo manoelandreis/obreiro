@@ -38,6 +38,19 @@ export default function PublicQuote() {
   const [responding, setResponding] = useState<'accept' | 'reject' | null>(null);
   const [message, setMessage] = useState('');
   const [done, setDone] = useState<'aceite' | 'rejeitado' | null>(null);
+  const downloadBtnRef = useRef<HTMLButtonElement | null>(null);
+  const [showFloatingDownload, setShowFloatingDownload] = useState(false);
+
+  useEffect(() => {
+    const el = downloadBtnRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowFloatingDownload(!entry.isIntersecting),
+      { threshold: 0, rootMargin: '0px 0px -20px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [quote]);
 
   useEffect(() => {
     if (!token) return;

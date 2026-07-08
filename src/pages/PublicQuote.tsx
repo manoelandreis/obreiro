@@ -309,9 +309,9 @@ export default function PublicQuote() {
         </Card>
 
         <Button
-          variant="outline"
+          ref={downloadBtnRef}
           onClick={handleDownloadPdf}
-          className="w-full h-12 gap-2 bg-white"
+          className="w-full h-12 gap-2 bg-accent hover:bg-accent/90 text-white shadow-sm"
         >
           <Download className="h-4 w-4" />
           Descarregar PDF

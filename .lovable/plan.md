@@ -1,16 +1,25 @@
-## Ajustes ao botão flutuante do link público de orçamento
+# Desativar confirmação de email (temporário para MVP)
 
-### 1. Limitar o floating ao mobile
-No `src/pages/PublicQuote.tsx`, o wrapper do botão flutuante vai receber `md:hidden` para deixar de aparecer em tablet/desktop. Em ecrãs md+ o botão original (laranja, dentro do fluxo) continua a ser o único CTA de descarregar.
+## O que muda
+- Ativar **auto-confirm** no Supabase Auth. Novos utilizadores ficam com email confirmado automaticamente e entram direto na app após o signup, sem precisar clicar no link do email.
 
-### 2. Porque é que o refresh não mostrou a alteração
-As alterações que fiz na resposta anterior só existem no ambiente de **preview** (`id-preview--...lovable.app`). O link partilhado do orçamento que testaste aponta para o site **publicado** (`obreiro.pt` / `obreiro.lovable.app`), que ainda serve a versão antiga — refresh, hard reload ou limpar cache não fazem diferença enquanto não fizermos deploy.
+## O que NÃO muda
+- Templates de email (signup, recovery, magic-link, etc.) permanecem intactos em `supabase/functions/_shared/email-templates/`.
+- `auth-email-hook` continua deployado e funcional.
+- Domínio `notify.obreiro.pt` continua verificado.
+- Emails de **recuperação de palavra-passe**, **magic link** e transacionais (welcome, signup-alert) continuam a ser enviados normalmente — só o email de "Confirme o seu email" deixa de bloquear o acesso.
+- Utilizadores já existentes não são afetados.
 
-Para veres o botão laranja + floating no link real, tens duas opções:
-- **Testar já no preview**: abrir o mesmo `/q/<token>` mas no domínio `id-preview--39feecc8-e8ad-4329-861f-6b760b3046a2.lovable.app` — funciona com o mesmo token.
-- **Publicar**: depois de aprovares este plano e eu aplicar o `md:hidden`, publicamos o projecto e o link atual (`obreiro.pt/...`) passa a mostrar as três alterações (botão laranja, sem barra lateral no bloco de pagamento, floating só em mobile).
+## Como reverter depois
+Basta pedir "reativar confirmação de email" e eu volto a chamar `configure_auth` com `auto_confirm_email: false`. Zero código a mudar.
 
-### Detalhes técnicos
-- Alterar o `div` do floating em `PublicQuote.tsx` de `fixed bottom-4 inset-x-0 ...` para `fixed bottom-4 inset-x-0 md:hidden ...`.
-- `IntersectionObserver` e restante lógica ficam iguais; em desktop o estado continua a ser calculado mas o container simplesmente não é renderizado visualmente.
-- Não é preciso mexer em mais nada dos pontos 1 e 2 da mensagem anterior (botão laranja + remoção da barra lateral) — já estão corretos, só faltam ser publicados.
+## Passos técnicos
+1. Chamar `supabase--configure_auth` com:
+   - `auto_confirm_email: true`
+   - `disable_signup: false`
+   - `external_anonymous_users_enabled: false`
+   - `password_hibp_enabled: true` (manter proteção HIBP já ativa)
+2. Confirmar ao utilizador e lembrar como reverter.
+
+## Nota de segurança
+Auto-confirm em MVP é aceitável, mas significa que qualquer pessoa pode registar-se com um email que não é dela (não há prova de posse do endereço). Recomendo reativar antes de lançar publicamente ou de começar a enviar comunicações importantes para esses emails.

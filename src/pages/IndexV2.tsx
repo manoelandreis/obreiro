@@ -945,7 +945,6 @@ export default function IndexV2() {
               <h4 className="font-heading font-semibold text-sm mb-3">Empresa</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><a href="#conta" className="hover:text-foreground">Conta</a></li>
-                <li><Link to="/admin" className="hover:text-foreground">Admin</Link></li>
               </ul>
             </div>
             <div>

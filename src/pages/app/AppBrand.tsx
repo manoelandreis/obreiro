@@ -49,6 +49,7 @@ import {
   DEFAULT_TERMS_CONTENT,
 } from '@/lib/termsTemplates';
 import { SectionHeader } from '@/components/app/SectionHeader';
+import { LogoEditor, type LogoKind, type LogoBg, type LogoEditorResult } from '@/components/app/LogoEditor';
 
 import {
   validateEmail,
@@ -72,6 +73,11 @@ export default function AppBrand() {
 
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoKind, setLogoKind] = useState<LogoKind>('icon');
+  const [logoHeight, setLogoHeight] = useState<number>(44);
+  const [logoBg, setLogoBg] = useState<LogoBg>('transparent');
+  const [logoEditorOpen, setLogoEditorOpen] = useState(false);
+  const [logoEditorFile, setLogoEditorFile] = useState<File | null>(null);
   const [colorPrimary, setColorPrimary] = useState('#1B3A5C');
   const [colorAccent, setColorAccent] = useState('#E8730A');
   const [description, setDescription] = useState('');

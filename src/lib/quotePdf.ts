@@ -318,14 +318,14 @@ export async function loadBrand(userId: string, allowed: boolean): Promise<Brand
     .eq('user_id', userId)
     .maybeSingle();
   if (!data) return null;
+  const d: any = data;
   let signedLogo: string | null = null;
-  if (data.logo_url) {
+  if (d.logo_url) {
     const { data: sig } = await supabase.storage
       .from('company-assets')
-      .createSignedUrl(data.logo_url, 60 * 60);
+      .createSignedUrl(d.logo_url, 60 * 60);
     signedLogo = sig?.signedUrl ?? null;
   }
-  const d: any = data;
   return {
     logoUrl: signedLogo,
     logoKind: (d.logo_kind as BrandSnapshot['logoKind']) ?? 'icon',

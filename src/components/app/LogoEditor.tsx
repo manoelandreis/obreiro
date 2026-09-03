@@ -180,9 +180,12 @@ export function LogoEditor({
       const sy = -offset.y / scale;
       const sw = vpW / scale;
       const sh = vpH / scale;
-      let outW = Math.min(MAX_OUT, Math.round(nat.w * scale) && Math.round(sw));
-      outW = Math.min(MAX_OUT, Math.max(1, Math.round(sw)));
-      const outH = Math.max(1, Math.round(outW / aspect));
+      // Cap the output so the longest side is at most MAX_OUT px
+      let outW = Math.max(1, Math.round(sw));
+      let outH = Math.max(1, Math.round(sw / aspect));
+      const k = Math.min(1, MAX_OUT / Math.max(outW, outH));
+      outW = Math.max(1, Math.round(outW * k));
+      outH = Math.max(1, Math.round(outH * k));
 
       const canvas = document.createElement('canvas');
       canvas.width = outW;
@@ -275,10 +278,9 @@ export function LogoEditor({
           )}
         </div>
       )}
-      {/* Hidden img for SVG / pre-measure */}
+      {/* Hidden img used to measure natural size */}
       {imgUrl && (
         <img
-          ref={isSvg ? undefined : undefined}
           src={imgUrl}
           alt=""
           className="hidden"

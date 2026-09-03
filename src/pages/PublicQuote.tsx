@@ -179,27 +179,34 @@ export default function PublicQuote() {
           <CardContent className="pt-8 space-y-6">
             <div className="flex items-start justify-between flex-wrap gap-4">
               <div>
-                <div className="flex items-center gap-3">
+                <div className={`flex gap-3 ${cs.logo_kind === 'vertical' ? 'flex-col items-start' : 'items-center'}`}>
                   {cs.logo_path && (
                     <img
                       src={`https://cprysybqjtsynxofljxc.supabase.co/functions/v1/get-quote-logo?token=${token}`}
                       alt="Logo"
-                      className="h-12 w-12 object-contain rounded-md shrink-0"
+                      className={`object-contain shrink-0 ${cs.logo_kind === 'icon' || !cs.logo_kind ? 'rounded-md' : ''}`}
+                      style={{
+                        height: Math.min(96, Math.max(24, Number(cs.logo_height) || 44)),
+                        width: 'auto',
+                        maxWidth: cs.logo_kind === 'horizontal' ? 220 : undefined,
+                      }}
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).style.display = 'none';
                       }}
                     />
                   )}
-                  <div
-                    className="text-xl font-heading font-bold text-primary"
-                    style={{
-                      lineHeight: 1,
-                      textBoxTrim: 'trim-both',
-                      textBoxEdge: 'cap alphabetic',
-                    } as React.CSSProperties}
-                  >
-                    {cs.name || cs.company_name || 'A Sua Empresa'}
-                  </div>
+                  {cs.logo_kind !== 'horizontal' && (
+                    <div
+                      className="text-xl font-heading font-bold text-primary"
+                      style={{
+                        lineHeight: 1,
+                        textBoxTrim: 'trim-both',
+                        textBoxEdge: 'cap alphabetic',
+                      } as React.CSSProperties}
+                    >
+                      {cs.name || cs.company_name || 'A Sua Empresa'}
+                    </div>
+                  )}
                 </div>
                 {cs.nif && <div className="text-xs text-muted-foreground mt-2">NIF: {cs.nif}</div>}
                 {cs.email && <div className="text-xs text-muted-foreground">{cs.email}</div>}

@@ -20,6 +20,7 @@ import {
   Building2,
   FileText,
   Type,
+  Crop,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {

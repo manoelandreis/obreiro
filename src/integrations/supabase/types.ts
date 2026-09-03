@@ -316,6 +316,9 @@ export type Database = {
           created_at: string
           default_payment_terms: Json | null
           full_name: string | null
+          logo_bg: string
+          logo_height: number
+          logo_kind: string
           logo_url: string | null
           payment_conditions: string | null
           payment_iban: string | null
@@ -344,6 +347,9 @@ export type Database = {
           created_at?: string
           default_payment_terms?: Json | null
           full_name?: string | null
+          logo_bg?: string
+          logo_height?: number
+          logo_kind?: string
           logo_url?: string | null
           payment_conditions?: string | null
           payment_iban?: string | null
@@ -372,6 +378,9 @@ export type Database = {
           created_at?: string
           default_payment_terms?: Json | null
           full_name?: string | null
+          logo_bg?: string
+          logo_height?: number
+          logo_kind?: string
           logo_url?: string | null
           payment_conditions?: string | null
           payment_iban?: string | null

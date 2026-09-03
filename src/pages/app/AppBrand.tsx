@@ -20,6 +20,7 @@ import {
   Building2,
   FileText,
   Type,
+  Crop,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -49,6 +50,7 @@ import {
   DEFAULT_TERMS_CONTENT,
 } from '@/lib/termsTemplates';
 import { SectionHeader } from '@/components/app/SectionHeader';
+import { LogoEditor, type LogoKind, type LogoBg, type LogoEditorResult } from '@/components/app/LogoEditor';
 
 import {
   validateEmail,
@@ -72,6 +74,11 @@ export default function AppBrand() {
 
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoKind, setLogoKind] = useState<LogoKind>('icon');
+  const [logoHeight, setLogoHeight] = useState<number>(44);
+  const [logoBg, setLogoBg] = useState<LogoBg>('transparent');
+  const [logoEditorOpen, setLogoEditorOpen] = useState(false);
+  const [logoEditorFile, setLogoEditorFile] = useState<File | null>(null);
   const [colorPrimary, setColorPrimary] = useState('#1B3A5C');
   const [colorAccent, setColorAccent] = useState('#E8730A');
   const [description, setDescription] = useState('');
@@ -119,7 +126,7 @@ export default function AppBrand() {
       const { data } = await supabase
         .from('app_user_settings')
         .select(
-          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address, payment_mbway, payment_iban, default_payment_terms, payment_term_templates, terms_templates' as any
+          'logo_url, logo_kind, logo_height, logo_bg, brand_color_primary, brand_color_accent, company_description, company_terms, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address, payment_mbway, payment_iban, default_payment_terms, payment_term_templates, terms_templates' as any
         )
         .eq('user_id', user.id)
         .maybeSingle();
@@ -127,6 +134,9 @@ export default function AppBrand() {
         const d: any = data;
         setLogoUrl(d.logo_url ?? null);
         if (d.logo_url) setLogoPreview(await loadSignedUrl(d.logo_url));
+        setLogoKind((d.logo_kind as LogoKind) ?? 'icon');
+        setLogoHeight(d.logo_height ?? 44);
+        setLogoBg((d.logo_bg as LogoBg) ?? 'transparent');
         setColorPrimary(d.brand_color_primary ?? '#1B3A5C');
         setColorAccent(d.brand_color_accent ?? '#E8730A');
         setDescription(d.company_description ?? '');
@@ -173,17 +183,40 @@ export default function AppBrand() {
 
   const onLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file || !user) return;
-    if (!file.type.startsWith('image/')) return toast.error('Selecione uma imagem.');
-    if (file.size > MAX_LOGO_BYTES) return toast.error('Logo até 5MB.');
+    const okTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+    if (!okTypes.includes(file.type)) return toast.error('Formato não suportado. Use PNG, JPG, WEBP ou SVG.');
+    if (file.size > MAX_LOGO_BYTES) {
+      return toast.error(`Logo até 5MB. Este ficheiro tem ${(file.size / 1024 / 1024).toFixed(1)}MB.`);
+    }
+    setLogoEditorFile(file);
+    setLogoEditorOpen(true);
+  };
+
+  const onLogoEditorApply = async (result: LogoEditorResult) => {
+    if (!user) return;
+    setLogoEditorOpen(false);
+    setLogoKind(result.kind);
+    setLogoBg(result.bg);
+    setLogoHeight(result.height);
+
+    // "Recortar novamente" on an existing SVG sends an empty keep file — only settings change
+    const isKeepFile = result.file.size === 0 && result.file.name === 'keep.svg';
+    if (isKeepFile) {
+      toast.success('Definições do logo atualizadas. Guarde a marca para confirmar.');
+      return;
+    }
+
     setUploading(true);
-    const ext = file.name.split('.').pop() ?? 'png';
+    const ext = result.file.type === 'image/svg+xml' ? 'svg' : 'png';
     const path = `${user.id}/logo-${Date.now()}.${ext}`;
     const { error } = await supabase.storage
       .from('company-assets')
-      .upload(path, file, { upsert: true, contentType: file.type });
+      .upload(path, result.file, { upsert: true, contentType: result.file.type });
     if (error) {
       setUploading(false);
+      setLogoEditorFile(null);
       return toast.error('Falhou o upload do logo.');
     }
     if (logoUrl && logoUrl !== path) {
@@ -192,7 +225,8 @@ export default function AppBrand() {
     setLogoUrl(path);
     setLogoPreview(await loadSignedUrl(path));
     setUploading(false);
-    toast.success('Logo carregado.');
+    setLogoEditorFile(null);
+    toast.success('Logo carregado. Guarde a marca para confirmar.');
   };
 
   const removeLogo = async () => {
@@ -250,6 +284,9 @@ export default function AppBrand() {
         {
           user_id: user.id,
           logo_url: logoUrl,
+          logo_kind: logoKind,
+          logo_height: logoHeight,
+          logo_bg: logoBg,
           brand_color_primary: colorPrimary,
           brand_color_accent: colorAccent,
         } as any,
@@ -976,27 +1013,83 @@ export default function AppBrand() {
         <SectionHeader icon={Type} title="Logotipo da empresa" />
 
         <div className="flex items-center gap-5">
-          <div className="h-24 w-24 rounded-xl border border-dashed border-border bg-muted/40 flex items-center justify-center overflow-hidden">
+          <div
+            className={`rounded-xl border border-dashed border-border bg-muted/40 flex items-center justify-center overflow-hidden p-1 ${
+              logoKind === 'horizontal' ? 'h-24 w-56' : logoKind === 'vertical' ? 'h-32 w-20' : 'h-24 w-24'
+            }`}
+          >
             {logoPreview ? (
-              <img src={logoPreview} alt="Logo" className="h-full w-full object-contain" />
+              <img src={logoPreview} alt="Logo" className="max-h-full max-w-full object-contain" />
             ) : (
               <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <input ref={fileRef} type="file" accept="image/*" hidden onChange={onLogoChange} />
+            <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden onChange={onLogoChange} />
             <Button variant="outline" size="sm" onClick={onPickLogo} disabled={uploading} className="gap-2">
               {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               {logoUrl ? 'Substituir' : 'Carregar logo'}
             </Button>
             {logoUrl && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                disabled={uploading}
+                onClick={() => {
+                  setLogoEditorFile(null);
+                  setLogoEditorOpen(true);
+                }}
+              >
+                <Crop className="h-4 w-4" /> Recortar novamente
+              </Button>
+            )}
+            {logoUrl && (
               <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive gap-2" onClick={removeLogo}>
                 <Trash2 className="h-4 w-4" /> Remover
               </Button>
             )}
-            <p className="text-xs text-muted-foreground">PNG, JPG ou SVG. Até 5MB.</p>
+            <p className="text-xs text-muted-foreground">PNG, JPG, WEBP ou SVG. Até 5MB.</p>
           </div>
         </div>
+
+        {/* Header preview (orçamento) */}
+        <div className="rounded-lg border border-border bg-background p-3">
+          <p className="text-[10px] uppercase tracking-wide font-semibold text-muted-foreground mb-2">
+            Pré-visualização no orçamento
+          </p>
+          <div className={`flex gap-3 ${logoKind === 'vertical' ? 'flex-col items-start' : 'items-center'}`}>
+            {logoPreview && (
+              <img
+                src={logoPreview}
+                alt=""
+                style={{ height: logoHeight, width: 'auto', maxWidth: logoKind === 'horizontal' ? 220 : undefined, objectFit: 'contain' }}
+                className={logoKind === 'icon' ? 'rounded-md' : ''}
+              />
+            )}
+            {(logoKind !== 'horizontal' || !logoPreview) && (
+              <span
+                className="font-heading font-bold text-lg"
+                style={{ color: colorPrimary, lineHeight: 1, textBoxTrim: 'trim-both', textBoxEdge: 'cap alphabetic' } as React.CSSProperties}
+              >
+                {companyName || 'A Sua Empresa'}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <LogoEditor
+          open={logoEditorOpen}
+          onOpenChange={setLogoEditorOpen}
+          file={logoEditorFile}
+          sourceUrl={logoEditorFile ? null : logoPreview}
+          initialKind={logoKind}
+          initialBg={logoBg}
+          initialHeight={logoHeight}
+          companyName={companyName}
+          primaryColor={colorPrimary}
+          onApply={onLogoEditorApply}
+        />
 
         <div className="border-t border-border pt-6 space-y-3">
           <Label className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">

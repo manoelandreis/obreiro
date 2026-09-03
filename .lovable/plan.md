@@ -47,6 +47,8 @@ As mesmas regras passam a valer em três sítios, para ficarem consistentes:
 
 ## Detalhes técnicos
 
+- Estética preservada: manter o visual, cores (navy/laranja), tipografia e padrões de componentes atuais — trabalhar somente na funcionalidade.
+
 - Novas colunas em `app_user_settings`: `logo_kind` (`icon` | `horizontal` | `vertical`), `logo_height` (int, default 44), `logo_bg` (`transparent` | `white`). Migração com defaults compatíveis com os registos existentes (`icon`, 44, `transparent`).
 - Recorte feito no cliente com canvas (sem nova dependência pesada); reutilizar `react-easy-crop` se já estiver disponível, caso contrário implementar arrasto/zoom simples com canvas.
 - Upload continua no bucket privado `company-assets`, com URL assinado; ficheiro antigo é removido após substituição.

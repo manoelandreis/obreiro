@@ -262,6 +262,7 @@ export function LogoEditor({
               src={imgUrl}
               alt=""
               draggable={false}
+              crossOrigin="anonymous"
               className="absolute pointer-events-none max-w-none"
               style={{
                 width: dispW,

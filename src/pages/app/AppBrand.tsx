@@ -125,7 +125,7 @@ export default function AppBrand() {
       const { data } = await supabase
         .from('app_user_settings')
         .select(
-          'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address, payment_mbway, payment_iban, default_payment_terms, payment_term_templates, terms_templates' as any
+          'logo_url, logo_kind, logo_height, logo_bg, brand_color_primary, brand_color_accent, company_description, company_terms, quote_validity_days, company_name, company_nif, company_email, company_phone, company_address, payment_mbway, payment_iban, default_payment_terms, payment_term_templates, terms_templates' as any
         )
         .eq('user_id', user.id)
         .maybeSingle();
@@ -133,6 +133,9 @@ export default function AppBrand() {
         const d: any = data;
         setLogoUrl(d.logo_url ?? null);
         if (d.logo_url) setLogoPreview(await loadSignedUrl(d.logo_url));
+        setLogoKind((d.logo_kind as LogoKind) ?? 'icon');
+        setLogoHeight(d.logo_height ?? 44);
+        setLogoBg((d.logo_bg as LogoBg) ?? 'transparent');
         setColorPrimary(d.brand_color_primary ?? '#1B3A5C');
         setColorAccent(d.brand_color_accent ?? '#E8730A');
         setDescription(d.company_description ?? '');
@@ -179,17 +182,40 @@ export default function AppBrand() {
 
   const onLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file || !user) return;
-    if (!file.type.startsWith('image/')) return toast.error('Selecione uma imagem.');
-    if (file.size > MAX_LOGO_BYTES) return toast.error('Logo até 5MB.');
+    const okTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+    if (!okTypes.includes(file.type)) return toast.error('Formato não suportado. Use PNG, JPG, WEBP ou SVG.');
+    if (file.size > MAX_LOGO_BYTES) {
+      return toast.error(`Logo até 5MB. Este ficheiro tem ${(file.size / 1024 / 1024).toFixed(1)}MB.`);
+    }
+    setLogoEditorFile(file);
+    setLogoEditorOpen(true);
+  };
+
+  const onLogoEditorApply = async (result: LogoEditorResult) => {
+    if (!user) return;
+    setLogoEditorOpen(false);
+    setLogoKind(result.kind);
+    setLogoBg(result.bg);
+    setLogoHeight(result.height);
+
+    // "Recortar novamente" on an existing SVG sends an empty keep file — only settings change
+    const isKeepFile = result.file.size === 0 && result.file.name === 'keep.svg';
+    if (isKeepFile) {
+      toast.success('Definições do logo atualizadas. Guarde a marca para confirmar.');
+      return;
+    }
+
     setUploading(true);
-    const ext = file.name.split('.').pop() ?? 'png';
+    const ext = result.file.type === 'image/svg+xml' ? 'svg' : 'png';
     const path = `${user.id}/logo-${Date.now()}.${ext}`;
     const { error } = await supabase.storage
       .from('company-assets')
-      .upload(path, file, { upsert: true, contentType: file.type });
+      .upload(path, result.file, { upsert: true, contentType: result.file.type });
     if (error) {
       setUploading(false);
+      setLogoEditorFile(null);
       return toast.error('Falhou o upload do logo.');
     }
     if (logoUrl && logoUrl !== path) {
@@ -198,7 +224,8 @@ export default function AppBrand() {
     setLogoUrl(path);
     setLogoPreview(await loadSignedUrl(path));
     setUploading(false);
-    toast.success('Logo carregado.');
+    setLogoEditorFile(null);
+    toast.success('Logo carregado. Guarde a marca para confirmar.');
   };
 
   const removeLogo = async () => {
@@ -256,6 +283,9 @@ export default function AppBrand() {
         {
           user_id: user.id,
           logo_url: logoUrl,
+          logo_kind: logoKind,
+          logo_height: logoHeight,
+          logo_bg: logoBg,
           brand_color_primary: colorPrimary,
           brand_color_accent: colorAccent,
         } as any,

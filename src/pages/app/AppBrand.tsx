@@ -1012,27 +1012,83 @@ export default function AppBrand() {
         <SectionHeader icon={Type} title="Logotipo da empresa" />
 
         <div className="flex items-center gap-5">
-          <div className="h-24 w-24 rounded-xl border border-dashed border-border bg-muted/40 flex items-center justify-center overflow-hidden">
+          <div
+            className={`rounded-xl border border-dashed border-border bg-muted/40 flex items-center justify-center overflow-hidden p-1 ${
+              logoKind === 'horizontal' ? 'h-24 w-56' : logoKind === 'vertical' ? 'h-32 w-20' : 'h-24 w-24'
+            }`}
+          >
             {logoPreview ? (
-              <img src={logoPreview} alt="Logo" className="h-full w-full object-contain" />
+              <img src={logoPreview} alt="Logo" className="max-h-full max-w-full object-contain" />
             ) : (
               <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <input ref={fileRef} type="file" accept="image/*" hidden onChange={onLogoChange} />
+            <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden onChange={onLogoChange} />
             <Button variant="outline" size="sm" onClick={onPickLogo} disabled={uploading} className="gap-2">
               {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               {logoUrl ? 'Substituir' : 'Carregar logo'}
             </Button>
             {logoUrl && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                disabled={uploading}
+                onClick={() => {
+                  setLogoEditorFile(null);
+                  setLogoEditorOpen(true);
+                }}
+              >
+                <Crop className="h-4 w-4" /> Recortar novamente
+              </Button>
+            )}
+            {logoUrl && (
               <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive gap-2" onClick={removeLogo}>
                 <Trash2 className="h-4 w-4" /> Remover
               </Button>
             )}
-            <p className="text-xs text-muted-foreground">PNG, JPG ou SVG. Até 5MB.</p>
+            <p className="text-xs text-muted-foreground">PNG, JPG, WEBP ou SVG. Até 5MB.</p>
           </div>
         </div>
+
+        {/* Header preview (orçamento) */}
+        <div className="rounded-lg border border-border bg-background p-3">
+          <p className="text-[10px] uppercase tracking-wide font-semibold text-muted-foreground mb-2">
+            Pré-visualização no orçamento
+          </p>
+          <div className={`flex gap-3 ${logoKind === 'vertical' ? 'flex-col items-start' : 'items-center'}`}>
+            {logoPreview && (
+              <img
+                src={logoPreview}
+                alt=""
+                style={{ height: logoHeight, width: 'auto', maxWidth: logoKind === 'horizontal' ? 220 : undefined, objectFit: 'contain' }}
+                className={logoKind === 'icon' ? 'rounded-md' : ''}
+              />
+            )}
+            {(logoKind !== 'horizontal' || !logoPreview) && (
+              <span
+                className="font-heading font-bold text-lg"
+                style={{ color: colorPrimary, lineHeight: 1, textBoxTrim: 'trim-both', textBoxEdge: 'cap alphabetic' } as React.CSSProperties}
+              >
+                {companyName || 'A Sua Empresa'}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <LogoEditor
+          open={logoEditorOpen}
+          onOpenChange={setLogoEditorOpen}
+          file={logoEditorFile}
+          sourceUrl={logoEditorFile ? null : logoPreview}
+          initialKind={logoKind}
+          initialBg={logoBg}
+          initialHeight={logoHeight}
+          companyName={companyName}
+          primaryColor={colorPrimary}
+          onApply={onLogoEditorApply}
+        />
 
         <div className="border-t border-border pt-6 space-y-3">
           <Label className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">

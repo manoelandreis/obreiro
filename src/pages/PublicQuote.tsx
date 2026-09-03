@@ -121,6 +121,8 @@ export default function PublicQuote() {
     const html = buildQuoteHtml(data, {
       brand: {
         logoUrl,
+        logoKind: (cs.logo_kind as 'icon' | 'horizontal' | 'vertical') ?? 'icon',
+        logoHeight: Number(cs.logo_height) || 44,
         primary: cs.brand_primary || '#1B3A5C',
         accent: cs.brand_accent || '#E8730A',
         description: null,

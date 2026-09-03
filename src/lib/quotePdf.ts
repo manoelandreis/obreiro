@@ -23,6 +23,8 @@ export interface QuoteRenderData {
 
 export interface BrandSnapshot {
   logoUrl: string | null;     // signed URL
+  logoKind: 'icon' | 'horizontal' | 'vertical';
+  logoHeight: number;         // px
   primary: string;            // hex
   accent: string;
   description: string | null;
@@ -55,6 +57,9 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   const primary = safeHex(opts.brand?.primary, '#1B3A5C');
   const accent = safeHex(opts.brand?.accent, '#E8730A');
   const logo = opts.brand?.logoUrl;
+  const logoKind = opts.brand?.logoKind ?? 'icon';
+  const logoHeight = Math.min(96, Math.max(24, Math.round(opts.brand?.logoHeight ?? 44)));
+  const showCompanyName = logoKind !== 'horizontal';
   const description = opts.brand?.description;
   const terms = opts.brand?.terms;
   const payment = opts.brand?.paymentConditions;
@@ -181,7 +186,8 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #e2e8f0; }
   .header-left { flex: 1; min-width: 0; }
   .brand-row { display: flex; gap: 12px; align-items: center; }
-  .logo { height: 44px; width: 44px; object-fit: contain; border-radius: 8px; flex-shrink: 0; }
+  .brand-row.vertical { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .logo { height: ${logoHeight}px; width: auto; max-width: ${logoKind === 'horizontal' ? '220px' : '160px'}; object-fit: contain; ${logoKind === 'icon' ? 'border-radius: 8px;' : ''} flex-shrink: 0; }
   .company-name { font-size: 20px; font-weight: 700; color: ${primary}; line-height: 1.1; }
   .company-meta { margin-top: 10px; }
   .company-meta p { font-size: 11px; color: #64748b; line-height: 1.5; }
@@ -243,9 +249,9 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 <body>
   <div class="header">
     <div class="header-left">
-      <div class="brand-row">
+      <div class="brand-row${logoKind === 'vertical' ? ' vertical' : ''}">
         ${logo ? `<img class="logo" src="${esc(logo)}" alt="Logo" />` : ''}
-        <div class="company-name">${esc(q.company.name || 'A Sua Empresa')}</div>
+        ${showCompanyName ? `<div class="company-name">${esc(q.company.name || 'A Sua Empresa')}</div>` : ''}
       </div>
       <div class="company-meta">
         ${q.company.nif ? `<p>NIF: ${esc(q.company.nif)}</p>` : ''}
@@ -307,7 +313,7 @@ export async function loadBrand(userId: string, allowed: boolean): Promise<Brand
   const { data } = await supabase
     .from('app_user_settings')
     .select(
-      'logo_url, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days'
+      'logo_url, logo_kind, logo_height, brand_color_primary, brand_color_accent, company_description, company_terms, payment_conditions, quote_validity_days' as any
     )
     .eq('user_id', userId)
     .maybeSingle();
@@ -319,14 +325,17 @@ export async function loadBrand(userId: string, allowed: boolean): Promise<Brand
       .createSignedUrl(data.logo_url, 60 * 60);
     signedLogo = sig?.signedUrl ?? null;
   }
+  const d: any = data;
   return {
     logoUrl: signedLogo,
-    primary: data.brand_color_primary || '#1B3A5C',
-    accent: data.brand_color_accent || '#E8730A',
-    description: data.company_description ?? null,
-    terms: data.company_terms ?? null,
-    paymentConditions: data.payment_conditions ?? null,
-    validityDays: data.quote_validity_days ?? 30,
+    logoKind: (d.logo_kind as BrandSnapshot['logoKind']) ?? 'icon',
+    logoHeight: d.logo_height ?? 44,
+    primary: d.brand_color_primary || '#1B3A5C',
+    accent: d.brand_color_accent || '#E8730A',
+    description: d.company_description ?? null,
+    terms: d.company_terms ?? null,
+    paymentConditions: d.payment_conditions ?? null,
+    validityDays: d.quote_validity_days ?? 30,
   };
 }
 

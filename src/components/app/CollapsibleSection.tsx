@@ -36,13 +36,15 @@ export function CollapsibleSection({
   return (
     <Card>
       <button type="button" onClick={handleToggle} className="w-full text-left">
-        <CardHeader className="flex flex-row items-center justify-between cursor-pointer">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Icon className="h-5 w-5" />
-            <span>{title}</span>
-            {summary && <span className="ml-2 text-sm font-normal text-muted-foreground truncate">{summary}</span>}
+        <CardHeader className="flex flex-row items-start sm:items-center justify-between cursor-pointer gap-3">
+          <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-base min-w-0">
+            <span className="flex items-center gap-2">
+              <Icon className="h-5 w-5 shrink-0" />
+              <span>{title}</span>
+            </span>
+            {summary && <span className="text-sm font-normal text-muted-foreground truncate">{summary}</span>}
           </CardTitle>
-          {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          {isOpen ? <ChevronUp className="h-4 w-4 shrink-0 mt-1 sm:mt-0" /> : <ChevronDown className="h-4 w-4 shrink-0 mt-1 sm:mt-0" />}
         </CardHeader>
       </button>
       {isOpen && <CardContent className="pt-0">{children}</CardContent>}

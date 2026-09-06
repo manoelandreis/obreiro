@@ -63,12 +63,24 @@ export function ServicesSection({
               )}
             </div>
             <div className="grid md:grid-cols-2 gap-3">
-              <div><Label>Serviço</Label><Input value={svc.name} placeholder="Ex: Pintura Interior" onChange={(e) => onUpdateService(svc.id, 'name', e.target.value)} /></div>
-              <div><Label>Descrição</Label><Input value={svc.description} onChange={(e) => onUpdateService(svc.id, 'description', e.target.value)} /></div>
+              <div>
+                <Label htmlFor={`svc-name-${svc.id}`}>Serviço</Label>
+                <Input id={`svc-name-${svc.id}`} value={svc.name} placeholder="Ex: Pintura Interior" onChange={(e) => onUpdateService(svc.id, 'name', e.target.value)} />
+              </div>
+              <div>
+                <Label htmlFor={`svc-desc-${svc.id}`}>Descrição</Label>
+                <Input id={`svc-desc-${svc.id}`} value={svc.description} onChange={(e) => onUpdateService(svc.id, 'description', e.target.value)} />
+              </div>
             </div>
             <div className="grid gap-3">
-              <div><Label>Preço por Hora (€)</Label><Input type="number" min={0} step={0.01} value={svc.pricePerHour} onChange={(e) => onUpdateService(svc.id, 'pricePerHour', Number(e.target.value))} /></div>
-              <div><Label>Horas Aproximadas</Label><Input type="number" min={0.5} step={0.5} value={svc.hours} onChange={(e) => onUpdateService(svc.id, 'hours', Number(e.target.value))} /></div>
+              <div>
+                <Label htmlFor={`svc-price-${svc.id}`}>Preço por Hora (€)</Label>
+                <Input id={`svc-price-${svc.id}`} type="number" min={0} step={0.01} value={svc.pricePerHour} onChange={(e) => onUpdateService(svc.id, 'pricePerHour', Number(e.target.value))} />
+              </div>
+              <div>
+                <Label htmlFor={`svc-hours-${svc.id}`}>Horas Aproximadas</Label>
+                <Input id={`svc-hours-${svc.id}`} type="number" min={0.5} step={0.5} value={svc.hours} onChange={(e) => onUpdateService(svc.id, 'hours', Number(e.target.value))} />
+              </div>
             </div>
             <div className="text-right text-sm text-muted-foreground">
               Mão de obra: <span className="font-medium text-foreground">{fmt(serviceLabor(svc))}</span>
@@ -95,10 +107,22 @@ export function ServicesSection({
 
               {svc.materials.map((mat) => (
                 <div key={mat.id} className="grid grid-cols-12 gap-2 items-end mb-2">
-                  <div className="col-span-12 md:col-span-4"><Label className="text-xs">Material</Label><Input value={mat.name} onChange={(e) => onUpdateMaterial(svc.id, mat.id, 'name', e.target.value)} /></div>
-                  <div className="col-span-3 md:col-span-2"><Label className="text-xs">Qtd.</Label><Input type="number" min={0} step={0.01} value={mat.quantity} onChange={(e) => onUpdateMaterial(svc.id, mat.id, 'quantity', Number(e.target.value))} /></div>
-                  <div className="col-span-3 md:col-span-2"><Label className="text-xs">Un.</Label><Input value={mat.unit} onChange={(e) => onUpdateMaterial(svc.id, mat.id, 'unit', e.target.value)} /></div>
-                  <div className="col-span-4 md:col-span-3"><Label className="text-xs">Preço Un. (€)</Label><Input type="number" min={0} step={0.01} value={mat.unitPrice} onChange={(e) => onUpdateMaterial(svc.id, mat.id, 'unitPrice', Number(e.target.value))} /></div>
+                  <div className="col-span-12 md:col-span-4">
+                    <Label htmlFor={`mat-name-${mat.id}`} className="text-xs">Material</Label>
+                    <Input id={`mat-name-${mat.id}`} value={mat.name} onChange={(e) => onUpdateMaterial(svc.id, mat.id, 'name', e.target.value)} />
+                  </div>
+                  <div className="col-span-3 md:col-span-2">
+                    <Label htmlFor={`mat-qty-${mat.id}`} className="text-xs">Qtd.</Label>
+                    <Input id={`mat-qty-${mat.id}`} type="number" min={0} step={0.01} value={mat.quantity} onChange={(e) => onUpdateMaterial(svc.id, mat.id, 'quantity', Number(e.target.value))} />
+                  </div>
+                  <div className="col-span-3 md:col-span-2">
+                    <Label htmlFor={`mat-unit-${mat.id}`} className="text-xs">Un.</Label>
+                    <Input id={`mat-unit-${mat.id}`} value={mat.unit} onChange={(e) => onUpdateMaterial(svc.id, mat.id, 'unit', e.target.value)} />
+                  </div>
+                  <div className="col-span-4 md:col-span-3">
+                    <Label htmlFor={`mat-price-${mat.id}`} className="text-xs">Preço Un. (€)</Label>
+                    <Input id={`mat-price-${mat.id}`} type="number" min={0} step={0.01} value={mat.unitPrice} onChange={(e) => onUpdateMaterial(svc.id, mat.id, 'unitPrice', Number(e.target.value))} />
+                  </div>
                   <div className="col-span-2 md:col-span-1 flex justify-end">
                     <Button variant="ghost" size="icon" onClick={() => onRemoveMaterial(svc.id, mat.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />

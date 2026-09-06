@@ -30,6 +30,7 @@ export default function AppLayout() {
   const [pinInput, setPinInput] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     if (!user) return;

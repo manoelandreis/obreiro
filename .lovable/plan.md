@@ -8,7 +8,7 @@ Abri a página de criação de orçamento nos dois tamanhos (telemóvel 390px e 
 
 ## Pontos a corrigir
 1. **Logótipo no topo aparece partido** (quadrado com imagem em falta) no telemóvel e no computador. Vou confirmar se é só do ambiente de testes; se for real, garanto que carrega e que mostra o nome quando a imagem falha.
-2. **Botão "Guardar Orçamento" no telemóvel**: aparece duas vezes (topo e fundo). Confirmar se é intencional; caso contrário, manter só o do fundo.
+2. **Botão "Guardar Orçamento"**: o botão fica no topo; ao fazer scroll para baixo aparece uma versão flutuante, que desaparece quando voltamos à posição original do botão (mesmo padrão do botão "Descarregar PDF" do link público). Aplicar como comportamento padrão nesta página.
 3. **Cabeçalho "Pagamento" no telemóvel**: o resumo ao lado do título fica apertado — passar o resumo para uma segunda linha em ecrãs pequenos.
 
 ## Como valido no fim

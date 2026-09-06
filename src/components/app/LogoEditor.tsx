@@ -181,8 +181,10 @@ export function LogoEditor({
       const sw = vpW / scale;
       const sh = vpH / scale;
       // Cap the output so the longest side is at most MAX_OUT px
+      // Output must match the actual cropped region aspect (sh/sw), not the
+      // nominal KIND_ASPECT — the viewport height cap can distort that.
       let outW = Math.max(1, Math.round(sw));
-      let outH = Math.max(1, Math.round(sw / aspect));
+      let outH = Math.max(1, Math.round(sh));
       const k = Math.min(1, MAX_OUT / Math.max(outW, outH));
       outW = Math.max(1, Math.round(outW * k));
       outH = Math.max(1, Math.round(outH * k));

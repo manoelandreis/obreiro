@@ -1,28 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
-import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import {
-  Building2, Users, Wrench, Package, Plus, Trash2, ArrowLeft, FileText, Save, ChevronDown, ChevronUp, Wallet,
-} from 'lucide-react';
+import { Building2, ArrowLeft, Save } from 'lucide-react';
 import { ClientFormSheet } from '@/components/app/ClientFormSheet';
+import { ClientSection } from '@/components/app/quote-new/ClientSection';
+import { ServicesSection } from '@/components/app/quote-new/ServicesSection';
+import { PaymentSection } from '@/components/app/quote-new/PaymentSection';
+import { NotesSection } from '@/components/app/quote-new/NotesSection';
 import {
-  PAYMENT_PRESETS, DEFAULT_PAYMENT_TERMS, presetById, expandInstallments, totalPercent,
-  createEmptyTemplate,
-  type PaymentPreset, type PaymentTerms, type CustomPaymentTemplate,
+  DEFAULT_PAYMENT_TERMS,
+  type PaymentTerms, type CustomPaymentTemplate,
 } from '@/lib/paymentTerms';
 
 interface MaterialItem { id: string; name: string; quantity: number; unit: string; unitPrice: number; }
@@ -45,7 +38,6 @@ export default function AppQuoteNew() {
   const [clients, setClients] = useState<ClientRow[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string>('');
   const [openNewClient, setOpenNewClient] = useState(false);
-  // (new client form lives in <ClientFormSheet />)
 
   // Quote
   const [title, setTitle] = useState('Orçamento');
@@ -54,9 +46,6 @@ export default function AppQuoteNew() {
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>(DEFAULT_PAYMENT_TERMS);
   const [paymentTemplates, setPaymentTemplates] = useState<CustomPaymentTemplate[]>([]);
   const [selectedPaymentKey, setSelectedPaymentKey] = useState<string>('100_end');
-  const [openNewPayment, setOpenNewPayment] = useState(false);
-  const [paymentDraft, setPaymentDraft] = useState<CustomPaymentTemplate | null>(null);
-  const [savingPayment, setSavingPayment] = useState(false);
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [saving, setSaving] = useState(false);
   const [expanded, setExpanded] = useState({ client: true, services: true, payment: false, notes: false });
@@ -102,9 +91,6 @@ export default function AppQuoteNew() {
     })();
   }, [user]);
 
-  const selectedClient = clients.find((c) => c.id === selectedClientId);
-
-
   // Service helpers
   const addService = () => setServices([...services, emptyService()]);
   const removeService = (id: string) => setServices(services.filter((s) => s.id !== id));
@@ -124,9 +110,7 @@ export default function AppQuoteNew() {
       : s));
 
   // Totals
-  const serviceLabor = (s: ServiceItem) => s.pricePerHour * s.hours;
-  const serviceMats = (s: ServiceItem) => s.materials.reduce((a, m) => a + m.quantity * m.unitPrice, 0);
-  const serviceTotal = (s: ServiceItem) => serviceLabor(s) + serviceMats(s);
+  const serviceTotal = (s: ServiceItem) => s.pricePerHour * s.hours + s.materials.reduce((a, m) => a + m.quantity * m.unitPrice, 0);
   const subtotal = services.reduce((a, s) => a + serviceTotal(s), 0);
   const iva = subtotal * 0.23;
   const total = subtotal + iva;
@@ -137,9 +121,9 @@ export default function AppQuoteNew() {
     if (!user) return;
     if (!selectedClientId) return toast.error('Selecione ou crie um cliente.');
     if (services.every((s) => !s.name.trim())) return toast.error('Adicione pelo menos um serviço.');
+    const selectedClient = clients.find((c) => c.id === selectedClientId);
     setSaving(true);
 
-    // 1) Create a Job linked to the client so we can populate Tarefas
     const { data: job, error: jobErr } = await supabase
       .from('app_jobs')
       .insert({
@@ -157,7 +141,6 @@ export default function AppQuoteNew() {
       return toast.error('Erro a criar trabalho associado.');
     }
 
-    // 2) Create quote linked to that job
     const { data: quote, error } = await supabase
       .from('app_quotes')
       .insert({
@@ -182,18 +165,12 @@ export default function AppQuoteNew() {
       return toast.error('Erro a guardar orçamento.');
     }
 
-    // 3) Auto-populate Tarefas: one group per service, with labour task + materials
     const validServices = services.filter((s) => s.name.trim());
     for (let i = 0; i < validServices.length; i++) {
       const s = validServices[i];
       const { data: group } = await supabase
         .from('app_job_groups')
-        .insert({
-          user_id: user.id,
-          job_id: job.id,
-          name: s.name.trim(),
-          sort_order: i,
-        })
+        .insert({ user_id: user.id, job_id: job.id, name: s.name.trim(), sort_order: i })
         .select('id')
         .maybeSingle();
       if (!group) continue;
@@ -270,331 +247,50 @@ export default function AppQuoteNew() {
         </Card>
       )}
 
-      {/* Client */}
-      <Card>
-        <button onClick={() => toggle('client')} className="w-full">
-          <CardHeader className="flex flex-row items-center justify-between cursor-pointer">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Users className="h-5 w-5" /> Cliente
-              {selectedClient && <span className="ml-2 text-sm font-normal text-muted-foreground">— {selectedClient.name}</span>}
-            </CardTitle>
-            {expanded.client ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </CardHeader>
-        </button>
-        {expanded.client && (
-          <CardContent className="space-y-4 pt-0">
-            <div>
-              <Label>Selecionar cliente existente</Label>
-              <Select
-                value={selectedClientId}
-                onValueChange={(v) => {
-                  if (v === '__new') {
-                    setOpenNewClient(true);
-                    return;
-                  }
-                  setSelectedClientId(v);
-                }}
-              >
-                <SelectTrigger><SelectValue placeholder="Escolher cliente..." /></SelectTrigger>
-                <SelectContent>
-                  {clients.length === 0 && <div className="p-2 text-sm text-muted-foreground">Nenhum cliente ainda.</div>}
-                  {clients.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-                  {clients.length > 0 && <div className="my-1 border-t" />}
-                  <SelectItem value="__new" className="text-primary font-medium">+ Novo Cliente</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <ClientSection
+        clients={clients}
+        selectedClientId={selectedClientId}
+        onSelectClient={setSelectedClientId}
+        onNewClient={() => setOpenNewClient(true)}
+        expanded={expanded.client}
+        onToggle={() => toggle('client')}
+      />
 
-            {selectedClient && (
-              <div className="grid md:grid-cols-2 gap-3 p-3 rounded-lg bg-muted/40 text-sm">
-                <div><span className="text-muted-foreground">Email:</span> {selectedClient.email || '—'}</div>
-                <div><span className="text-muted-foreground">Telefone:</span> {selectedClient.phone || '—'}</div>
-                <div className="md:col-span-2"><span className="text-muted-foreground">Morada:</span> {selectedClient.address || '—'}</div>
-              </div>
-            )}
-          </CardContent>
-        )}
-      </Card>
+      <ServicesSection
+        services={services}
+        templates={templates}
+        subtotal={subtotal}
+        expanded={expanded.services}
+        onToggle={() => toggle('services')}
+        onAddService={addService}
+        onRemoveService={removeService}
+        onUpdateService={updateService}
+        onAddMaterial={addMaterial}
+        onRemoveMaterial={removeMaterial}
+        onUpdateMaterial={updateMaterial}
+        onAddTemplateAsMaterial={addTemplateAsMaterial}
+      />
 
-      {/* Services */}
-      <Card>
-        <button onClick={() => toggle('services')} className="w-full">
-          <CardHeader className="flex flex-row items-center justify-between cursor-pointer">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Wrench className="h-5 w-5" /> Serviços e Materiais
-              {subtotal > 0 && <span className="ml-2 text-sm font-normal text-muted-foreground">({fmt(subtotal)})</span>}
-            </CardTitle>
-            {expanded.services ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </CardHeader>
-        </button>
-        {expanded.services && (
-          <CardContent className="space-y-6 pt-0">
-            {services.map((svc, idx) => (
-              <div key={svc.id} className="border rounded-lg p-4 space-y-4 bg-muted/20">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 font-semibold"><Wrench className="h-4 w-4" /> Serviço {idx + 1}</div>
-                  {services.length > 1 && (
-                    <Button variant="ghost" size="icon" onClick={() => removeService(svc.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  )}
-                </div>
-                <div className="grid md:grid-cols-2 gap-3">
-                  <div><Label>Serviço</Label><Input value={svc.name} placeholder="Ex: Pintura Interior" onChange={(e) => updateService(svc.id, 'name', e.target.value)} /></div>
-                  <div><Label>Descrição</Label><Input value={svc.description} onChange={(e) => updateService(svc.id, 'description', e.target.value)} /></div>
-                </div>
-                <div className="grid gap-3">
-                  <div><Label>Preço por Hora (€)</Label><Input type="number" min={0} step={0.01} value={svc.pricePerHour} onChange={(e) => updateService(svc.id, 'pricePerHour', Number(e.target.value))} /></div>
-                  <div><Label>Horas Aproximadas</Label><Input type="number" min={0.5} step={0.5} value={svc.hours} onChange={(e) => updateService(svc.id, 'hours', Number(e.target.value))} /></div>
-                </div>
-                <div className="text-right text-sm text-muted-foreground">
-                  Mão de obra: <span className="font-medium text-foreground">{fmt(serviceLabor(svc))}</span>
-                </div>
+      <PaymentSection
+        total={total}
+        paymentTerms={paymentTerms}
+        onPaymentTermsChange={setPaymentTerms}
+        paymentTemplates={paymentTemplates}
+        onPaymentTemplatesChange={setPaymentTemplates}
+        selectedPaymentKey={selectedPaymentKey}
+        onSelectedPaymentKeyChange={setSelectedPaymentKey}
+        expanded={expanded.payment}
+        onToggle={() => toggle('payment')}
+        userId={user?.id}
+      />
 
-                <div className="border-t pt-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Package className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Materiais</span>
-                  </div>
+      <NotesSection
+        notes={notes}
+        onNotesChange={setNotes}
+        expanded={expanded.notes}
+        onToggle={() => toggle('notes')}
+      />
 
-                  {templates.length > 0 && (
-                    <div className="mb-3">
-                      <Label className="text-muted-foreground text-xs mb-2 block">Adicionar template:</Label>
-                      <div className="flex flex-wrap gap-2">
-                        {templates.map((t) => (
-                          <Button key={t.id} variant="outline" size="sm" onClick={() => addTemplateAsMaterial(svc.id, t)}>
-                            + {t.name}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {svc.materials.map((mat) => (
-                    <div key={mat.id} className="grid grid-cols-12 gap-2 items-end mb-2">
-                      <div className="col-span-12 md:col-span-4"><Label className="text-xs">Material</Label><Input value={mat.name} onChange={(e) => updateMaterial(svc.id, mat.id, 'name', e.target.value)} /></div>
-                      <div className="col-span-3 md:col-span-2"><Label className="text-xs">Qtd.</Label><Input type="number" min={0} step={0.01} value={mat.quantity} onChange={(e) => updateMaterial(svc.id, mat.id, 'quantity', Number(e.target.value))} /></div>
-                      <div className="col-span-3 md:col-span-2"><Label className="text-xs">Un.</Label><Input value={mat.unit} onChange={(e) => updateMaterial(svc.id, mat.id, 'unit', e.target.value)} /></div>
-                      <div className="col-span-4 md:col-span-3"><Label className="text-xs">Preço Un. (€)</Label><Input type="number" min={0} step={0.01} value={mat.unitPrice} onChange={(e) => updateMaterial(svc.id, mat.id, 'unitPrice', Number(e.target.value))} /></div>
-                      <div className="col-span-2 md:col-span-1 flex justify-end">
-                        <Button variant="ghost" size="icon" onClick={() => removeMaterial(svc.id, mat.id)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-
-                  <Button variant="outline" size="sm" onClick={() => addMaterial(svc.id)} className="gap-2 mt-2">
-                    <Plus className="h-4 w-4" /> Adicionar Material
-                  </Button>
-                </div>
-
-                <div className="text-right text-sm font-semibold">
-                  Total Serviço {idx + 1}: <span className="text-primary">{fmt(serviceTotal(svc))}</span>
-                </div>
-              </div>
-            ))}
-            <Button variant="outline" onClick={addService} className="w-full gap-2">
-              <Plus className="h-4 w-4" /> Adicionar Serviço
-            </Button>
-          </CardContent>
-        )}
-      </Card>
-
-      {/* Payment terms */}
-      <Card>
-        <button onClick={() => toggle('payment')} className="w-full">
-          <CardHeader className="flex flex-row items-center justify-between cursor-pointer">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Wallet className="h-5 w-5" /> Pagamento
-              <span className="ml-2 text-sm font-normal text-muted-foreground truncate">
-                — {selectedPaymentKey.startsWith('tpl:')
-                  ? (paymentTemplates.find((t) => t.id === selectedPaymentKey.slice(4))?.name ?? 'Personalizado')
-                  : presetById(paymentTerms.preset).label}
-              </span>
-            </CardTitle>
-            {expanded.payment ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </CardHeader>
-        </button>
-        {expanded.payment && (
-          <CardContent className="space-y-4 pt-0">
-            <div>
-              <Label>Modelo</Label>
-              <Select
-                value={selectedPaymentKey}
-                onValueChange={(v) => {
-                  if (v === '__new') {
-                    setPaymentDraft(createEmptyTemplate('Novo modelo'));
-                    setOpenNewPayment(true);
-                    return;
-                  }
-                  if (v.startsWith('tpl:')) {
-                    const tpl = paymentTemplates.find((t) => t.id === v.slice(4));
-                    if (tpl) {
-                      setSelectedPaymentKey(v);
-                      setPaymentTerms({ preset: 'custom', installments: tpl.installments.map((i) => ({ ...i })) });
-                    }
-                    return;
-                  }
-                  const p = presetById(v as PaymentPreset);
-                  setSelectedPaymentKey(p.id);
-                  setPaymentTerms({ preset: p.id, installments: p.installments.map((i) => ({ ...i })) });
-                }}
-              >
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {paymentTemplates.map((t) => (
-                    <SelectItem key={t.id} value={`tpl:${t.id}`}>{t.name}</SelectItem>
-                  ))}
-                  {paymentTemplates.length > 0 && <div className="my-1 border-t" />}
-                  {PAYMENT_PRESETS.filter((p) => p.id !== 'custom').map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
-                  ))}
-                  <div className="my-1 border-t" />
-                  <SelectItem value="__new" className="text-primary font-medium">+ Novo modelo personalizado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-
-            <div className="rounded-lg border bg-muted/30 p-3">
-              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Pré-visualização</div>
-              <div className="space-y-1">
-                {expandInstallments(paymentTerms, total, new Date()).map((p, idx) => (
-                  <div key={idx} className="grid grid-cols-[1fr_7rem] items-center gap-3 text-sm">
-                    <span className="truncate">{p.label} <span className="text-muted-foreground">({p.percent}%)</span></span>
-                    <span className="font-semibold text-primary text-right">{fmt(p.amount)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        )}
-      </Card>
-
-      {/* New custom payment template dialog */}
-      <Dialog open={openNewPayment} onOpenChange={(o) => { setOpenNewPayment(o); if (!o) setPaymentDraft(null); }}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Novo método de pagamento personalizado</DialogTitle>
-            <DialogDescription>Será guardado nos teus modelos e selecionado neste orçamento.</DialogDescription>
-          </DialogHeader>
-          {paymentDraft && (
-            <div className="space-y-4">
-              <div>
-                <Label className="text-xs">Nome do modelo</Label>
-                <Input
-                  value={paymentDraft.name}
-                  placeholder="Ex.: 30% adiantamento + 70% à entrega"
-                  onChange={(e) => setPaymentDraft({ ...paymentDraft, name: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                {paymentDraft.installments.map((i, idx) => (
-                  <div key={idx} className="grid grid-cols-[1fr_5rem_7rem_2rem] gap-2 items-end">
-                    <div>
-                      {idx === 0 && <Label className="text-xs">Descrição</Label>}
-                      <Input value={i.label} onChange={(e) => {
-                        const next = [...paymentDraft.installments];
-                        next[idx] = { ...next[idx], label: e.target.value };
-                        setPaymentDraft({ ...paymentDraft, installments: next });
-                      }} />
-                    </div>
-                    <div>
-                      {idx === 0 && <Label className="text-xs">%</Label>}
-                      <Input type="number" min={0} max={100} value={i.percent} onChange={(e) => {
-                        const next = [...paymentDraft.installments];
-                        next[idx] = { ...next[idx], percent: Number(e.target.value) };
-                        setPaymentDraft({ ...paymentDraft, installments: next });
-                      }} />
-                    </div>
-                    <div>
-                      {idx === 0 && <Label className="text-xs">Dias após aceitação</Label>}
-                      <Input type="number" min={0} value={i.due_offset_days} onChange={(e) => {
-                        const next = [...paymentDraft.installments];
-                        next[idx] = { ...next[idx], due_offset_days: Number(e.target.value) };
-                        setPaymentDraft({ ...paymentDraft, installments: next });
-                      }} />
-                    </div>
-                    <div className="flex justify-end">
-                      {paymentDraft.installments.length > 1 && (
-                        <Button variant="ghost" size="icon" onClick={() => {
-                          const next = paymentDraft.installments.filter((_, n) => n !== idx);
-                          setPaymentDraft({ ...paymentDraft, installments: next });
-                        }}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                <Button variant="outline" size="sm" className="gap-2" onClick={() => {
-                  setPaymentDraft({
-                    ...paymentDraft,
-                    installments: [...paymentDraft.installments, { label: `Parcela ${paymentDraft.installments.length + 1}`, percent: 0, due_offset_days: 30 }],
-                  });
-                }}>
-                  <Plus className="h-4 w-4" /> Adicionar parcela
-                </Button>
-                {totalPercent({ preset: 'custom', installments: paymentDraft.installments }) !== 100 && (
-                  <p className="text-xs text-destructive">
-                    Soma das percentagens: {totalPercent({ preset: 'custom', installments: paymentDraft.installments })}% (deve ser 100%).
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => { setOpenNewPayment(false); setPaymentDraft(null); }} disabled={savingPayment}>
-              Cancelar
-            </Button>
-            <Button
-              disabled={savingPayment || !paymentDraft || !paymentDraft.name.trim() || totalPercent({ preset: 'custom', installments: paymentDraft?.installments ?? [] }) !== 100}
-              onClick={async () => {
-                if (!user || !paymentDraft) return;
-                const name = paymentDraft.name.trim();
-                if (paymentTemplates.some((t) => t.name.trim().toLowerCase() === name.toLowerCase())) {
-                  return toast.error('Já existe um modelo com esse nome.');
-                }
-                const cleaned: CustomPaymentTemplate = { ...paymentDraft, name };
-                const nextTpls = [...paymentTemplates, cleaned];
-                setSavingPayment(true);
-                const { error } = await supabase
-                  .from('app_user_settings')
-                  .upsert({ user_id: user.id, payment_term_templates: nextTpls } as any, { onConflict: 'user_id' });
-                setSavingPayment(false);
-                if (error) return toast.error('Erro a guardar modelo.');
-                setPaymentTemplates(nextTpls);
-                setPaymentTerms({ preset: 'custom', installments: cleaned.installments.map((i) => ({ ...i })) });
-                setSelectedPaymentKey(`tpl:${cleaned.id}`);
-                setOpenNewPayment(false);
-                setPaymentDraft(null);
-                toast.success('Modelo adicionado.');
-              }}
-            >
-              {savingPayment ? 'A guardar...' : 'Adicionar e selecionar'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-
-      {/* Notes */}
-      <Card>
-        <button onClick={() => toggle('notes')} className="w-full">
-          <CardHeader className="flex flex-row items-center justify-between cursor-pointer">
-            <CardTitle className="flex items-center gap-2 text-base"><FileText className="h-5 w-5" /> Notas / Termos e Condições</CardTitle>
-            {expanded.notes ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </CardHeader>
-        </button>
-        {expanded.notes && (
-          <CardContent className="pt-0">
-            <Textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Condições de pagamento, prazos, garantia..." />
-          </CardContent>
-        )}
-      </Card>
-
-      {/* Totals */}
       <Card>
         <CardContent className="pt-6 space-y-2 text-right">
           <div className="text-sm text-muted-foreground">Subtotal: <span className="font-medium text-foreground">{fmt(subtotal)}</span></div>
@@ -608,15 +304,12 @@ export default function AppQuoteNew() {
         </CardContent>
       </Card>
 
-      {/* New client bottom sheet */}
       <ClientFormSheet
         open={openNewClient}
         onOpenChange={setOpenNewClient}
         userId={user?.id}
         onCreated={(c) => {
-          setClients([...clients, {
-            id: c.id, name: c.name, email: c.email, phone: c.phone, address: c.address,
-          }]);
+          setClients([...clients, { id: c.id, name: c.name, email: c.email, phone: c.phone, address: c.address }]);
           setSelectedClientId(c.id);
         }}
       />

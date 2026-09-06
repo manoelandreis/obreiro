@@ -76,8 +76,7 @@ export function PaymentSection({
     if (!userId || !paymentDraft) return;
     const name = paymentDraft.name.trim();
     if (paymentTemplates.some((t) => t.name.trim().toLowerCase() === name.toLowerCase())) {
-      // Parent should surface toast; keeping error local is tricky without toast import.
-      // We rely on parent to pass a callback or we can just return. For now return.
+      toast.error('Já existe um modelo com esse nome.');
       return;
     }
     const cleaned: CustomPaymentTemplate = { ...paymentDraft, name };

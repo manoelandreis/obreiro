@@ -83,12 +83,14 @@ export function PaymentSection({
     const cleaned: CustomPaymentTemplate = { ...paymentDraft, name };
     const nextTpls = [...paymentTemplates, cleaned];
     setSavingPayment(true);
-    const { supabase } = await import('@/integrations/supabase/client');
     const { error } = await supabase
       .from('app_user_settings')
       .upsert({ user_id: userId, payment_term_templates: nextTpls } as any, { onConflict: 'user_id' });
     setSavingPayment(false);
-    if (error) return;
+    if (error) {
+      toast.error('Erro a guardar modelo.');
+      return;
+    }
     onPaymentTemplatesChange(nextTpls);
     onPaymentTermsChange({ preset: 'custom', installments: cleaned.installments.map((i) => ({ ...i })) });
     onSelectedPaymentKeyChange(`tpl:${cleaned.id}`);

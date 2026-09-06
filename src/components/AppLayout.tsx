@@ -79,10 +79,15 @@ export default function AppLayout() {
     <>
       <div className="p-5 flex items-center gap-2.5">
         <div
-          className="rounded-[10px] shadow-accent-glow overflow-hidden"
+          className="rounded-[10px] shadow-accent-glow overflow-hidden flex items-center justify-center bg-card shrink-0"
           style={{ width: 32, height: 32 }}
         >
-          <img src={obreiroLogo.url} alt="Obreiro" className="w-full h-full object-contain" />
+          <img
+            src={obreiroLogo.url}
+            alt="Obreiro"
+            className="w-full h-full object-contain"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+          />
         </div>
         <span className="font-heading text-lg font-bold tracking-tight text-foreground">Obreiro</span>
       </div>

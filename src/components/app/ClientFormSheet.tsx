@@ -133,55 +133,63 @@ export function ClientFormSheet({ open, onOpenChange, userId, onCreated }: Props
     <form onSubmit={handleSave} className="space-y-4" noValidate>
       <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground">Dados Pessoais</div>
       <div>
-        <Label>Nome Completo *</Label>
+        <Label htmlFor="client-name">Nome Completo *</Label>
         <Input
+          id="client-name"
           value={form.name}
           onChange={(e) => { setForm({ ...form, name: e.target.value }); if (errors.name) setErrors({ ...errors, name: undefined }); }}
           aria-invalid={!!errors.name}
+          aria-describedby={errors.name ? 'client-name-error' : undefined}
           className={errors.name ? errorClass : ''}
           maxLength={120}
         />
-        {errors.name && <p className="text-xs text-destructive mt-1">{errors.name}</p>}
+        {errors.name && <p id="client-name-error" className="text-xs text-destructive mt-1">{errors.name}</p>}
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label>Email</Label>
+          <Label htmlFor="client-email">Email</Label>
           <Input
+            id="client-email"
             type="email"
             value={form.email}
             onChange={(e) => { setForm({ ...form, email: e.target.value }); if (errors.email) setErrors({ ...errors, email: undefined }); }}
             aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? 'client-email-error' : undefined}
             className={errors.email ? errorClass : ''}
             maxLength={255}
           />
-          {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
+          {errors.email && <p id="client-email-error" className="text-xs text-destructive mt-1">{errors.email}</p>}
         </div>
         <div>
-          <Label>Telefone</Label>
+          <Label htmlFor="client-phone">Telefone</Label>
           <Input
+            id="client-phone"
             value={form.phone}
             onChange={(e) => { setForm({ ...form, phone: e.target.value }); if (errors.phone) setErrors({ ...errors, phone: undefined }); }}
             aria-invalid={!!errors.phone}
+            aria-describedby={errors.phone ? 'client-phone-error' : undefined}
             className={errors.phone ? errorClass : ''}
             maxLength={30}
             inputMode="tel"
           />
-          {errors.phone && <p className="text-xs text-destructive mt-1">{errors.phone}</p>}
+          {errors.phone && <p id="client-phone-error" className="text-xs text-destructive mt-1">{errors.phone}</p>}
         </div>
       </div>
       <div>
-        <Label>Morada</Label>
+        <Label htmlFor="client-address">Morada</Label>
         <Input
+          id="client-address"
           value={form.address}
           onChange={(e) => { setForm({ ...form, address: e.target.value }); if (errors.address) setErrors({ ...errors, address: undefined }); }}
           aria-invalid={!!errors.address}
+          aria-describedby={errors.address ? 'client-address-error' : undefined}
           className={errors.address ? errorClass : ''}
           maxLength={255}
         />
-        {errors.address && <p className="text-xs text-destructive mt-1">{errors.address}</p>}
+        {errors.address && <p id="client-address-error" className="text-xs text-destructive mt-1">{errors.address}</p>}
       </div>
-      <label className="flex gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20 cursor-pointer">
-        <Checkbox checked={form.consent} onCheckedChange={(v) => setForm({ ...form, consent: !!v })} className="mt-0.5" />
+      <label htmlFor="client-consent" className="flex gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20 cursor-pointer">
+        <Checkbox id="client-consent" checked={form.consent} onCheckedChange={(v) => setForm({ ...form, consent: !!v })} className="mt-0.5" />
         <span className="text-sm text-primary text-left">
           Declaro que obtive consentimento explícito do cliente para armazenar e processar estes dados para fins comerciais e de faturação (RGPD - Regulamento UE 2016/679).
         </span>

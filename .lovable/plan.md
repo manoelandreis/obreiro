@@ -13,19 +13,28 @@ Because the collapsible card is anonymous inline markup, it can't be mirrored as
 
 ## What to build
 
-### 1. Named `CollapsibleSection` component
+### 1. Shared container: `CollapsibleSection`
 New `src/components/app/CollapsibleSection.tsx` capturing exactly the current AppQuoteNew look and behavior:
 - Card container, header row with icon + title + optional right-side summary (e.g. client name, subtotal), chevron up/down
 - Props: `icon`, `title`, `summary?`, `defaultOpen?`, `children`
 - Controlled or uncontrolled open state
 - Visual output stays pixel-identical to today — no design change
 
-### 2. Migrate AppQuoteNew to it
-Replace the 4 inline card-toggle blocks (Cliente, Serviços e Materiais, Pagamento, Notas) with `<CollapsibleSection>`. No behavior or styling change.
+### 2. Content components (one per domain block)
+Move the inner content of each AppQuoteNew section into its own named component in `src/components/app/quote-new/`:
+- `ClientSection` — existing client select + summary
+- `ServicesSection` — service rows + materials
+- `PaymentSection` — payment terms / installments
+- `NotesSection` — validity, notes, conditions
 
-### 3. Component inventory doc for Figma parity
+Each component wraps its content with `<CollapsibleSection>` and exposes props for data + callbacks only. This is what you recreate in Figma as `Client Section`, `Services Section`, etc.
+
+### 3. Migrate AppQuoteNew to use these components
+Replace the 4 inline card-toggle blocks in `AppQuoteNew.tsx` with the new content components. The page becomes a thin orchestrator: state + submit + layout.
+
+### 4. Component inventory doc for Figma parity
 New `docs/design-system.md` — the naming contract between codebase and Figma:
-- Canonical component names and their variants: `Button`, `Card`, `CollapsibleSection`, `SectionHeader`, `MobileSheetSelect`, `ClientFormSheet`, `PaymentTermsCard`, `QuoteStatusBadge`, `MobilePrimaryAction`, shadcn primitives (`Input`, `Select`, `Dialog`, `Drawer`, `Accordion`…)
+- Canonical component names and their variants: `Button`, `Card`, `CollapsibleSection`, `ClientSection`, `ServicesSection`, `PaymentSection`, `NotesSection`, `SectionHeader`, `MobileSheetSelect`, `ClientFormSheet`, `PaymentTermsCard`, `QuoteStatusBadge`, `MobilePrimaryAction`, shadcn primitives (`Input`, `Select`, `Dialog`, `Drawer`, `Accordion`…)
 - For each: file path, props/variants, and which design tokens it uses
 - Token list from `src/index.css` (colors, radius, fonts) with hex values so Figma styles match 1:1
 - Naming rule going forward: every reusable visual block gets a named component in `src/components/app/`, and the Figma component uses the same name

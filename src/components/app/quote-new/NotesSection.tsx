@@ -1,5 +1,6 @@
 import { FileText } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { CollapsibleSection } from '@/components/app/CollapsibleSection';
 
 interface NotesSectionProps {
@@ -17,12 +18,16 @@ export function NotesSection({ notes, onNotesChange, expanded, onToggle }: Notes
       open={expanded}
       onToggle={onToggle}
     >
-      <Textarea
-        rows={4}
-        value={notes}
-        onChange={(e) => onNotesChange(e.target.value)}
-        placeholder="Condições de pagamento, prazos, garantia..."
-      />
+      <div className="space-y-2">
+        <Label htmlFor="quote-notes">Notas ou termos</Label>
+        <Textarea
+          id="quote-notes"
+          rows={4}
+          value={notes}
+          onChange={(e) => onNotesChange(e.target.value)}
+          placeholder="Condições de pagamento, prazos, garantia..."
+        />
+      </div>
     </CollapsibleSection>
   );
 }

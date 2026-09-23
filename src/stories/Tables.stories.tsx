@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { FileText, MoreHorizontal, Plus, Search, Users } from 'lucide-react';
+import { FileText, Mail, MapPin, MoreHorizontal, Phone, Plus, Search, Trash2, UserCheck, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,

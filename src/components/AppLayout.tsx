@@ -46,14 +46,6 @@ export default function AppLayout() {
       });
   }, [user]);
 
-  const lockNow = () => {
-    if (pinEnabled) {
-      sessionStorage.removeItem('app-unlocked');
-      setLocked(true);
-    } else {
-      toast.info('Ative o PIN nas Definições para usar esta função.');
-    }
-  };
 
   const tryUnlock = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -15,14 +15,17 @@ const meta: Meta = { title: 'Ecrãs/Aplicação' };
 export default meta;
 type Story = StoryObj;
 
-function DesktopShell({ title, active, children }: { title: string; active: string; children: React.ReactNode }) {
+function DesktopShell({ title, subtitle, action = 'Novo', active, children }: { title: string; subtitle?: string; action?: string; active: string; children: React.ReactNode }) {
   return (
     <div className="flex w-[1280px] bg-background">
       <SidebarDesktop active={active} />
       <main className="flex-1 p-8 space-y-6 overflow-y-auto h-[640px]">
-        <div className="flex items-center justify-between">
-          <h1 className="font-heading text-2xl font-bold">{title}</h1>
-          <Button className="gap-2"><Plus className="h-4 w-4" /> Novo</Button>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="font-heading text-3xl font-bold">{title}</h1>
+            {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
+          </div>
+          <Button className="gap-2"><Plus className="h-4 w-4" /> {action}</Button>
         </div>
         {children}
       </main>

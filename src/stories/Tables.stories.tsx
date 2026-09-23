@@ -1,14 +1,25 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { FileText, MoreHorizontal, Plus, Search, Users } from 'lucide-react';
+import { FileText, Mail, MapPin, MoreHorizontal, Phone, Plus, Search, Trash2, UserCheck, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { StatusBadge } from '@/components/app/QuoteStatusBadge';
 
-const meta: Meta = { title: 'Tabelas/Listagens' };
+const meta: Meta = {
+  title: 'Tabelas/Listagens',
+  // Apenas estas exportações são stories; as restantes são dados e blocos reutilizáveis.
+  includeStories: [
+    'TabelaOrcamentos',
+    'TabelaOrcamentosVazia',
+    'TabelaMateriais',
+    'TabelaClientes',
+    'TabelaClientesVazia',
+  ],
+};
 export default meta;
 type Story = StoryObj;
 
@@ -189,43 +200,47 @@ export const TabelaMateriais: Story = {
 };
 
 export const clients = [
-  { nome: 'João Silva', nif: '234567890', email: 'joao@email.pt', tel: '912 345 678', orcamentos: 4 },
-  { nome: 'Maria Costa', nif: '198765432', email: 'maria@email.pt', tel: '936 112 908', orcamentos: 2 },
-  { nome: 'Café Central, Lda.', nif: '509887123', email: 'geral@cafecentral.pt', tel: '213 456 789', orcamentos: 7 },
+  { nome: 'João Silva', email: 'joao@email.pt', tel: '912 345 678', morada: 'Rua das Flores 12, Porto' },
+  { nome: 'Maria Costa', email: 'maria@email.pt', tel: '936 112 908', morada: 'Av. da Liberdade 45, Lisboa' },
+  { nome: 'Café Central, Lda.', email: 'geral@cafecentral.pt', tel: '213 456 789', morada: 'Praça do Comércio 3, Lisboa' },
 ];
 
 export function ClientsTable() {
   return (
     <Card>
-      <CardContent className="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>NIF</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Telefone</TableHead>
-              <TableHead className="text-right">Orçamentos</TableHead>
-              <TableHead className="w-10" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {clients.map((c) => (
-              <TableRow key={c.nif} className="hover:bg-muted/60">
-                <TableCell className="font-medium">{c.nome}</TableCell>
-                <TableCell className="text-muted-foreground">{c.nif}</TableCell>
-                <TableCell className="text-muted-foreground">{c.email}</TableCell>
-                <TableCell className="text-muted-foreground">{c.tel}</TableCell>
-                <TableCell className="text-right">{c.orcamentos}</TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="icon" aria-label="Ações">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <CardContent className="pt-6">
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input className="pl-9" placeholder="Procurar por nome, email, telefone ou morada..." />
+        </div>
+        <div className="divide-y divide-border">
+          <div className="hidden md:grid md:grid-cols-[2fr_2fr_2fr_auto_auto] gap-4 px-2 py-2 text-xs uppercase tracking-wide font-semibold text-muted-foreground">
+            <div>Cliente</div><div>Contactos</div><div>Morada</div><div>Status RGPD</div><div />
+          </div>
+          {clients.map((c) => (
+            <div key={c.email} className="grid md:grid-cols-[2fr_2fr_2fr_auto_auto] gap-4 px-2 py-4 items-center">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold uppercase text-sm">
+                  {c.nome[0]}
+                </div>
+                <div className="font-semibold">{c.nome}</div>
+              </div>
+              <div className="text-sm space-y-1">
+                <div className="flex items-center gap-1.5 text-muted-foreground"><Mail className="h-3.5 w-3.5" /> {c.email}</div>
+                <div className="flex items-center gap-1.5 text-muted-foreground"><Phone className="h-3.5 w-3.5" /> {c.tel}</div>
+              </div>
+              <div className="text-sm text-muted-foreground flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5" /> {c.morada}
+              </div>
+              <Badge variant="outline" className="bg-success-soft text-success-soft-foreground border-success/20 gap-1.5">
+                <UserCheck className="h-3 w-3" /> Consentimento ativo
+              </Badge>
+              <Button variant="ghost" size="icon" aria-label="Eliminar" className="text-destructive hover:text-destructive hover:bg-destructive/5">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );

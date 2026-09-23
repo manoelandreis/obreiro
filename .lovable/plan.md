@@ -34,9 +34,17 @@ Também um botão no topo para alternar entre tema claro e escuro, e ver a mesma
 - Todos os previews usam apenas tokens de `src/index.css` — sem cores fixas.
 - `docs/design-system.md` passa a referir a página como visualização viva do inventário.
 
-## Sobre o Storybook
+## Alternativa: Storybook online (em vez da página acima)
 
-Não incluído: o Storybook corre num servidor próprio que a pré-visualização do Lovable não serve, por isso não seria acessível online. Esta página cobre o mesmo objetivo e acompanha automaticamente as alterações ao código.
+É possível, com uma condição: o Lovable não consegue alojar o Storybook, por isso ele fica publicado num serviço externo.
+
+- Instalo e configuro o Storybook no projeto, com uma "story" para cada componente e cada token listado acima (mesmo conteúdo da galeria).
+- O projeto liga-se ao GitHub (Lovable já suporta isto) e o Storybook é publicado automaticamente no **Chromatic** (gratuito, feito pela equipa do Storybook) sempre que o código muda.
+- No Chromatic o Storybook pode ficar **privado** — só entra quem convidar. Também permite ver diferenças visuais entre versões.
+- O que precisa de fazer: ligar o projeto ao GitHub e criar uma conta Chromatic (5 minutos); eu deixo tudo o resto preparado.
+- Desvantagem: não aparece dentro da pré-visualização do Lovable e adiciona ferramentas extra ao projeto.
+
+Pode escolher: **página privada na app** (mais simples, sem contas externas) ou **Storybook no Chromatic** (ferramenta padrão da indústria, fora do Lovable).
 
 ## Verificação
 

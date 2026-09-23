@@ -8,7 +8,17 @@ import {
 } from '@/components/ui/table';
 import { StatusBadge } from '@/components/app/QuoteStatusBadge';
 
-const meta: Meta = { title: 'Tabelas/Listagens' };
+const meta: Meta = {
+  title: 'Tabelas/Listagens',
+  // Apenas estas exportações são stories; as restantes são dados e blocos reutilizáveis.
+  includeStories: [
+    'TabelaOrcamentos',
+    'TabelaOrcamentosVazia',
+    'TabelaMateriais',
+    'TabelaClientes',
+    'TabelaClientesVazia',
+  ],
+};
 export default meta;
 type Story = StoryObj;
 

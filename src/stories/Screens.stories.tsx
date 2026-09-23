@@ -110,7 +110,7 @@ export const OrcamentosTelemovelVazio: Story = {
 export const ClientesComputador: Story = {
   name: 'Clientes — computador',
   render: () => (
-    <DesktopShell title="Clientes" active="Clientes">
+    <DesktopShell title="Clientes" subtitle="Gerir contactos e conformidade RGPD." action="Novo Cliente" active="Clientes">
       <ClientsTable />
     </DesktopShell>
   ),

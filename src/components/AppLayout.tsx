@@ -124,9 +124,6 @@ export default function AppLayout() {
             <div className="text-sm font-medium truncate">{user.email}</div>
           </div>
         </div>
-        <Button variant="outline" size="sm" className="w-full gap-2" onClick={lockNow}>
-          <Lock className="h-4 w-4" /> Trancar App
-        </Button>
         <Button
           variant="ghost"
           size="sm"

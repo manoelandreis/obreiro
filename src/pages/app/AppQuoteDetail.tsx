@@ -22,6 +22,7 @@ import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { StatusBadge } from '@/components/app/QuoteStatusBadge';
+import { CollapsibleSection } from '@/components/app/CollapsibleSection';
 import { QuoteAttachments } from '@/components/app/QuoteAttachments';
 import { QuoteWorkView } from '@/components/app/QuoteWorkView';
 import { FeatureGate } from '@/components/app/FeatureGate';
@@ -77,6 +78,7 @@ export default function AppQuoteDetail() {
   const [messageBody, setMessageBody] = useState('');
   const [generating, setGenerating] = useState(false);
   const [showAttachments, setShowAttachments] = useState(false);
+  const [photoCount, setPhotoCount] = useState(0);
   const [defaultPaymentTerms, setDefaultPaymentTerms] = useState<PaymentTerms | null>(null);
 
   const publicUrl = useMemo(
@@ -388,36 +390,25 @@ export default function AppQuoteDetail() {
         onClientUpdated={load}
       />
 
-      {/* Attachments (collapsed by default) */}
-      <Collapsible open={showAttachments} onOpenChange={setShowAttachments}>
-        <CollapsibleTrigger asChild>
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      <CollapsibleSection
+        icon={ImagePlus}
+        title="Fotos"
+        summary={photoCount ? `${photoCount}/12 fotos` : 'Opcional'}
+        open={showAttachments}
+        onToggle={() => setShowAttachments((v) => !v)}
+      >
+        {limits.attachments ? (
+          <QuoteAttachments quoteId={quote.id} onCountChange={setPhotoCount} />
+        ) : (
+          <FeatureGate
+            feature="attachments"
+            title="Galeria de fotos e anexos"
+            description="Adicione fotos antes/depois, referências e documentos. Disponível no plano Pro."
           >
-            <ImagePlus className="h-4 w-4" />
-            {showAttachments ? 'Ocultar fotos' : 'Adicionar fotos (opcional)'}
-            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showAttachments ? 'rotate-180' : ''}`} />
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="mt-3">
-          <Card>
-            <CardContent className="pt-6">
-              {limits.attachments ? (
-                <QuoteAttachments quoteId={quote.id} />
-              ) : (
-                <FeatureGate
-                  feature="attachments"
-                  title="Galeria de fotos e anexos"
-                  description="Adicione fotos antes/depois, referências e documentos. Disponível no plano Pro."
-                >
-                  <div />
-                </FeatureGate>
-              )}
-            </CardContent>
-          </Card>
-        </CollapsibleContent>
-      </Collapsible>
+            <div />
+          </FeatureGate>
+        )}
+      </CollapsibleSection>
 
       {/* History */}
       {limits.tracking && history.length > 0 && (
@@ -580,7 +571,7 @@ export default function AppQuoteDetail() {
                   <DropdownMenuItem onClick={copyLink} className="gap-2">
                     <Copy className="h-4 w-4" /> Copiar link
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => toast.info('Edição em breve.')} className="gap-2">
+                  <DropdownMenuItem onClick={() => navigate(`/app/quotes/${quote.id}/edit`)} className="gap-2">
                     <Pencil className="h-4 w-4" /> Editar
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -655,7 +646,7 @@ export default function AppQuoteDetail() {
               Enviar por email
             </button>
             <button
-              onClick={() => { toast.info('Edição em breve.'); setDetailSheetOpen(false); }}
+              onClick={() => { setDetailSheetOpen(false); navigate(`/app/quotes/${quote.id}/edit`); }}
               className="flex items-center gap-3 h-14 px-3 rounded-lg text-base hover:bg-muted/50 active:bg-muted text-left"
             >
               <Pencil className="h-5 w-5 text-muted-foreground" />

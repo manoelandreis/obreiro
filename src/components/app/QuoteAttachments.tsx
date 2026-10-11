@@ -16,12 +16,13 @@ interface Attachment {
 interface Props {
   quoteId: string;
   disabled?: boolean;
+  onCountChange?: (count: number) => void;
 }
 
 const MAX_BYTES = 8 * 1024 * 1024;
 const MAX_ATTACHMENTS = 12;
 
-export function QuoteAttachments({ quoteId, disabled }: Props) {
+export function QuoteAttachments({ quoteId, disabled, onCountChange }: Props) {
   const { user } = useAppAuth();
   const [items, setItems] = useState<Attachment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,6 +56,8 @@ export function QuoteAttachments({ quoteId, disabled }: Props) {
     if (quoteId) void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quoteId]);
+
+  useEffect(() => { onCountChange?.(items.length); }, [items.length, onCountChange]);
 
   const onPick = () => fileRef.current?.click();
 

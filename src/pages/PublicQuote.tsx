@@ -27,6 +27,7 @@ interface PublicQuote {
   sent_at: string | null;
   responded_at: string | null;
   payment_terms: PaymentTerms | null;
+  attachments?: { id: string; type: string; caption: string | null }[];
 }
 
 const fmt = (v: number) => Number(v).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });

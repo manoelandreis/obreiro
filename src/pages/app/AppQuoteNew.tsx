@@ -13,6 +13,8 @@ import { ClientSection } from '@/components/app/quote-new/ClientSection';
 import { ServicesSection } from '@/components/app/quote-new/ServicesSection';
 import { PaymentSection } from '@/components/app/quote-new/PaymentSection';
 import { NotesSection } from '@/components/app/quote-new/NotesSection';
+import { PhotosSection, type DraftPhoto } from '@/components/app/quote-new/PhotosSection';
+import { uploadDraftPhotos } from '@/lib/draftPhotoUpload';
 import {
   DEFAULT_PAYMENT_TERMS,
   type PaymentTerms, type CustomPaymentTemplate,
@@ -48,7 +50,8 @@ export default function AppQuoteNew() {
   const [selectedPaymentKey, setSelectedPaymentKey] = useState<string>('100_end');
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [saving, setSaving] = useState(false);
-  const [expanded, setExpanded] = useState({ client: true, services: true, payment: false, notes: false });
+  const [photos, setPhotos] = useState<DraftPhoto[]>([]);
+  const [expanded, setExpanded] = useState({ client: true, services: true, payment: false, notes: false, photos: false });
   const [companyConfigured, setCompanyConfigured] = useState(true);
 
   useEffect(() => {
@@ -203,9 +206,15 @@ export default function AppQuoteNew() {
       }
     }
 
+    const failedPhotos = await uploadDraftPhotos(user.id, quote.id, photos);
     setSaving(false);
-    toast.success('Orçamento guardado e tarefas criadas.');
-    navigate('/app/quotes');
+    if (failedPhotos.length) {
+      toast.error(`Orçamento guardado, mas ${failedPhotos.length} foto(s) não foram carregadas. Adicione-as novamente no detalhe do orçamento.`);
+      navigate(`/app/quotes/${quote.id}`);
+    } else {
+      toast.success('Orçamento guardado e tarefas criadas.');
+      navigate('/app/quotes');
+    }
   };
 
   return (
@@ -289,6 +298,14 @@ export default function AppQuoteNew() {
         onNotesChange={setNotes}
         expanded={expanded.notes}
         onToggle={() => toggle('notes')}
+      />
+
+      <PhotosSection
+        photos={photos}
+        onChange={setPhotos}
+        expanded={expanded.photos}
+        onToggle={() => toggle('photos')}
+        disabled={saving}
       />
 
       <Card>

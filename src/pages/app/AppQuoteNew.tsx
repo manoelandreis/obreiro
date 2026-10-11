@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { CollapsibleSection } from '@/components/app/CollapsibleSection';
+import { QuoteAttachments } from '@/components/app/QuoteAttachments';
+import { Image as ImageIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { Button } from '@/components/ui/button';
@@ -32,6 +35,9 @@ const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', curren
 export default function AppQuoteNew() {
   const { user } = useAppAuth();
   const navigate = useNavigate();
+  const { id: editId } = useParams<{ id: string }>();
+  const isEdit = !!editId;
+  const [photoCount, setPhotoCount] = useState(0);
 
   // Company snapshot (from settings)
   const [company, setCompany] = useState({ name: '', email: '', phone: '', address: '', nif: '', iban: '', mbway: '' });
@@ -91,8 +97,26 @@ export default function AppQuoteNew() {
       }
       if (cs) setClients(cs);
       if (tpl) setTemplates(tpl as QuoteTemplate[]);
+      if (editId) {
+        const { data: q } = await supabase.from('app_quotes').select('title, client_id, services, notes, payment_terms').eq('id', editId).maybeSingle();
+        if (!q) { toast.error('Orçamento não encontrado.'); navigate('/app/quotes'); return; }
+        setTitle(q.title || 'Orçamento');
+        if (q.client_id) setSelectedClientId(q.client_id);
+        const svc = Array.isArray(q.services) ? (q.services as any[]) : [];
+        setServices(svc.length ? svc.map((s) => ({
+          id: s.id || crypto.randomUUID(), name: s.name || '', description: s.description || '',
+          pricePerHour: Number(s.pricePerHour) || 0, hours: Number(s.hours) || 0,
+          materials: (s.materials || []).map((m: any) => ({ id: m.id || crypto.randomUUID(), name: m.name || '', quantity: Number(m.quantity) || 0, unit: m.unit || 'un', unitPrice: Number(m.unitPrice) || 0 })),
+        })) : [emptyService()]);
+        setNotes(q.notes || '');
+        if (q.payment_terms) {
+          const pt = q.payment_terms as unknown as PaymentTerms;
+          setPaymentTerms(pt);
+          setSelectedPaymentKey(pt.preset === 'custom' ? 'custom' : pt.preset);
+        }
+      }
     })();
-  }, [user]);
+  }, [user, editId]);
 
   // Service helpers
   const addService = () => setServices([...services, emptyService()]);
@@ -126,6 +150,26 @@ export default function AppQuoteNew() {
     if (services.every((s) => !s.name.trim())) return toast.error('Adicione pelo menos um serviço.');
     const selectedClient = clients.find((c) => c.id === selectedClientId);
     setSaving(true);
+
+    if (isEdit) {
+      const { data: updated, error: upErr } = await supabase.from('app_quotes').update({
+        client_id: selectedClientId,
+        title: title.trim() || 'Orçamento',
+        client_snapshot: selectedClient as any,
+        services: services as any,
+        notes: notes.trim() || null,
+        payment_terms: paymentTerms as any,
+        subtotal, iva, total,
+      }).eq('id', editId!).select('job_id').maybeSingle();
+      setSaving(false);
+      if (upErr || !updated) return toast.error('Erro a atualizar orçamento.');
+      if (updated.job_id) {
+        await supabase.from('app_jobs').update({ title: title.trim() || 'Orçamento', estimated_value: total, client_id: selectedClientId }).eq('id', updated.job_id);
+      }
+      toast.success('Orçamento atualizado.');
+      navigate(`/app/quotes/${editId}`);
+      return;
+    }
 
     const { data: job, error: jobErr } = await supabase
       .from('app_jobs')
@@ -221,16 +265,16 @@ export default function AppQuoteNew() {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/app/quotes')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(isEdit ? `/app/quotes/${editId}` : '/app/quotes')}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="font-heading text-3xl font-bold">Novo Orçamento</h1>
+            <h1 className="font-heading text-3xl font-bold">{isEdit ? 'Editar Orçamento' : 'Novo Orçamento'}</h1>
             <p className="text-muted-foreground">Preencha os dados do cliente, serviços e materiais.</p>
           </div>
         </div>
         <Button className="gap-2 w-full sm:w-auto" disabled={saving} onClick={handleSave}>
-          <Save className="h-4 w-4" /> {saving ? 'A guardar...' : 'Guardar Orçamento'}
+          <Save className="h-4 w-4" /> {saving ? 'A guardar...' : isEdit ? 'Guardar Alterações' : 'Guardar Orçamento'}
         </Button>
       </div>
 
@@ -300,13 +344,19 @@ export default function AppQuoteNew() {
         onToggle={() => toggle('notes')}
       />
 
-      <PhotosSection
-        photos={photos}
-        onChange={setPhotos}
-        expanded={expanded.photos}
-        onToggle={() => toggle('photos')}
-        disabled={saving}
-      />
+      {isEdit ? (
+        <CollapsibleSection icon={ImageIcon} title="Fotos" summary={photoCount ? `${photoCount}/12 fotos` : 'Opcional'} open={expanded.photos} onToggle={() => toggle('photos')}>
+          <QuoteAttachments quoteId={editId!} onCountChange={setPhotoCount} />
+        </CollapsibleSection>
+      ) : (
+        <PhotosSection
+          photos={photos}
+          onChange={setPhotos}
+          expanded={expanded.photos}
+          onToggle={() => toggle('photos')}
+          disabled={saving}
+        />
+      )}
 
       <Card>
         <CardContent className="pt-6 space-y-2 text-right">
@@ -315,7 +365,7 @@ export default function AppQuoteNew() {
           <div className="text-2xl font-bold text-primary border-t pt-2">Total: {fmt(total)}</div>
           <div className="pt-3">
             <Button size="lg" className="gap-2 w-full" disabled={saving} onClick={handleSave}>
-              <Save className="h-4 w-4" /> {saving ? 'A guardar...' : 'Guardar Orçamento'}
+              <Save className="h-4 w-4" /> {saving ? 'A guardar...' : isEdit ? 'Guardar Alterações' : 'Guardar Orçamento'}
             </Button>
           </div>
         </CardContent>

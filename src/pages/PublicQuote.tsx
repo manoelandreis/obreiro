@@ -307,6 +307,35 @@ export default function PublicQuote() {
               anchor={quote.responded_at ?? quote.sent_at ?? quote.created_at}
             />
 
+            {/* Photo gallery — only shown when the quote has attachments */}
+            {quote.attachments && quote.attachments.length > 0 && (
+              <div className="border-t pt-4">
+                <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-2">
+                  Fotos e anexos
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {quote.attachments.map((a) => (
+                    <figure key={a.id} className="space-y-1">
+                      <div className="aspect-square rounded-lg overflow-hidden border border-border bg-muted">
+                        <img
+                          src={`https://cprysybqjtsynxofljxc.supabase.co/functions/v1/get-quote-attachment?token=${token}&id=${a.id}`}
+                          alt={a.caption ?? 'Anexo do orçamento'}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                      {a.caption && (
+                        <figcaption className="text-xs text-muted-foreground">{a.caption}</figcaption>
+                      )}
+                    </figure>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {quote.notes && (
               <div className="border-t pt-4">
                 <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-1">

@@ -144,6 +144,67 @@ export default function AppQuoteNew() {
 
   const toggle = (k: keyof typeof expanded) => setExpanded((p) => ({ ...p, [k]: !p[k] }));
 
+  // Rebuild the job's groups/tasks/materials from current services, keeping done/obtained by matching text
+  const syncJobItems = async (jobId: string) => {
+    if (!user) return;
+    const uid = user.id;
+    const doneSet = new Set<string>();
+    const obtainedSet = new Set<string>();
+    const { data: oldGroups } = await supabase.from('app_job_groups').select('id').eq('job_id', jobId);
+    const gids = (oldGroups || []).map((g) => g.id);
+    if (gids.length) {
+      const [{ data: ot }, { data: om }] = await Promise.all([
+        supabase.from('app_job_tasks').select('description, done').in('group_id', gids),
+        supabase.from('app_job_materials').select('description, obtained').in('group_id', gids),
+      ]);
+      (ot || []).forEach((t) => t.done && doneSet.add(t.description));
+      (om || []).forEach((m) => m.obtained && obtainedSet.add(m.description));
+      await supabase.from('app_job_tasks').delete().in('group_id', gids);
+      await supabase.from('app_job_materials').delete().in('group_id', gids);
+      await supabase.from('app_job_groups').delete().in('id', gids);
+    }
+    const validServices = services.filter((s) => s.name.trim());
+    for (let i = 0; i < validServices.length; i++) {
+      const s = validServices[i];
+      const { data: group } = await supabase
+        .from('app_job_groups')
+        .insert({ user_id: uid, job_id: jobId, name: s.name.trim(), sort_order: i })
+        .select('id')
+        .maybeSingle();
+      if (!group) continue;
+
+      const tasks: { user_id: string; group_id: string; description: string; sort_order: number; done: boolean }[] = [];
+      if (s.description?.trim()) {
+        tasks.push({ user_id: uid, group_id: group.id, description: s.description.trim(), sort_order: 0, done: doneSet.has(s.description.trim()) });
+      }
+      if (s.hours > 0) {
+        tasks.push({
+          user_id: uid,
+          group_id: group.id,
+          description: `Mão de obra: ${s.hours}h × ${s.pricePerHour.toFixed(2)} €/h`,
+          sort_order: tasks.length,
+          done: doneSet.has(`Mão de obra: ${s.hours}h × ${s.pricePerHour.toFixed(2)} €/h`),
+        });
+      }
+      if (tasks.length) await supabase.from('app_job_tasks').insert(tasks);
+
+      if (s.materials.length) {
+        await supabase.from('app_job_materials').insert(
+          s.materials
+            .filter((m) => m.name.trim())
+            .map((m, idx) => ({
+              user_id: uid,
+              group_id: group.id,
+              description: `${m.name} — ${m.quantity} ${m.unit || 'un'} × ${Number(m.unitPrice).toFixed(2)} €`,
+              sort_order: idx,
+              obtained: obtainedSet.has(`${m.name} — ${m.quantity} ${m.unit || 'un'} × ${Number(m.unitPrice).toFixed(2)} €`),
+            }))
+        );
+      }
+    }
+
+  };
+
   const handleSave = async () => {
     if (!user) return;
     if (!selectedClientId) return toast.error('Selecione ou crie um cliente.');
@@ -161,11 +222,12 @@ export default function AppQuoteNew() {
         payment_terms: paymentTerms as any,
         subtotal, iva, total,
       }).eq('id', editId!).select('job_id').maybeSingle();
-      setSaving(false);
-      if (upErr || !updated) return toast.error('Erro a atualizar orçamento.');
+      if (upErr || !updated) { setSaving(false); return toast.error('Erro a atualizar orçamento.'); }
       if (updated.job_id) {
+        await syncJobItems(updated.job_id);
         await supabase.from('app_jobs').update({ title: title.trim() || 'Orçamento', estimated_value: total, client_id: selectedClientId }).eq('id', updated.job_id);
       }
+      setSaving(false);
       toast.success('Orçamento atualizado.');
       navigate(`/app/quotes/${editId}`);
       return;
@@ -212,43 +274,7 @@ export default function AppQuoteNew() {
       return toast.error('Erro a guardar orçamento.');
     }
 
-    const validServices = services.filter((s) => s.name.trim());
-    for (let i = 0; i < validServices.length; i++) {
-      const s = validServices[i];
-      const { data: group } = await supabase
-        .from('app_job_groups')
-        .insert({ user_id: user.id, job_id: job.id, name: s.name.trim(), sort_order: i })
-        .select('id')
-        .maybeSingle();
-      if (!group) continue;
-
-      const tasks: { user_id: string; group_id: string; description: string; sort_order: number }[] = [];
-      if (s.description?.trim()) {
-        tasks.push({ user_id: user.id, group_id: group.id, description: s.description.trim(), sort_order: 0 });
-      }
-      if (s.hours > 0) {
-        tasks.push({
-          user_id: user.id,
-          group_id: group.id,
-          description: `Mão de obra: ${s.hours}h × ${s.pricePerHour.toFixed(2)} €/h`,
-          sort_order: tasks.length,
-        });
-      }
-      if (tasks.length) await supabase.from('app_job_tasks').insert(tasks);
-
-      if (s.materials.length) {
-        await supabase.from('app_job_materials').insert(
-          s.materials
-            .filter((m) => m.name.trim())
-            .map((m, idx) => ({
-              user_id: user.id,
-              group_id: group.id,
-              description: `${m.name} — ${m.quantity} ${m.unit || 'un'} × ${Number(m.unitPrice).toFixed(2)} €`,
-              sort_order: idx,
-            }))
-        );
-      }
-    }
+    await syncJobItems(job.id);
 
     const failedPhotos = await uploadDraftPhotos(user.id, quote.id, photos);
     setSaving(false);

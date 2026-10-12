@@ -8,6 +8,13 @@
       "when": 1788450543195,
       "tag": "0000_add_logo_settings_and_update_public_quote",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791822632127,
+      "tag": "0001_free_quota_counter",
+      "breakpoints": true
     }
   ]
 }

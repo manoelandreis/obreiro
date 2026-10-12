@@ -36,7 +36,7 @@ const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', curren
 
 export default function AppQuoteNew() {
   const { user } = useAppAuth();
-  const { limits } = useSubscription();
+  const { limits, loading: subLoading } = useSubscription();
   const navigate = useNavigate();
   const { id: editId } = useParams<{ id: string }>();
   const isEdit = !!editId;
@@ -62,6 +62,25 @@ export default function AppQuoteNew() {
   const [photos, setPhotos] = useState<DraftPhoto[]>([]);
   const [expanded, setExpanded] = useState({ client: true, services: true, payment: false, notes: false, photos: false });
   const [companyConfigured, setCompanyConfigured] = useState(true);
+  const [quotaReached, setQuotaReached] = useState(false);
+
+  const trackEvent = (event_type: string) => {
+    void supabase.from('quote_events').insert({ event_type, session_id: crypto.randomUUID(), metadata: { user_id: user?.id } } as never);
+  };
+
+  // Free plan monthly quota — only blocks starting a NEW quote; editing is always free
+  useEffect(() => {
+    if (!user || isEdit || subLoading || limits.monthlyQuotes == null) { setQuotaReached(false); return; }
+    const now = new Date();
+    const monthRef = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-01`;
+    void (async () => {
+      const { data } = await supabase.from('quote_usage_monthly').select('quotes_created').eq('user_id', user.id).eq('month_ref', monthRef).maybeSingle();
+      const reached = (data?.quotes_created ?? 0) >= (limits.monthlyQuotes as number);
+      setQuotaReached(reached);
+      if (reached) trackEvent('quota_limit_reached');
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, isEdit, subLoading, limits.monthlyQuotes]);
 
   useEffect(() => {
     if (!user) return;
@@ -289,6 +308,25 @@ export default function AppQuoteNew() {
       navigate('/app/quotes');
     }
   };
+
+  if (!isEdit && quotaReached) {
+    return (
+      <div className="max-w-xl mx-auto space-y-6 pt-6">
+        <Button variant="ghost" size="sm" className="gap-2" onClick={() => navigate('/app/quotes')}>
+          <ArrowLeft className="h-4 w-4" /> Voltar aos orçamentos
+        </Button>
+        <div onClickCapture={(e) => { if ((e.target as HTMLElement).closest('a')) trackEvent('quota_upgrade_clicked'); }}>
+          <FeatureGate
+            feature="attachments"
+            fallback={undefined}
+            title="Atingiu os 5 orçamentos deste mês"
+            description="Os seus orçamentos e clientes continuam todos disponíveis. Para criar mais este mês, faça upgrade para o Pro."
+            forceLocked
+          ><></></FeatureGate>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">

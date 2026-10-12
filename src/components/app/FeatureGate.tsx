@@ -14,6 +14,7 @@ interface FeatureGateProps {
   mode?: 'block' | 'overlay' | 'inline';
   title?: string;
   description?: string;
+  forceLocked?: boolean; // e.g. usage quota reached
 }
 
 const BUSINESS_ONLY: FeatureKey[] = ['multiUser', 'saftExport', 'invoiceConversion'];
@@ -26,11 +27,12 @@ export function FeatureGate({
   mode = 'block',
   title,
   description,
+  forceLocked,
 }: FeatureGateProps) {
   const { limits, loading } = useSubscription();
   if (loading) return null;
 
-  const allowed = limits[feature];
+  const allowed = !forceLocked && limits[feature];
   if (allowed) return <>{children}</>;
 
   const needed: Tier =

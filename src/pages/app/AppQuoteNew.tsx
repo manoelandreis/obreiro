@@ -5,6 +5,8 @@ import { QuoteAttachments } from '@/components/app/QuoteAttachments';
 import { Image as ImageIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAppAuth } from '@/hooks/useAppAuth';
+import { useSubscription } from '@/hooks/useSubscription';
+import { FeatureGate } from '@/components/app/FeatureGate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,6 +36,7 @@ const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', curren
 
 export default function AppQuoteNew() {
   const { user } = useAppAuth();
+  const { limits } = useSubscription();
   const navigate = useNavigate();
   const { id: editId } = useParams<{ id: string }>();
   const isEdit = !!editId;

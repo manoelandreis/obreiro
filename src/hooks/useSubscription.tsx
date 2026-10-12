@@ -21,8 +21,8 @@ export interface TierLimits {
 
 export const TIER_LIMITS: Record<Tier, TierLimits> = {
   free: {
-    monthlyQuotes: 3,
-    maxClients: 5,
+    monthlyQuotes: 5,
+    maxClients: null,
     pdfBranding: false,
     removeWatermark: false,
     emailSend: false,

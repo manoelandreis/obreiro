@@ -754,6 +754,24 @@ export type Database = {
         }
         Relationships: []
       }
+      quote_usage_monthly: {
+        Row: {
+          month_ref: string
+          quotes_created: number
+          user_id: string
+        }
+        Insert: {
+          month_ref: string
+          quotes_created?: number
+          user_id: string
+        }
+        Update: {
+          month_ref?: string
+          quotes_created?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       suppressed_emails: {
         Row: {
           created_at: string

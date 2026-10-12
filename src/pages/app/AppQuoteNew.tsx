@@ -5,6 +5,8 @@ import { QuoteAttachments } from '@/components/app/QuoteAttachments';
 import { Image as ImageIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAppAuth } from '@/hooks/useAppAuth';
+import { useSubscription } from '@/hooks/useSubscription';
+import { FeatureGate } from '@/components/app/FeatureGate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,6 +36,7 @@ const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', curren
 
 export default function AppQuoteNew() {
   const { user } = useAppAuth();
+  const { limits } = useSubscription();
   const navigate = useNavigate();
   const { id: editId } = useParams<{ id: string }>();
   const isEdit = !!editId;
@@ -276,7 +279,7 @@ export default function AppQuoteNew() {
 
     await syncJobItems(job.id);
 
-    const failedPhotos = await uploadDraftPhotos(user.id, quote.id, photos);
+    const failedPhotos = limits.attachments ? await uploadDraftPhotos(user.id, quote.id, photos) : photos;
     setSaving(false);
     if (failedPhotos.length) {
       toast.error(`Orçamento guardado, mas ${failedPhotos.length} foto(s) não foram carregadas. Adicione-as novamente no detalhe do orçamento.`);
@@ -372,9 +375,13 @@ export default function AppQuoteNew() {
 
       {isEdit ? (
         <CollapsibleSection icon={ImageIcon} title="Fotos" summary={photoCount ? `${photoCount}/12 fotos` : 'Opcional'} open={expanded.photos} onToggle={() => toggle('photos')}>
-          <QuoteAttachments quoteId={editId!} onCountChange={setPhotoCount} />
+          {limits.attachments ? (
+            <QuoteAttachments quoteId={editId!} onCountChange={setPhotoCount} />
+          ) : (
+            <FeatureGate feature="attachments" title="Fotos disponíveis no plano Pro" description="Anexe fotos do trabalho aos seus orçamentos com o plano Pro."><></></FeatureGate>
+          )}
         </CollapsibleSection>
-      ) : (
+      ) : limits.attachments ? (
         <PhotosSection
           photos={photos}
           onChange={setPhotos}
@@ -382,6 +389,10 @@ export default function AppQuoteNew() {
           onToggle={() => toggle('photos')}
           disabled={saving}
         />
+      ) : (
+        <CollapsibleSection icon={ImageIcon} title="Fotos" summary="Plano Pro" open={expanded.photos} onToggle={() => toggle('photos')}>
+          <FeatureGate feature="attachments" title="Fotos disponíveis no plano Pro" description="Anexe fotos do trabalho aos seus orçamentos com o plano Pro."><></></FeatureGate>
+        </CollapsibleSection>
       )}
 
       <Card>

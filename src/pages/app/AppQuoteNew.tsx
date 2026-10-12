@@ -378,7 +378,7 @@ export default function AppQuoteNew() {
           {limits.attachments ? (
             <QuoteAttachments quoteId={editId!} onCountChange={setPhotoCount} />
           ) : (
-            <FeatureGate feature="attachments" title="Fotos disponíveis no plano Pro" description="Anexe fotos do trabalho aos seus orçamentos com o plano Pro." />
+            <FeatureGate feature="attachments" title="Fotos disponíveis no plano Pro" description="Anexe fotos do trabalho aos seus orçamentos com o plano Pro."><></></FeatureGate>
           )}
         </CollapsibleSection>
       ) : limits.attachments ? (
@@ -391,7 +391,7 @@ export default function AppQuoteNew() {
         />
       ) : (
         <CollapsibleSection icon={ImageIcon} title="Fotos" summary="Plano Pro" open={expanded.photos} onToggle={() => toggle('photos')}>
-          <FeatureGate feature="attachments" title="Fotos disponíveis no plano Pro" description="Anexe fotos do trabalho aos seus orçamentos com o plano Pro." />
+          <FeatureGate feature="attachments" title="Fotos disponíveis no plano Pro" description="Anexe fotos do trabalho aos seus orçamentos com o plano Pro."><></></FeatureGate>
         </CollapsibleSection>
       )}
 

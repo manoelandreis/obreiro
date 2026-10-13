@@ -127,7 +127,7 @@ const logos: Record<string, string> = {
 
 mkdirSync('/tmp/example-quotes', { recursive: true });
 for (const q of QUOTES) {
-  const response = await fetch(`http://localhost:8080${logos[q.slug]}`);
+  const response = await fetch(`https://obreiro.pt${logos[q.slug]}`);
   if (!response.ok) throw new Error(`Unable to load example logo: ${q.slug}`);
   const logoUrl = `data:image/png;base64,${Buffer.from(await response.arrayBuffer()).toString('base64')}`;
   const html = buildQuoteHtml(q.data, { brand: { ...BRAND, logoUrl }, withWatermark: false });

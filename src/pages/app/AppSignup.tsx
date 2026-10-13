@@ -79,6 +79,7 @@ export default function AppSignup() {
           <p className="text-sm text-muted-foreground">Comece a gerir o seu negócio em minutos.</p>
         </CardHeader>
         <CardContent>
+          <GoogleAuthButton label="Criar conta com o Google" />
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div>
               <Label htmlFor="name">Nome</Label>

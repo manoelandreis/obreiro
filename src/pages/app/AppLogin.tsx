@@ -41,6 +41,7 @@ export default function AppLogin() {
           <p className="text-sm text-muted-foreground">Aceda ao seu negócio.</p>
         </CardHeader>
         <CardContent>
+          <GoogleAuthButton />
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="email">Email</Label>

@@ -1,12 +1,17 @@
 // @ts-ignore
 globalThis.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {}, clear: () => {}, key: () => null, length: 0 } as any;
-import { buildQuoteHtml, type QuoteRenderData } from '../src/lib/quotePdf';
+import { buildQuoteHtml, type QuoteRenderData, type BrandSnapshot } from '../src/lib/quotePdf';
+import aguacerta from '../src/assets/examples/aguacerta.png.asset.json';
+import costaPintura from '../src/assets/examples/costa-pintura.png.asset.json';
+import lusoObras from '../src/assets/examples/luso-obras.png.asset.json';
 import { PAYMENT_PRESETS } from '../src/lib/paymentTerms';
 import { writeFileSync, mkdirSync } from 'fs';
 // playwright rendering done via python script
 
-const BRAND = {
+const BRAND: BrandSnapshot = {
   logoUrl: null,
+  logoKind: 'horizontal',
+  logoHeight: 64,
   primary: '#1B3A5C',
   accent: '#E8730A',
   description: null,
@@ -93,7 +98,7 @@ const QUOTES: Array<{ slug: string; data: QuoteRenderData }> = [
       ...calcTotals(baseServices.pintura),
       createdAt: '2026-05-16',
       expiresAt: '2026-06-30',
-      paymentTerms: { preset: '50_50', installments: PAYMENT_PRESETS.find(p=>p.id==='50_50')!.installments },
+      paymentTerms: { preset: '50_50', installments: PAYMENT_PRESETS.find(p=>p.id==='50_50')?.installments ?? [] },
       paymentAnchor: '2026-05-16',
     },
   },
@@ -108,15 +113,24 @@ const QUOTES: Array<{ slug: string; data: QuoteRenderData }> = [
       ...calcTotals(baseServices.remodelacao),
       createdAt: '2026-05-16',
       expiresAt: '2026-06-30',
-      paymentTerms: { preset: '30_70', installments: PAYMENT_PRESETS.find(p=>p.id==='30_70')!.installments },
+      paymentTerms: { preset: '30_70', installments: PAYMENT_PRESETS.find(p=>p.id==='30_70')?.installments ?? [] },
       paymentAnchor: '2026-05-16',
     },
   },
 ];
 
-mkdirSync('public/exemplos', { recursive: true });
+const logos: Record<string, string> = {
+  canalizacao: aguacerta.url,
+  pintura: costaPintura.url,
+  remodelacao: lusoObras.url,
+};
+
+mkdirSync('/tmp/example-quotes', { recursive: true });
 for (const q of QUOTES) {
-  const html = buildQuoteHtml(q.data, { brand: BRAND, withWatermark: false });
-  writeFileSync(`/tmp/q-${q.slug}.html`, html);
+  const response = await fetch(`http://localhost:8080${logos[q.slug]}`);
+  if (!response.ok) throw new Error(`Unable to load example logo: ${q.slug}`);
+  const logoUrl = `data:image/png;base64,${Buffer.from(await response.arrayBuffer()).toString('base64')}`;
+  const html = buildQuoteHtml(q.data, { brand: { ...BRAND, logoUrl }, withWatermark: false });
+  writeFileSync(`/tmp/example-quotes/${q.slug}.html`, html);
   console.log('html', q.slug);
 }

@@ -275,21 +275,21 @@ export default function IndexV2() {
         <div className="absolute inset-0 bg-hero-wash/85 md:hidden" />
         <div className="absolute inset-0 hidden md:block bg-[linear-gradient(103deg,hsl(var(--hero-wash))_0.4%,hsl(var(--hero-wash)/0.9)_31.7%,hsl(var(--hero-wash)/0)_63%)]" />
         <div className="relative z-10 mx-auto max-w-[1180px]">
-          <div className="flex max-w-3xl flex-col items-start gap-10">
+          <div className="flex max-w-3xl flex-col items-center gap-10 md:items-start">
             <EyebrowPill icon={<img src={checkCircleIcon} alt="" aria-hidden className="h-3 w-3" />}>
               Sem comissões
             </EyebrowPill>
 
-            <div className="flex w-full flex-col items-start gap-8">
+            <div className="flex w-full flex-col items-center gap-8 md:items-start">
               <div className="flex w-full flex-col gap-5 text-foreground">
-                <h1 className="font-heading text-4xl font-bold leading-tight tracking-[-0.02em] text-balance md:text-[56px] md:leading-[1.4]">
+                <h1 className="text-center font-heading text-4xl font-bold leading-tight tracking-[-0.02em] text-balance md:text-left md:text-[56px] md:leading-[1.4]">
                   {hero?.title || 'Crie orçamentos profissionais em minutos'}
                 </h1>
-                <p className="whitespace-pre-line text-lg leading-[1.6] opacity-70 md:text-xl">
+                <p className="whitespace-pre-line text-center text-lg leading-[1.6] opacity-70 md:text-left md:text-xl">
                   {hero?.subtitle || 'Faça tudo ao telemóvel, com a sua marca e IVA calculado.\nO cliente recebe no WhatsApp em minutos.'}
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
                 <Button variant="accent" asChild className="h-12 px-6">
                   <Link to="/app/signup">
                     Criar orçamento grátis <ArrowRight />

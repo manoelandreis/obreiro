@@ -250,7 +250,6 @@ export default function IndexV2() {
             <a href="#vantagens" className="hover:text-foreground transition-colors">Vantagens</a>
             <a href="#sobre" className="hover:text-foreground transition-colors">Segurança</a>
             <a href="#faq" className="hover:text-foreground transition-colors">FAQ</a>
-            <a href="#conta" className="hover:text-foreground transition-colors">Conta</a>
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="ghost" asChild>

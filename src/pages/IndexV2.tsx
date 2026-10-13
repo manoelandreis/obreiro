@@ -21,7 +21,7 @@ import { PAYMENT_PRESETS, type PaymentPreset, presetById } from '@/lib/paymentTe
 import { Wallet } from 'lucide-react';
 import mockupTemplate from '@/assets/mockup-template.jpg';
 import mockupTool from '@/assets/mockup-tool.jpg';
-import heroBg from '@/assets/hero_background.png.asset.json';
+import heroBg from '@/assets/hero-obreiro.jpg';
 import portugalFlag from '@/assets/icons/portugal.svg';
 import checkCircleIcon from '@/assets/icons/check-circle.svg';
 import canalizacaoPdf from '@/assets/examples/orcamento-canalizacao.pdf.asset.json';
@@ -269,7 +269,7 @@ export default function IndexV2() {
       {/* ─────── HERO ─────── */}
       <section
         className="relative px-6 pt-16 pb-20 bg-cover bg-[position:70%_center]"
-        style={{ backgroundImage: `url(${heroBg.url})` }}
+        style={{ backgroundImage: `url(${heroBg})` }}
       >
         {/* Véu: uniforme em mobile, degradê da esquerda em desktop (lê-se o texto, vê-se a foto à direita) */}
         <div className="absolute inset-0 bg-hero-wash/85 md:hidden" />

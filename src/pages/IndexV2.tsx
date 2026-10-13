@@ -415,7 +415,7 @@ export default function IndexV2() {
       </section>
 
       {SHOW_QUOTE_BUILDER && (
-      {/* ─────── INLINE QUOTE BUILDER ─────── */}
+      // ─────── INLINE QUOTE BUILDER (escondido: SHOW_QUOTE_BUILDER = false) ───────
       <section ref={quoteRef} id="quote-builder" className="px-6 py-20 bg-card border-y border-border scroll-mt-20">
         <div className="mx-auto max-w-3xl">
           <div className="text-center mb-10">

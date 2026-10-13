@@ -41,6 +41,11 @@ const emptyService = (): ServiceItem => ({ id: crypto.randomUUID(), name: '', de
 
 const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
 
+// ── Landing feature flags ──
+// O gerador incorporado está escondido na landing: os CTAs levam direto para a criação de conta.
+// Passe para `true` para voltar a mostrar a secção "#quote-builder" (todo o código fica preservado).
+const SHOW_QUOTE_BUILDER: boolean = false;
+
 // ── Logo mark ──
 const LogoMark = ({ size = 32 }: { size?: number }) => (
   <div

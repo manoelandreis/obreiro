@@ -21,6 +21,12 @@ import { Wallet } from 'lucide-react';
 import mockupTemplate from '@/assets/mockup-template.jpg';
 import mockupTool from '@/assets/mockup-tool.jpg';
 import heroBg from '@/assets/hero_background.png.asset.json';
+import canalizacaoPdf from '@/assets/examples/orcamento-canalizacao.pdf.asset.json';
+import canalizacaoPreview from '@/assets/examples/orcamento-canalizacao.png.asset.json';
+import pinturaPdf from '@/assets/examples/orcamento-pintura.pdf.asset.json';
+import pinturaPreview from '@/assets/examples/orcamento-pintura.png.asset.json';
+import remodelacaoPdf from '@/assets/examples/orcamento-remodelacao.pdf.asset.json';
+import remodelacaoPreview from '@/assets/examples/orcamento-remodelacao.png.asset.json';
 
 // ── Types ──
 interface MaterialItem { id: string; name: string; quantity: number; unit: string; unitPrice: number; }
@@ -320,22 +326,22 @@ export default function IndexV2() {
                 category: 'Canalização',
                 title: 'Reparação de fuga + substituição',
                 desc: 'Orçamento de serviço pontual com mão de obra e materiais detalhados. Ideal para reparações rápidas.',
-                pdf: '/exemplos/orcamento-canalizacao.pdf',
-                preview: '/exemplos/orcamento-canalizacao.png',
+                pdf: canalizacaoPdf.url,
+                preview: canalizacaoPreview.url,
               },
               {
                 category: 'Pintura',
                 title: 'Pintura interior de apartamento T2',
                 desc: 'Orçamento por horas com discriminação de tintas e materiais consumíveis. Notas com condições e garantias.',
-                pdf: '/exemplos/orcamento-pintura.pdf',
-                preview: '/exemplos/orcamento-pintura.png',
+                pdf: pinturaPdf.url,
+                preview: pinturaPreview.url,
               },
               {
                 category: 'Remodelação',
                 title: 'Remodelação integral de casa de banho',
                 desc: 'Múltiplos serviços (construção, canalização, eletricidade) com subtotais por serviço e plano de pagamento.',
-                pdf: '/exemplos/orcamento-remodelacao.pdf',
-                preview: '/exemplos/orcamento-remodelacao.png',
+                pdf: remodelacaoPdf.url,
+                preview: remodelacaoPreview.url,
               },
             ].map((quote) => (
               <div key={quote.title} className="flex flex-col">

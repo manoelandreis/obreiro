@@ -214,7 +214,15 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 
   .watermark { position: fixed; bottom: 8mm; left: 0; right: 0; text-align: center; font-size: 9px; color: #9ca3af; }
   .watermark a { color: ${accent}; text-decoration: none; }
-  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .header { margin-bottom: 14px; padding-bottom: 12px; }
+    .client-line { margin-bottom: 18px; }
+    .service { padding: 12px 16px; margin-bottom: 12px; }
+    .item-row { padding: 6px 0; }
+    .payment-block { margin-top: 16px; padding: 12px 16px; }
+    .section { margin-top: 16px; padding-top: 12px; }
+  }
 </style>
 </head>
 <body>

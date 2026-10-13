@@ -246,9 +246,10 @@ export default function IndexV2() {
         <div className="mx-auto flex h-16 max-w-[1180px] items-center justify-between px-6">
           <Link to="/"><WordMark /></Link>
           <div className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
-            <a href="#sobre" className="hover:text-foreground transition-colors">Sobre</a>
             <a href="#exemplos" className="hover:text-foreground transition-colors">Exemplos</a>
-            {SHOW_QUOTE_BUILDER && <a href="#quote-builder" className="hover:text-foreground transition-colors">Orçamento</a>}
+            <a href="#vantagens" className="hover:text-foreground transition-colors">Vantagens</a>
+            <a href="#sobre" className="hover:text-foreground transition-colors">Segurança</a>
+            <a href="#faq" className="hover:text-foreground transition-colors">FAQ</a>
             <a href="#conta" className="hover:text-foreground transition-colors">Conta</a>
           </div>
           <div className="flex items-center gap-2">
@@ -776,7 +777,7 @@ export default function IndexV2() {
       )}
 
       {/* ─────── SECTION: Porque o Obreiro ─────── */}
-      <section className="px-6 py-20 bg-secondary/30 scroll-mt-20">
+      <section id="vantagens" className="px-6 py-20 bg-secondary/30 scroll-mt-20">
         <div className="mx-auto max-w-[1180px]">
           <div className="text-center mb-12">
             <span className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
@@ -862,7 +863,7 @@ export default function IndexV2() {
       </section>
 
 
-      <section id="faq" className="px-6 py-20 bg-secondary/30">
+      <section id="faq" className="px-6 py-20 bg-secondary/30 scroll-mt-20">
         <div className="mx-auto max-w-2xl">
           <div className="text-center mb-10">
             <span className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
@@ -951,7 +952,7 @@ export default function IndexV2() {
               <h4 className="font-heading font-semibold text-sm mb-3">Produto</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 {SHOW_QUOTE_BUILDER && <li><a href="#quote-builder" className="hover:text-foreground">Orçamento</a></li>}
-                <li><a href="#features" className="hover:text-foreground">Funcionalidades</a></li>
+                <li><a href="#vantagens" className="hover:text-foreground">Vantagens</a></li>
               </ul>
             </div>
             <div>

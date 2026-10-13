@@ -237,7 +237,7 @@ export default function IndexV2() {
   return (
     <div className="min-h-screen bg-background">
       {/* ─────── NAVBAR ─────── */}
-      <nav className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
+      <nav className="sticky top-0 z-50 border-b border-border/60 bg-nav">
         <div className="mx-auto flex h-16 max-w-[1180px] items-center justify-between px-6">
           <Link to="/"><WordMark /></Link>
           <div className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">

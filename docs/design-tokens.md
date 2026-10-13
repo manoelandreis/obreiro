@@ -46,6 +46,28 @@ Para borders subtis: `border-{family}/20` ou `border-{family}/30`.
 </Button>
 ```
 
+### Tipografia do botão
+
+Rótulos de botão são sempre **Bold** (`font-bold`):
+
+| Tamanho | Classe | Figma (text style) |
+|---|---|---|
+| `default` / `sm` | `text-sm font-bold` (14/20) | `Button/Default` |
+| `lg` | `text-base font-bold` (16/24) | `Button/Large` |
+
+`Body/Medium` e `Body/Large` continuam a ser os estilos de corpo de texto; não os uses em botões.
+
+---
+
+## Navegação
+
+| Contexto | Token | Figma |
+|---|---|---|
+| Navbar da landing | `bg-nav` (`--nav-background`, = `card` → branco em Light) | `nav/background` |
+| Navegação da app (sidebar / top bar mobile) | `bg-card` | `card/default` |
+
+`nav/background` é um token próprio (não um modo de `background`): os modos do Figma são só Light/Dark. Hoje aponta para o mesmo valor de `card`, mas permite mudar a navbar da landing sem mexer nos cartões.
+
 ---
 
 ## Inputs

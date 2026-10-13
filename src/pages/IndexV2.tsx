@@ -41,6 +41,11 @@ const emptyService = (): ServiceItem => ({ id: crypto.randomUUID(), name: '', de
 
 const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
 
+// ── Landing feature flags ──
+// O gerador incorporado está escondido na landing: os CTAs levam direto para a criação de conta.
+// Passe para `true` para voltar a mostrar a secção "#quote-builder" (todo o código fica preservado).
+const SHOW_QUOTE_BUILDER: boolean = false;
+
 // ── Logo mark ──
 const LogoMark = ({ size = 32 }: { size?: number }) => (
   <div
@@ -243,7 +248,7 @@ export default function IndexV2() {
           <div className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
             <a href="#sobre" className="hover:text-foreground transition-colors">Sobre</a>
             <a href="#exemplos" className="hover:text-foreground transition-colors">Exemplos</a>
-            <a href="#quote-builder" className="hover:text-foreground transition-colors">Orçamento</a>
+            {SHOW_QUOTE_BUILDER && <a href="#quote-builder" className="hover:text-foreground transition-colors">Orçamento</a>}
             <a href="#conta" className="hover:text-foreground transition-colors">Conta</a>
           </div>
           <div className="flex items-center gap-2">
@@ -281,8 +286,8 @@ export default function IndexV2() {
                   Criar conta grátis <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" onClick={scrollToQuote} className="h-12 px-6 border-foreground/20 bg-white/60 backdrop-blur-sm">
-                Experimentar orçamento
+              <Button size="lg" variant="outline" asChild className="h-12 px-6 border-foreground/20 bg-white/60 backdrop-blur-sm">
+                <Link to="/app/signup">Experimentar orçamento</Link>
               </Button>
             </div>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-foreground/60">
@@ -402,14 +407,15 @@ export default function IndexV2() {
           </div>
 
           <div className="mt-10 text-center">
-            <Button size="lg" variant="accent" onClick={scrollToQuote} className="gap-2 h-12 px-6">
+            <Button size="lg" variant="accent" onClick={() => { trackEvent('account_signup_started', { metadata: { source: 'examples_cta' } }); navigate('/app/signup'); }} className="gap-2 h-12 px-6">
               Criar o meu orçamento <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </section>
 
-      {/* ─────── INLINE QUOTE BUILDER ─────── */}
+      {SHOW_QUOTE_BUILDER && (
+      // ─────── INLINE QUOTE BUILDER (escondido: SHOW_QUOTE_BUILDER = false) ───────
       <section ref={quoteRef} id="quote-builder" className="px-6 py-20 bg-card border-y border-border scroll-mt-20">
         <div className="mx-auto max-w-3xl">
           <div className="text-center mb-10">
@@ -767,6 +773,7 @@ export default function IndexV2() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ─────── SECTION: Porque o Obreiro ─────── */}
       <section className="px-6 py-20 bg-secondary/30 scroll-mt-20">
@@ -943,7 +950,7 @@ export default function IndexV2() {
             <div>
               <h4 className="font-heading font-semibold text-sm mb-3">Produto</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#quote-builder" className="hover:text-foreground">Orçamento</a></li>
+                {SHOW_QUOTE_BUILDER && <li><a href="#quote-builder" className="hover:text-foreground">Orçamento</a></li>}
                 <li><a href="#features" className="hover:text-foreground">Funcionalidades</a></li>
               </ul>
             </div>

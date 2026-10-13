@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { EyebrowPill } from '@/components/ui/eyebrow-pill';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +22,8 @@ import { Wallet } from 'lucide-react';
 import mockupTemplate from '@/assets/mockup-template.jpg';
 import mockupTool from '@/assets/mockup-tool.jpg';
 import heroBg from '@/assets/hero_background.png.asset.json';
+import portugalFlag from '@/assets/icons/portugal.svg';
+import checkCircleIcon from '@/assets/icons/check-circle.svg';
 import canalizacaoPdf from '@/assets/examples/orcamento-canalizacao.pdf.asset.json';
 import canalizacaoPreview from '@/assets/examples/orcamento-canalizacao.png.asset.json';
 import pinturaPdf from '@/assets/examples/orcamento-pintura.pdf.asset.json';
@@ -265,44 +268,42 @@ export default function IndexV2() {
       <main>
       {/* ─────── HERO ─────── */}
       <section
-        className="relative px-6 pt-20 pb-16 md:pt-28 md:pb-20 bg-cover bg-center"
+        className="relative px-6 pt-16 pb-20 bg-cover bg-[position:70%_center]"
         style={{ backgroundImage: `url(${heroBg.url})` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/40 to-white/10" />
+        {/* Véu: uniforme em mobile, degradê da esquerda em desktop (lê-se o texto, vê-se a foto à direita) */}
+        <div className="absolute inset-0 bg-hero-wash/85 md:hidden" />
+        <div className="absolute inset-0 hidden md:block bg-[linear-gradient(103deg,hsl(var(--hero-wash))_0.4%,hsl(var(--hero-wash)/0.9)_31.7%,hsl(var(--hero-wash)/0)_63%)]" />
         <div className="relative z-10 mx-auto max-w-[1180px]">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent shadow-sm border border-accent/10">
-              <Sparkles className="h-3 w-3" /> Para construtores portugueses
+          <div className="flex max-w-3xl flex-col items-start gap-10">
+            <EyebrowPill icon={<img src={checkCircleIcon} alt="" aria-hidden className="h-3 w-3" />}>
+              Sem comissões
+            </EyebrowPill>
+
+            <div className="flex w-full flex-col items-start gap-8">
+              <div className="flex w-full flex-col gap-5 text-foreground">
+                <h1 className="font-heading text-4xl font-bold leading-tight tracking-[-0.02em] text-balance md:text-[56px] md:leading-[1.4]">
+                  {hero?.title || 'Crie orçamentos profissionais em minutos'}
+                </h1>
+                <p className="whitespace-pre-line text-lg leading-[1.6] opacity-70 md:text-xl">
+                  {hero?.subtitle || 'Faça tudo ao telemóvel, com a sua marca e IVA calculado.\nO cliente recebe no WhatsApp em minutos.'}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button variant="accent" asChild className="h-12 px-6">
+                  <Link to="/app/signup">
+                    Criar orçamento grátis <ArrowRight />
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild className="h-12 px-6">
+                  <a href="#exemplos">Ver exemplos</a>
+                </Button>
+              </div>
             </div>
-            <h1 className="mt-5 font-heading text-4xl md:text-6xl font-bold leading-[1.05] text-foreground text-balance">
-              {hero?.title || 'Crie orçamentos profissionais em minutos'}
-            </h1>
-            <p className="mt-5 mx-auto max-w-xl text-lg text-foreground/70 leading-relaxed">
-              {hero?.subtitle || 'Fica com 100% do que ganha em cada trabalho.'}
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Button size="lg" variant="accent" asChild className="gap-2 h-12 px-6">
-                <Link to="/app/signup">
-                  Criar conta grátis <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="h-12 px-6 border-foreground/20 bg-white/60 backdrop-blur-sm">
-                <Link to="/app/signup">Experimentar orçamento</Link>
-              </Button>
-            </div>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] text-foreground/60">
-              <span className="flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-success shrink-0" strokeWidth={2.5} />
-                Orçamentos com tua marca
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-success shrink-0" strokeWidth={2.5} />
-                Partilhe por WhatsApp, email ou link
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-success shrink-0" strokeWidth={2.5} />
-                PDF gerado automaticamente, com IVA
-              </span>
+
+            <div className="flex items-center gap-1.5 text-sm font-medium text-foreground/60">
+              <img src={portugalFlag} alt="" aria-hidden className="h-5 w-5 shrink-0" />
+              Construído a pensar no mercado Português.
             </div>
           </div>
         </div>

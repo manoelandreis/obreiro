@@ -79,6 +79,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "hero-wash": "hsl(var(--hero-wash))",
         nav: {
           DEFAULT: "hsl(var(--nav-background))",
         },

@@ -68,6 +68,15 @@ Rótulos de botão são sempre **Bold** (`font-bold`):
 
 `nav/background` é um token próprio (não um modo de `background`): os modos do Figma são só Light/Dark. Hoje aponta para o mesmo valor de `card`, mas permite mudar a navbar da landing sem mexer nos cartões.
 
+### Hero da landing
+
+| Elemento | Implementação | Figma |
+|---|---|---|
+| Pílula "Sem comissões" | `<EyebrowPill>` (`src/components/ui/eyebrow-pill.tsx`, tone White) | Eyebrow Pill / Tone=White |
+| Véu sobre a foto | `bg-hero-wash` (`--hero-wash`, #F6E6D8), degradê 103° em desktop | gradiente do Hero |
+| Bandeira | `src/assets/icons/portugal.svg` | Icons / portugal |
+| Ícone da pílula | `src/assets/icons/check-circle.svg` | Eyebrow Pill / Icon |
+
 ---
 
 ## Inputs

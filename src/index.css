@@ -13,6 +13,7 @@
     --card: 0 0% 100%;
     --card-foreground: 212 47% 11%;
 
+    --hero-wash: 28 63% 91%;         /* #F6E6D8 — véu quente sobre a foto do hero */
     --nav-background: 0 0% 100%;     /* Navbar da landing — branco (= card) */
 
     --popover: 0 0% 100%;
@@ -85,6 +86,7 @@
     --card: 212 55% 11%;
     --card-foreground: 0 0% 96%;
     --nav-background: 212 55% 11%;   /* = card */
+    --hero-wash: 28 63% 91%;
     --popover: 212 55% 11%;
     --popover-foreground: 0 0% 96%;
     --primary: 27 92% 47%;

@@ -125,12 +125,18 @@ const logos: Record<string, string> = {
   remodelacao: lusoObras.url,
 };
 
+const brandColors: Record<string, { primary: string; accent: string }> = {
+  canalizacao: { primary: '#062039', accent: '#126DA5' },
+  pintura: { primary: '#08233E', accent: '#C92C20' },
+  remodelacao: { primary: '#041322', accent: '#A66B08' },
+};
+
 mkdirSync('/tmp/example-quotes', { recursive: true });
 for (const q of QUOTES) {
   const response = await fetch(`https://obreiro.pt${logos[q.slug]}`);
   if (!response.ok) throw new Error(`Unable to load example logo: ${q.slug}`);
   const logoUrl = `data:image/png;base64,${Buffer.from(await response.arrayBuffer()).toString('base64')}`;
-  const html = buildQuoteHtml(q.data, { brand: { ...BRAND, logoUrl }, withWatermark: false });
+  const html = buildQuoteHtml(q.data, { brand: { ...BRAND, ...brandColors[q.slug], logoUrl }, withWatermark: false });
   writeFileSync(`/tmp/example-quotes/${q.slug}.html`, html);
   console.log('html', q.slug);
 }

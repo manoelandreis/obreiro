@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { expandInstallments, presetById, type PaymentTerms } from '@/lib/paymentTerms';
+import { QUOTE_FONT_CSS } from '@/lib/quotePdfFonts';
+import { DEFAULT_PAYMENT_TERMS, expandInstallments, presetById, type PaymentTerms } from '@/lib/paymentTerms';
 
 interface MaterialItem { name: string; quantity: number; unit: string; unitPrice: number }
 interface ServiceItem { name: string; description?: string; pricePerHour: number; hours: number; materials: MaterialItem[] }
@@ -72,48 +73,18 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
         0
       );
       const total = labor + matsTotal;
-      const laborRow =
-        s.hours > 0
-          ? `<tr>
-              <td><strong>Mão de obra</strong></td>
-              <td class="num">${s.hours}</td>
-              <td class="center">h</td>
-              <td class="num">${euro(s.pricePerHour)}</td>
-              <td class="num strong">${euro(labor)}</td>
-            </tr>`
-          : '';
-      const matRows = (s.materials || [])
-        .map(
-          (m) => `<tr>
-            <td><strong>${esc(m.name)}</strong></td>
-            <td class="num">${m.quantity}</td>
-            <td class="center">${esc(m.unit)}</td>
-            <td class="num">${euro(m.unitPrice)}</td>
-            <td class="num strong">${euro(m.quantity * m.unitPrice)}</td>
-          </tr>`
-
-        )
-        .join('');
-      const tableHtml =
-        laborRow || matRows
-          ? `<table>
-              <thead>
-                <tr>
-                  <th>Descrição</th>
-                  <th class="num">Qtd</th>
-                  <th class="center">Un.</th>
-                  <th class="num">Preço</th>
-                  <th class="num">Total</th>
-                </tr>
-              </thead>
-              <tbody>${laborRow}${matRows}</tbody>
-            </table>`
-          : '';
+      const laborRow = s.hours > 0
+        ? `<div class="item-row"><div class="item-label"><strong>Mão de obra</strong><span class="item-meta"> · ${s.hours}h × ${euro(s.pricePerHour)}/h</span></div><strong class="item-amount">${euro(labor)}</strong></div>`
+        : '';
+      const matRows = (s.materials || []).map((m) =>
+        `<div class="item-row"><div class="item-label"><strong>${esc(m.name)}</strong><span class="item-meta"> · ${m.quantity} ${esc(m.unit)} × ${euro(m.unitPrice)}</span></div><strong class="item-amount">${euro(m.quantity * m.unitPrice)}</strong></div>`
+      ).join('');
+      const itemsHtml = laborRow || matRows ? `<div class="items">${laborRow}${matRows}</div>` : '';
       return `<div class="service">
         <div class="service-title">${idx + 1}. ${esc(s.name || 'Serviço ' + (idx + 1))}</div>
         ${s.description ? `<div class="service-desc">${esc(s.description)}</div>` : ''}
-        ${tableHtml}
-        <div class="service-total">Total Serviço: <strong>${euro(total)}</strong></div>
+        ${itemsHtml}
+        <div class="service-total">Total: <strong>${euro(total)}</strong></div>
       </div>`;
     })
     .join('');
@@ -142,9 +113,9 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 
 
   const paymentTermsHtml = (() => {
-    if (!q.paymentTerms) return '';
-    const parts = expandInstallments(q.paymentTerms, q.total, q.paymentAnchor ?? q.createdAt);
-    const presetLabel = presetById(q.paymentTerms.preset).label;
+    const paymentTerms = q.paymentTerms ?? DEFAULT_PAYMENT_TERMS;
+    const parts = expandInstallments(paymentTerms, q.total, q.paymentAnchor ?? q.createdAt);
+    const presetLabel = presetById(paymentTerms.preset).label;
     return `<div class="payment-block">
       <div class="payment-header">
         <div class="payment-label">Formato de pagamento</div>
@@ -176,74 +147,82 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
 <meta charset="UTF-8">
 <title>${esc(q.title)} — ${esc(q.company.name || 'Obreiro')}</title>
 <style>
+  ${QUOTE_FONT_CSS}
   @page { size: A4; margin: 16mm 14mm 18mm 14mm; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: #fff; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; font-size: 12px; line-height: 1.45; padding: 16mm 14mm 18mm 14mm; }
+  :root { --brand-primary: ${primary}; --brand-accent: ${accent}; --paper: #ffffff; --ink: #0f1b2a; --muted-ink: #555555; --line: #eceef0; --service-surface: #fbfcfc; --payment-surface: color-mix(in srgb, var(--brand-accent) 5%, white); }
+  html, body { background: var(--paper); }
+  body { font-family: 'Inter', Arial, sans-serif; color: var(--ink); font-size: 12px; line-height: 1.5; padding: 16mm 14mm 18mm 14mm; }
   @media print { body { padding: 0; } }
 
 
-  .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #e2e8f0; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
   .header-left { flex: 1; min-width: 0; }
   .brand-row { display: flex; gap: 12px; align-items: center; }
   .brand-row.vertical { flex-direction: column; align-items: flex-start; gap: 8px; }
   .logo { height: ${logoHeight}px; width: auto; max-width: ${logoKind === 'horizontal' ? '220px' : '160px'}; object-fit: contain; ${logoKind === 'icon' ? 'border-radius: 8px;' : ''} flex-shrink: 0; }
-  .company-name { font-size: 20px; font-weight: 700; color: ${primary}; line-height: 1.1; }
+  .company-name { font-family: 'Poppins', Arial, sans-serif; font-size: 20px; font-weight: 700; color: ${primary}; line-height: 1.1; }
   .company-meta { margin-top: 10px; }
-  .company-meta p { font-size: 11px; color: #64748b; line-height: 1.5; }
+  .company-meta p { font-size: 11px; color: var(--muted-ink); line-height: 1.5; }
   .header-right { text-align: right; flex-shrink: 0; }
-  .header-right .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; color: #64748b; }
-  .header-right .date { font-size: 12px; color: #475569; margin-top: 4px; }
-  .header-right .validity-line { font-size: 11px; color: #64748b; margin-top: 4px; }
-  .quote-title { font-size: 22px; font-weight: 700; color: #0f172a; margin: 6px 0 6px; }
-  .description { font-size: 12px; color: #475569; margin-bottom: 10px; font-style: italic; }
-  .client-line { font-size: 12px; color: #64748b; margin-bottom: 22px; }
+  .header-right .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0; font-weight: 600; color: var(--muted-ink); }
+  .header-right .date { font-size: 12px; color: var(--muted-ink); margin-top: 4px; }
+  .header-right .validity-line { font-size: 11px; color: var(--muted-ink); margin-top: 4px; }
+  .quote-title { font-family: 'Poppins', Arial, sans-serif; font-size: 22px; font-weight: 700; color: var(--ink); margin: 6px 0 6px; }
+  .description { font-size: 12px; color: var(--muted-ink); margin-bottom: 10px; font-style: italic; }
+  .client-line { font-size: 12px; color: var(--muted-ink); margin-bottom: 22px; }
   .client-line .sep { margin: 0 6px; color: #cbd5e1; }
-  .info-block h3 { font-size: 10px; color: ${accent}; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.8px; font-weight: 700; }
-  .info-block p { font-size: 12px; color: #334155; line-height: 1.5; }
+  .info-block h3 { font-size: 10px; color: ${accent}; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0; font-weight: 700; }
+  .info-block p { font-size: 12px; color: var(--ink); line-height: 1.5; }
   .info-block .name { font-weight: 700; font-size: 14px; color: #0f172a; margin-bottom: 2px; }
 
-  .service { margin-bottom: 18px; page-break-inside: avoid; }
-  .service-title { font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 3px; }
-  .service-desc { font-size: 11px; color: #475569; margin-bottom: 5px; }
-  .service-labor { font-size: 11px; color: #475569; margin-bottom: 5px; }
-  table { width: 100%; border-collapse: collapse; margin: 5px 0; }
-  thead { display: table-header-group; }
-  tr { page-break-inside: avoid; }
-  th { background: #f1f5f9; padding: 5px 7px; font-size: 10px; text-transform: uppercase; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: left; }
-  th.num { text-align: right; } th.center { text-align: center; }
-  td { padding: 5px 7px; border-bottom: 1px solid #e2e8f0; font-size: 11px; }
-  td.num { text-align: right; } td.center { text-align: center; }
-  td.strong { font-weight: 600; }
-  .service-total { text-align: right; font-size: 12px; color: ${primary}; margin-top: 4px; }
-  .totals-row { margin-top: 16px; display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; page-break-inside: avoid; border-top: 1px solid #e2e8f0; padding-top: 12px; }
-  .payment-info { font-size: 11px; color: #475569; }
+  .service { margin-bottom: 16px; padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--service-surface); break-inside: avoid; }
+  .service-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .service-desc { font-size: 12px; color: var(--muted-ink); }
+  .items { margin-top: 12px; }
+  .item-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; font-size: 12px; break-inside: avoid; }
+  .item-row + .item-row { border-top: 1px solid var(--line); }
+  .item-label { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .item-meta { color: var(--muted-ink); }
+  .item-amount { flex-shrink: 0; white-space: nowrap; text-align: right; }
+  strong { font-weight: 600; }
+  .service-total { text-align: right; font-size: 12px; font-weight: 600; color: var(--brand-primary); margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px; }
+  .totals-row { margin-top: 16px; display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; page-break-inside: avoid; border-top: 1px solid var(--line); padding-top: 12px; }
+  .payment-info { font-size: 11px; color: var(--muted-ink); }
   .payment-info p { margin: 2px 0; }
   .totals { text-align: right; page-break-inside: avoid; }
-  .totals p { font-size: 12px; color: #475569; margin: 2px 0; }
-  .totals .grand { font-size: 17px; font-weight: 700; color: ${primary}; border-top: 2px solid ${primary}; padding-top: 6px; margin-top: 6px; display: inline-block; }
+  .totals p { font-size: 12px; color: var(--muted-ink); margin: 2px 0; }
+  .totals .grand { font-size: 22px; font-weight: 700; color: var(--brand-primary); margin-top: 4px; }
   .accent-bar { height: 3px; background: ${accent}; width: 60px; margin: 14px 0 4px; }
   .validity { margin-top: 12px; padding: 8px 12px; background: ${accent}1a; border-left: 3px solid ${accent}; font-size: 11px; color: #1e293b; }
-  .section { margin-top: 20px; page-break-inside: avoid; }
-  .section h3 { font-size: 11px; text-transform: uppercase; color: ${primary}; margin-bottom: 6px; letter-spacing: 0.5px; }
-  .prewrap { white-space: pre-wrap; font-size: 11px; color: #334155; }
-  .prewrap.small { font-size: 10px; color: #475569; }
+  .section { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); page-break-inside: avoid; }
+  .section h3 { font-size: 11px; text-transform: uppercase; color: var(--muted-ink); margin-bottom: 6px; letter-spacing: 0; }
+  .prewrap { white-space: pre-wrap; font-size: 12px; color: var(--ink); }
+  .prewrap.small { font-size: 10px; color: var(--muted-ink); }
   .grid-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .photo img { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; }
+  .photo img { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); }
   .photo .caption { font-size: 10px; color: #555; margin-top: 3px; text-align: center; }
-  .payment-block { margin-top: 22px; padding: 14px 16px; border: 1px solid ${accent}55; border-left: 4px solid ${accent}; border-radius: 8px; background: ${accent}0d; page-break-inside: avoid; }
+  .payment-block { margin-top: 22px; padding: 16px; border: 1px solid color-mix(in srgb, var(--brand-accent) 40%, white); border-radius: 14px; background: var(--payment-surface); page-break-inside: avoid; }
   .payment-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed ${accent}66; }
-  .payment-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: ${primary}; font-weight: 700; }
+  .payment-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0; color: ${primary}; font-weight: 700; }
   .payment-preset { font-size: 12px; color: ${accent}; font-weight: 600; }
   .payment-rows { display: flex; flex-direction: column; gap: 4px; }
-  .payment-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 12px; color: #334155; padding: 2px 0; }
+  .payment-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 12px; color: var(--ink); padding: 2px 0; }
   .payment-row-label { flex: 1; min-width: 0; }
-  .payment-row-pct { color: #94a3b8; }
+  .payment-row-pct { color: var(--muted-ink); }
   .payment-row-amount { font-weight: 700; color: ${accent}; white-space: nowrap; }
 
   .watermark { position: fixed; bottom: 8mm; left: 0; right: 0; text-align: center; font-size: 9px; color: #9ca3af; }
   .watermark a { color: ${accent}; text-decoration: none; }
-  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .header { margin-bottom: 14px; padding-bottom: 12px; }
+    .client-line { margin-bottom: 18px; }
+    .service { padding: 12px 16px; margin-bottom: 12px; }
+    .item-row { padding: 6px 0; }
+    .payment-block { margin-top: 16px; padding: 12px 16px; }
+    .section { margin-top: 16px; padding-top: 12px; }
+  }
 </style>
 </head>
 <body>

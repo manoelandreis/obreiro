@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import obreiroLogo from '@/assets/obreiro-logo.png.asset.json';
 import { evaluatePassword } from '@/lib/passwordPolicy';
 import { PasswordStrengthMeter } from '@/components/app/PasswordStrengthMeter';
+import { GoogleAuthButton } from '@/components/app/GoogleAuthButton';
 
 const emailSchema = z.string().trim().toLowerCase().email().max(255);
 
@@ -61,8 +62,8 @@ export default function AppSignup() {
       }
       return;
     }
-    toast.success('Conta criada! Verifique o seu email para confirmar.');
-    navigate('/app/login', { replace: true });
+    toast.success('Conta criada! Bem-vindo ao Obreiro.');
+    navigate('/app/quotes/new', { replace: true });
   };
 
   const err = 'border-destructive focus-visible:ring-destructive';

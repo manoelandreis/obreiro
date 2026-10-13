@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppAuth } from '@/hooks/useAppAuth';
 import { toast } from 'sonner';
 import obreiroLogo from '@/assets/obreiro-logo.png.asset.json';
+import { GoogleAuthButton } from '@/components/app/GoogleAuthButton';
 
 export default function AppLogin() {
   const [email, setEmail] = useState('');

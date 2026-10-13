@@ -187,7 +187,7 @@ export default function AppDashboard() {
   };
 
   return (
-    <div className="space-y-8 max-w-7xl">
+    <div className="space-y-8 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
           <h1 className="font-heading text-3xl font-bold">Dashboard</h1>

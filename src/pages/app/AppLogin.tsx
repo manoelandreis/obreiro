@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { postAuthPath } from '@/lib/guestDraft';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +17,7 @@ export default function AppLogin() {
   const { signIn, user } = useAppAuth();
   const navigate = useNavigate();
 
-  if (user) return <Navigate to="/app" replace />;
+  if (user) return <Navigate to={postAuthPath()} replace />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +28,7 @@ export default function AppLogin() {
       toast.error(error.message.includes('Invalid') ? 'Credenciais inválidas.' : error.message);
       return;
     }
-    navigate('/app', { replace: true });
+    navigate(postAuthPath(), { replace: true });
   };
 
   return (

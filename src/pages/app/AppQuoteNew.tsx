@@ -20,6 +20,7 @@ import { PaymentSection } from '@/components/app/quote-new/PaymentSection';
 import { NotesSection } from '@/components/app/quote-new/NotesSection';
 import { PhotosSection, type DraftPhoto } from '@/components/app/quote-new/PhotosSection';
 import { uploadDraftPhotos } from '@/lib/draftPhotoUpload';
+import { saveGuestDraft, loadGuestDraft, clearGuestDraft } from '@/lib/guestDraft';
 import {
   DEFAULT_PAYMENT_TERMS,
   type PaymentTerms, type CustomPaymentTemplate,
@@ -117,8 +118,25 @@ export default function AppQuoteNew() {
       } else {
         setCompanyConfigured(false);
       }
-      if (cs) setClients(cs);
+      let clientList: ClientRow[] = cs || [];
       if (tpl) setTemplates(tpl as QuoteTemplate[]);
+      const draft = !editId ? loadGuestDraft() : null;
+      if (draft) {
+        clearGuestDraft();
+        setTitle(draft.title || 'Orçamento');
+        if (Array.isArray(draft.services) && draft.services.length) setServices(draft.services as ServiceItem[]);
+        setNotes(draft.notes || '');
+        if (draft.paymentTerms) setPaymentTerms(draft.paymentTerms as PaymentTerms);
+        if (draft.selectedPaymentKey) setSelectedPaymentKey(draft.selectedPaymentKey);
+        if (draft.client) {
+          const { data: nc } = await supabase.from('app_clients').insert({
+            user_id: user.id, ...draft.client, rgpd_consent: true, rgpd_consent_at: new Date().toISOString(),
+          }).select('id, name, email, phone, address').single();
+          if (nc) { clientList = [...clientList, nc]; setSelectedClientId(nc.id); }
+        }
+        toast.success('Conta pronta! Reveja o orçamento e carregue em «Guardar Orçamento».');
+      }
+      setClients(clientList);
       if (editId) {
         const { data: q } = await supabase.from('app_quotes').select('title, client_id, services, notes, payment_terms').eq('id', editId).maybeSingle();
         if (!q) { toast.error('Orçamento não encontrado.'); navigate('/app/quotes'); return; }
@@ -228,7 +246,15 @@ export default function AppQuoteNew() {
   };
 
   const handleSave = async () => {
-    if (!user) return;
+    if (!user) {
+      if (!selectedClientId) return toast.error('Crie um cliente para o orçamento.');
+      if (services.every((s) => !s.name.trim())) return toast.error('Adicione pelo menos um serviço.');
+      const c = clients.find((x) => x.id === selectedClientId);
+      saveGuestDraft({ title, services, notes, paymentTerms, selectedPaymentKey, client: c ? { name: c.name, email: c.email, phone: c.phone, address: c.address } : null });
+      toast.success('Crie a sua conta grátis para guardar o orçamento.');
+      navigate('/app/signup');
+      return;
+    }
     if (!selectedClientId) return toast.error('Selecione ou crie um cliente.');
     if (services.every((s) => !s.name.trim())) return toast.error('Adicione pelo menos um serviço.');
     const selectedClient = clients.find((c) => c.id === selectedClientId);
@@ -352,7 +378,7 @@ export default function AppQuoteNew() {
         </CardContent>
       </Card>
 
-      {!companyConfigured && (
+      {user && !companyConfigured && (
         <Card className="border-warning/30 bg-warning-soft/60">
           <CardContent className="pt-6 flex items-start gap-3">
             <Building2 className="h-5 w-5 text-warning-soft-foreground mt-0.5 shrink-0" />

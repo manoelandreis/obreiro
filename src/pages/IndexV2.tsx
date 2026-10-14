@@ -256,10 +256,10 @@ export default function IndexV2() {
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="ghost" asChild>
-              <Link to="/app/login">Entrar</Link>
+              <Link to="/app/signup">Criar conta</Link>
             </Button>
             <Button size="sm" variant="accent" asChild>
-              <Link to="/app/signup">Criar conta grátis</Link>
+              <Link to="/app/quotes/new">Criar Orçamentos</Link>
             </Button>
           </div>
         </div>
@@ -291,7 +291,7 @@ export default function IndexV2() {
               </div>
               <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
                 <Button variant="accent" asChild className="h-12 px-6">
-                  <Link to="/app/signup">
+                  <Link to="/app/quotes/new">
                     Criar orçamento grátis <ArrowRight />
                   </Link>
                 </Button>
@@ -408,7 +408,7 @@ export default function IndexV2() {
           </div>
 
           <div className="mt-10 text-center">
-            <Button size="lg" variant="accent" onClick={() => { trackEvent('account_signup_started', { metadata: { source: 'examples_cta' } }); navigate('/app/signup'); }} className="gap-2 h-12 px-6">
+            <Button size="lg" variant="accent" onClick={() => { trackEvent('account_signup_started', { metadata: { source: 'examples_cta' } }); navigate('/app/quotes/new'); }} className="gap-2 h-12 px-6">
               Criar o meu orçamento <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
@@ -923,7 +923,7 @@ export default function IndexV2() {
               variant="accent"
               size="lg"
               className="h-12 px-8 gap-2"
-              onClick={() => { trackEvent('account_signup_started', { metadata: { source: 'cta_final' } }); navigate('/app/signup'); }}
+              onClick={() => { trackEvent('account_signup_started', { metadata: { source: 'cta_final' } }); navigate('/app/quotes/new'); }}
             >
               Criar conta grátis <ArrowRight className="h-4 w-4" />
             </Button>

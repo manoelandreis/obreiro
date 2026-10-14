@@ -66,7 +66,24 @@ export default function AppLayout() {
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">A carregar...</div>;
-  if (!user) return <Navigate to="/app/login" replace />;
+  if (!user) {
+    // MVP: visitors can build their first quote without an account; sign-up is asked on save.
+    if (window.location.pathname === '/app/quotes/new') {
+      return (
+        <div className="min-h-screen bg-background">
+          <header className="flex items-center justify-between gap-3 px-4 md:px-8 h-14 border-b border-border bg-card sticky top-0 z-30">
+            <NavLink to="/" className="flex items-center gap-2">
+              <img src={obreiroLogo.url} alt="Obreiro" className="h-8 w-8 rounded-[10px] shadow-accent-glow object-contain" />
+              <span className="font-heading text-base font-bold tracking-tight">Obreiro</span>
+            </NavLink>
+            <Button size="sm" variant="ghost" asChild><NavLink to="/app/login">Entrar</NavLink></Button>
+          </header>
+          <main className="p-4 md:p-8"><Outlet /></main>
+        </div>
+      );
+    }
+    return <Navigate to="/app/login" replace />;
+  }
 
   const sidebarContent = (
     <>

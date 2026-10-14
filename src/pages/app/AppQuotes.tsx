@@ -23,6 +23,7 @@ import {
   Link2,
   MoreHorizontal,
   Pencil,
+  CopyPlus,
   Trash2,
   CircleDot,
   Wallet,
@@ -155,6 +156,18 @@ export default function AppQuotes() {
     const subject = encodeURIComponent(`Orçamento: ${q.title}`);
     const body = encodeURIComponent(`Olá,\n\nSegue o orçamento «${q.title}»:\n${url}\n\nObrigado!`);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  };
+
+  const handleDuplicate = async (q: QuoteRow) => {
+    if (!user) return;
+    const res = await duplicateQuote(q.id, user.id);
+    if (res.error === 'quota') {
+      toast.error('Atingiu o limite de orçamentos deste mês. Veja os planos para continuar.');
+      return;
+    }
+    if (res.error || !res.id) return toast.error('Não foi possível duplicar.');
+    toast.success('Orçamento duplicado.');
+    navigate(`/app/quotes/${res.id}`);
   };
 
   const stats = useMemo(() => {

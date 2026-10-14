@@ -76,10 +76,6 @@ export function ClientFormSheet({ open, onOpenChange, userId, onCreated }: Props
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userId) {
-      toast.error('Sessão expirada. Inicie sessão novamente.');
-      return;
-    }
 
     const parsed = clientSchema.safeParse({
       name: form.name,
@@ -105,8 +101,15 @@ export function ClientFormSheet({ open, onOpenChange, userId, onCreated }: Props
     }
 
     setErrors({});
-    setSaving(true);
     const values = parsed.data;
+    if (!userId) {
+      // Guest draft: keep the client in the browser until the visitor signs up.
+      onCreated?.({ id: `local-${crypto.randomUUID()}`, name: values.name, email: values.email || null, phone: values.phone || null, address: values.address || null, rgpd_consent: true });
+      onOpenChange(false);
+      reset();
+      return;
+    }
+    setSaving(true);
     const { data, error } = await supabase.from('app_clients').insert({
       user_id: userId,
       name: values.name,

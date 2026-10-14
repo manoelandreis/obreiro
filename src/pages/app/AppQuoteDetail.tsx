@@ -27,11 +27,12 @@ import { QuoteAttachments } from '@/components/app/QuoteAttachments';
 import { QuoteWorkView } from '@/components/app/QuoteWorkView';
 import { FeatureGate } from '@/components/app/FeatureGate';
 import {
-  ArrowLeft, Download, Mail, Copy, History, Sparkles, Loader2, ExternalLink,
+  ArrowLeft, Download, Mail, Copy, CopyPlus, History, Sparkles, Loader2, ExternalLink,
   ChevronDown, Eye, EyeOff, MessageCircle, ImagePlus, Check, MoreHorizontal, Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { buildQuoteHtml, loadBrand, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';
+import { duplicateQuote } from '@/lib/duplicateQuote';
 
 import { type PaymentTerms, DEFAULT_PAYMENT_TERMS } from '@/lib/paymentTerms';
 
@@ -292,6 +293,18 @@ export default function AppQuoteDetail() {
     });
     toast.success('Estado atualizado.');
     await load();
+  };
+
+  const handleDuplicate = async () => {
+    if (!quote || !user) return;
+    const res = await duplicateQuote(quote.id, user.id);
+    if (res.error === 'quota') {
+      toast.error('Atingiu o limite de orçamentos deste mês. Veja os planos para continuar.');
+      return;
+    }
+    if (res.error || !res.id) return toast.error('Não foi possível duplicar.');
+    toast.success('Orçamento duplicado.');
+    navigate(`/app/quotes/${res.id}`);
   };
 
   if (loading || !quote) {
@@ -574,6 +587,9 @@ export default function AppQuoteDetail() {
                   <DropdownMenuItem onClick={() => navigate(`/app/quotes/${quote.id}/edit`)} className="gap-2">
                     <Pencil className="h-4 w-4" /> Editar
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDuplicate} className="gap-2">
+                    <CopyPlus className="h-4 w-4" /> Duplicar
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
@@ -651,6 +667,13 @@ export default function AppQuoteDetail() {
             >
               <Pencil className="h-5 w-5 text-muted-foreground" />
               Editar
+            </button>
+            <button
+              onClick={() => { handleDuplicate(); }}
+              className="flex items-center gap-3 h-14 px-3 rounded-lg text-base hover:bg-muted/50 active:bg-muted text-left"
+            >
+              <CopyPlus className="h-5 w-5 text-muted-foreground" />
+              Duplicar
             </button>
           </div>
         </SheetContent>

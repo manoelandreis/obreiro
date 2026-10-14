@@ -62,24 +62,22 @@ export function ServicesSection({
                 </Button>
               )}
             </div>
-            <div className="grid md:grid-cols-2 gap-3">
-              <div>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_140px_140px] md:items-end">
+              <div className="min-w-0">
                 <Label htmlFor={`svc-name-${svc.id}`}>Serviço</Label>
                 <Input id={`svc-name-${svc.id}`} value={svc.name} placeholder="Ex: Pintura Interior" onChange={(e) => onUpdateService(svc.id, 'name', e.target.value)} />
               </div>
-              <div>
-                <Label htmlFor={`svc-desc-${svc.id}`}>Descrição</Label>
-                <Input id={`svc-desc-${svc.id}`} value={svc.description} onChange={(e) => onUpdateService(svc.id, 'description', e.target.value)} />
-              </div>
-            </div>
-            <div className="grid gap-3">
-              <div>
+              <div className="min-w-0 md:col-start-3 md:row-start-1">
                 <Label htmlFor={`svc-price-${svc.id}`}>Preço por Hora (€)</Label>
                 <Input id={`svc-price-${svc.id}`} type="number" min={0} step={0.01} value={svc.pricePerHour} onChange={(e) => onUpdateService(svc.id, 'pricePerHour', Number(e.target.value))} />
               </div>
-              <div>
+              <div className="min-w-0 md:col-start-2 md:row-start-1">
                 <Label htmlFor={`svc-hours-${svc.id}`}>Horas Aproximadas</Label>
                 <Input id={`svc-hours-${svc.id}`} type="number" min={0.5} step={0.5} value={svc.hours} onChange={(e) => onUpdateService(svc.id, 'hours', Number(e.target.value))} />
+              </div>
+              <div className="min-w-0 md:col-span-3">
+                <Label htmlFor={`svc-desc-${svc.id}`}>Descrição</Label>
+                <Input id={`svc-desc-${svc.id}`} value={svc.description} onChange={(e) => onUpdateService(svc.id, 'description', e.target.value)} />
               </div>
             </div>
             <div className="text-right text-sm text-muted-foreground">

@@ -23,6 +23,7 @@ import {
   Link2,
   MoreHorizontal,
   Pencil,
+  CopyPlus,
   Trash2,
   CircleDot,
   Wallet,
@@ -39,6 +40,7 @@ import {
 } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
+import { duplicateQuote } from '@/lib/duplicateQuote';
 import {
   expandInstallments,
   isWithinMonth,
@@ -155,6 +157,18 @@ export default function AppQuotes() {
     const subject = encodeURIComponent(`Orçamento: ${q.title}`);
     const body = encodeURIComponent(`Olá,\n\nSegue o orçamento «${q.title}»:\n${url}\n\nObrigado!`);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  };
+
+  const handleDuplicate = async (q: QuoteRow) => {
+    if (!user) return;
+    const res = await duplicateQuote(q.id, user.id);
+    if (res.error === 'quota') {
+      toast.error('Atingiu o limite de orçamentos deste mês. Veja os planos para continuar.');
+      return;
+    }
+    if (res.error || !res.id) return toast.error('Não foi possível duplicar.');
+    toast.success('Orçamento duplicado.');
+    navigate(`/app/quotes/${res.id}`);
   };
 
   const stats = useMemo(() => {
@@ -363,6 +377,9 @@ export default function AppQuotes() {
                           <DropdownMenuItem onClick={() => navigate(`/app/quotes/${q.id}`)}>
                             <Pencil className="h-4 w-4 mr-2" /> Editar
                           </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDuplicate(q)}>
+                            <CopyPlus className="h-4 w-4 mr-2" /> Duplicar
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuLabel className="flex items-center gap-2 text-xs">
                             <CircleDot className="h-3.5 w-3.5" /> Mudar estado
@@ -492,6 +509,15 @@ export default function AppQuotes() {
                         const id = sheet.quote.id;
                         setSheet(null);
                         navigate(`/app/quotes/${id}`);
+                      }}
+                    />
+                    <SheetButton
+                      icon={CopyPlus}
+                      label="Duplicar"
+                      onClick={() => {
+                        const q = sheet.quote;
+                        setSheet(null);
+                        handleDuplicate(q);
                       }}
                     />
                     <SheetButton

@@ -256,7 +256,7 @@ export default function IndexV2() {
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="ghost" asChild>
-              <Link to="/app/signup">Criar conta</Link>
+              <Link to="/app/login">Entrar</Link>
             </Button>
             <Button size="sm" variant="accent" asChild>
               <Link to="/app/quotes/new">Criar Orçamentos</Link>

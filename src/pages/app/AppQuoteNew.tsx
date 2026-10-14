@@ -378,7 +378,7 @@ export default function AppQuoteNew() {
         </CardContent>
       </Card>
 
-      {!companyConfigured && (
+      {user && !companyConfigured && (
         <Card className="border-warning/30 bg-warning-soft/60">
           <CardContent className="pt-6 flex items-start gap-3">
             <Building2 className="h-5 w-5 text-warning-soft-foreground mt-0.5 shrink-0" />

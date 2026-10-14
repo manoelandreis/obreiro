@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { postAuthPath } from '@/lib/guestDraft';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -23,7 +24,7 @@ export default function AppSignup() {
   const { signUp, user } = useAppAuth();
   const navigate = useNavigate();
 
-  if (user) return <Navigate to="/app" replace />;
+  if (user) return <Navigate to={postAuthPath()} replace />;
 
   const pwEval = useMemo(
     () => evaluatePassword(password, { email, name: fullName }),

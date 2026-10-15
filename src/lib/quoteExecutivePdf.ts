@@ -72,7 +72,7 @@ body { font-family: 'Inter', Arial, sans-serif; color: var(--ink); font-size: 12
 .sheet:last-child { page-break-after: auto; break-after: auto; }
 .label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--mut); }
 .label.a { color: var(--a); }
-.hero { background: var(--p); color: #fff; height: 168px; padding: 36px 48px 0; display: flex; justify-content: space-between; }
+.hero { background: var(--p); color: #fff; height: 168px; padding: 36px 48px 0; display: flex; justify-content: space-between; align-items: flex-start; }
 .co { display: flex; gap: 16px; align-items: center; }
 .co img { height: 44px; max-width: 132px; object-fit: contain; }
 .co h1 { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 600; line-height: 28px; }

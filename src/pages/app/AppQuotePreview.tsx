@@ -1,3 +1,4 @@
+import { parseLayout } from '@/lib/quoteLayout';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -106,7 +107,7 @@ export default function AppQuotePreview() {
         status: q.status,
         paymentTerms: (q as any).payment_terms ?? defaultTerms,
         paymentAnchor: (q as any).responded_at ?? (q as any).sent_at ?? q.created_at,
-        layout: cs.layout === 'detailed' ? 'detailed' : 'classic',
+        layout: parseLayout(cs.layout),
         extras: cs.extras ?? null,
       };
 

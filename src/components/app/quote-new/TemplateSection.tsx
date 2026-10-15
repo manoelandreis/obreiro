@@ -21,7 +21,7 @@ export function TemplateSection({ layout, onLayoutChange, extras, onExtrasChange
         <CardTitle className="text-base flex items-center gap-2"><LayoutTemplate className="h-4 w-4" /> Modelo do orçamento</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Modelo do orçamento">
+        <div className="grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label="Modelo do orçamento">
           {QUOTE_LAYOUTS.map((o) => {
             const active = layout === o.value;
             return (
@@ -45,6 +45,19 @@ export function TemplateSection({ layout, onLayoutChange, extras, onExtrasChange
             );
           })}
         </div>
+
+        {layout === 'executive' && (
+          <div className="space-y-3 border-t pt-4">
+            <div>
+              <Label htmlFor="tpl-scope">Âmbito dos trabalhos (um por linha)</Label>
+              <Textarea id="tpl-scope" rows={4} value={extras.scope || ''} placeholder={'Se ficar vazio, usamos os nomes dos serviços.\nLimpeza final e entrega da obra'} onChange={(e) => set('scope', e.target.value)} />
+            </div>
+            <div>
+              <Label htmlFor="tpl-signer">Quem assina</Label>
+              <Input id="tpl-signer" value={extras.signer || ''} placeholder="Ex: João Silva · Gerente" onChange={(e) => set('signer', e.target.value)} />
+            </div>
+          </div>
+        )}
 
         {layout === 'detailed' && (
           <div className="space-y-3 border-t pt-4">

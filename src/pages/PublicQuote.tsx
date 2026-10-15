@@ -1,3 +1,4 @@
+import { parseLayout } from '@/lib/quoteLayout';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -120,7 +121,7 @@ export default function PublicQuote() {
       status: quote.status,
       paymentTerms: quote.payment_terms ?? DEFAULT_PAYMENT_TERMS,
       paymentAnchor: quote.responded_at ?? quote.sent_at ?? quote.created_at,
-      layout: cs.layout === 'detailed' ? 'detailed' : 'classic',
+      layout: parseLayout(cs.layout),
       extras: cs.extras ?? null,
     };
     const html = buildQuoteHtml(data, {

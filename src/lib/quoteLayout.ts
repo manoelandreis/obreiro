@@ -1,7 +1,10 @@
 // Quote presentation templates. Stored inside company_snapshot (layout + extras)
 // and per-service `details`, so no extra columns are needed and the public RPC returns them.
 
-export type QuoteLayout = 'classic' | 'detailed';
+export type QuoteLayout = 'classic' | 'detailed' | 'executive';
+
+export const parseLayout = (v: unknown): QuoteLayout =>
+  v === 'detailed' || v === 'executive' ? v : 'classic';
 
 export interface ServiceDetails {
   framing?: string;    // Enquadramento
@@ -14,11 +17,14 @@ export interface QuoteExtras {
   estimatedDuration?: string; // ex: "14 dias úteis"
   about?: string;             // Sobre a empresa
   importantNotes?: string;    // Notas importantes — uma por linha
+  scope?: string;             // Âmbito dos trabalhos — uma por linha (executivo)
+  signer?: string;            // Nome e cargo de quem assina (executivo)
 }
 
 export const QUOTE_LAYOUTS: { value: QuoteLayout; label: string; description: string }[] = [
   { value: 'classic', label: 'Clássico', description: 'Lista simples de serviços, materiais e totais.' },
   { value: 'detailed', label: 'Detalhado com separadores', description: 'Resumo por separadores, detalhe técnico por serviço, prazo e notas.' },
+  { value: 'executive', label: 'Executivo (PDF)', description: 'Resumo de uma página com âmbito, resumo financeiro e assinaturas; detalhe na página 2.' },
 ];
 
 export const lines = (s?: string | null) =>

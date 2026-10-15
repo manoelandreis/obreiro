@@ -48,7 +48,7 @@ export default function AppSignup() {
 
     setErrors({});
     setLoading(true);
-    const { error } = await signUp(emailParsed.data!, password, fullName.trim());
+    const { error, hasSession } = await signUp(emailParsed.data!, password, fullName.trim());
     setLoading(false);
     if (error) {
       const msg = error.message.toLowerCase();
@@ -61,6 +61,11 @@ export default function AppSignup() {
       } else {
         toast.error(error.message);
       }
+      return;
+    }
+    if (hasSession === false) {
+      toast.success('Conta criada! Verifique o seu email para confirmar e continuar o orçamento.');
+      navigate('/app/login', { replace: true });
       return;
     }
     toast.success('Conta criada! Bem-vindo ao Obreiro.');

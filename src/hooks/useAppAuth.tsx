@@ -53,7 +53,7 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
         full_name: fullName,
       });
     }
-    return { error: error as Error | null };
+    return { error: error as Error | null, hasSession: !!data?.session };
   };
 
   const signOut = async () => {

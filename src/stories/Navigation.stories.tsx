@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import obreiroLogo from '@/assets/obreiro-logo.png.asset.json';
 
 const meta: Meta = { title: 'Navegação/Layout' };
@@ -139,4 +140,21 @@ export function LandingNavbar() {
 export const BarraLandingPage: Story = {
   name: 'Barra da landing page',
   render: () => <LandingNavbar />,
+};
+
+export function TabsDemo() {
+  return (
+    <Tabs defaultValue="todos">
+      <TabsList>
+        <TabsTrigger value="todos">Todos</TabsTrigger>
+        <TabsTrigger value="enviados">Enviados</TabsTrigger>
+        <TabsTrigger value="aceites">Aceites</TabsTrigger>
+      </TabsList>
+    </Tabs>
+  );
+}
+
+export const TabsSeparadores: Story = {
+  name: 'Tabs (separadores)',
+  render: () => <TabsDemo />,
 };

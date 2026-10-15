@@ -381,7 +381,6 @@ export default function AppQuoteDetail() {
             </div>
             <p className="text-sm text-muted-foreground mt-1">
               Criado em {new Date(quote.created_at).toLocaleDateString('pt-PT')}
-              {cl.name ? ` · ${cl.name}` : ''}
               {quote.expires_at
                 ? ` · Válido até ${new Date(quote.expires_at).toLocaleDateString('pt-PT')}`
                 : ''}

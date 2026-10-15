@@ -9,6 +9,8 @@ export interface GuestDraft {
   paymentTerms: unknown;
   selectedPaymentKey: string;
   client: GuestClient | null;
+  layout?: string;
+  extras?: unknown;
 }
 
 export const saveGuestDraft = (d: GuestDraft) => { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch { /* ignore */ } };

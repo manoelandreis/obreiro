@@ -399,6 +399,10 @@ export default function AppQuoteDetail() {
         notes={quote.notes}
         paymentTerms={quote.payment_terms ?? defaultPaymentTerms}
         paymentAnchor={quote.responded_at ?? quote.sent_at ?? quote.created_at}
+        paymentInfo={{
+          mbway: (quote.company_snapshot as any)?.mbway ?? (quote.company_snapshot as any)?.payment_mbway,
+          iban: (quote.company_snapshot as any)?.iban ?? (quote.company_snapshot as any)?.payment_iban,
+        }}
         onClientUpdated={load}
       />
 

@@ -7,15 +7,18 @@ interface Props {
   total: number;
   anchor: string | Date | null | undefined;
   className?: string;
+  mbway?: string | null;
+  iban?: string | null;
 }
 
 const euro = (v: number) =>
   Number(v || 0).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
 
-export function PaymentTermsCard({ paymentTerms, total, anchor, className }: Props) {
+export function PaymentTermsCard({ paymentTerms, total, anchor, className, mbway, iban }: Props) {
   if (!paymentTerms) return null;
   const parts = expandInstallments(paymentTerms, total, anchor ?? new Date());
   const presetLabel = presetById(paymentTerms.preset).label;
+  const hasPaymentInfo = Boolean(mbway || iban);
 
   return (
     <Card
@@ -33,7 +36,11 @@ export function PaymentTermsCard({ paymentTerms, total, anchor, className }: Pro
           </div>
           <span className="text-xs font-semibold text-accent">{presetLabel}</span>
         </div>
-        <div className="space-y-1">
+        <div
+          className={
+            'space-y-1' + (hasPaymentInfo ? ' pb-3 border-b border-dashed border-accent/40' : '')
+          }
+        >
           {parts.map((p, idx) => (
             <div key={idx} className="grid grid-cols-[1fr_6rem] items-center gap-3 text-sm">
               <span className="truncate">
@@ -43,6 +50,22 @@ export function PaymentTermsCard({ paymentTerms, total, anchor, className }: Pro
             </div>
           ))}
         </div>
+        {hasPaymentInfo && (
+          <div className="space-y-2 text-sm">
+            {mbway && (
+              <div className="flex flex-wrap gap-x-2.5">
+                <span>MBWAY:</span>
+                <span className="font-medium break-all">{mbway}</span>
+              </div>
+            )}
+            {iban && (
+              <div className="flex flex-wrap gap-x-2.5">
+                <span>IBAN:</span>
+                <span className="font-medium break-all">{iban}</span>
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

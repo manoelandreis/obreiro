@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { QUOTE_FONT_CSS } from '@/lib/quotePdfFonts';
+import { buildExecutiveHtml } from '@/lib/quoteExecutivePdf';
 import { buildDetailedHtml, DETAILED_PDF_CSS, type QuoteExtras, type QuoteLayout } from '@/lib/quoteLayout';
 import { DEFAULT_PAYMENT_TERMS, expandInstallments, presetById, type PaymentTerms } from '@/lib/paymentTerms';
 
@@ -58,6 +59,7 @@ const safeHex = (v: string | undefined, fallback: string): string =>
   v && HEX_COLOR_RE.test(v) ? v : fallback;
 
 export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string {
+  if (q.layout === 'executive') return buildExecutiveHtml(q, opts);
   const primary = safeHex(opts.brand?.primary, '#1B3A5C');
   const accent = safeHex(opts.brand?.accent, '#E8730A');
   const logo = opts.brand?.logoUrl;

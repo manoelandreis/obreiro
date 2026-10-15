@@ -1,3 +1,4 @@
+import { parseLayout } from '@/lib/quoteLayout';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -203,7 +204,7 @@ export default function AppQuoteDetail() {
       status: quote.status,
       paymentTerms: quote.payment_terms ?? defaultPaymentTerms ?? null,
       paymentAnchor: quote.responded_at ?? quote.sent_at ?? quote.created_at,
-      layout: cs.layout === 'detailed' ? 'detailed' : 'classic',
+      layout: parseLayout(cs.layout),
       extras: cs.extras ?? null,
     };
     return buildQuoteHtml(data, {

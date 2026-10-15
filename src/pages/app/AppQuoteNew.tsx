@@ -20,7 +20,7 @@ import { PaymentSection } from '@/components/app/quote-new/PaymentSection';
 import { NotesSection } from '@/components/app/quote-new/NotesSection';
 import { PhotosSection, type DraftPhoto } from '@/components/app/quote-new/PhotosSection';
 import { TemplateSection } from '@/components/app/quote-new/TemplateSection';
-import type { QuoteExtras, QuoteLayout, ServiceDetails } from '@/lib/quoteLayout';
+import { parseLayout, type QuoteExtras, type QuoteLayout, type ServiceDetails } from '@/lib/quoteLayout';
 import { uploadDraftPhotos } from '@/lib/draftPhotoUpload';
 import { saveGuestDraft, loadGuestDraft, clearGuestDraft } from '@/lib/guestDraft';
 import {
@@ -132,7 +132,7 @@ export default function AppQuoteNew() {
         setNotes(draft.notes || '');
         if (draft.paymentTerms) setPaymentTerms(draft.paymentTerms as PaymentTerms);
         if (draft.selectedPaymentKey) setSelectedPaymentKey(draft.selectedPaymentKey);
-        if (draft.layout === 'detailed') setLayout('detailed');
+        setLayout(parseLayout(draft.layout));
         if (draft.extras) setExtras(draft.extras as QuoteExtras);
         if (draft.client) {
           const { data: nc } = await supabase.from('app_clients').insert({
@@ -156,7 +156,7 @@ export default function AppQuoteNew() {
           materials: (s.materials || []).map((m: any) => ({ id: m.id || crypto.randomUUID(), name: m.name || '', quantity: Number(m.quantity) || 0, unit: m.unit || 'un', unitPrice: Number(m.unitPrice) || 0 })),
         })) : [emptyService()]);
         const snap = (q.company_snapshot || {}) as any;
-        if (snap.layout === 'detailed') setLayout('detailed');
+        setLayout(parseLayout(snap.layout));
         if (snap.extras) setExtras(snap.extras);
         setNotes(q.notes || '');
         if (q.payment_terms) {
@@ -279,7 +279,7 @@ export default function AppQuoteNew() {
         client_id: selectedClientId,
         title: title.trim() || 'Orçamento',
         client_snapshot: selectedClient as any,
-        company_snapshot: { ...prevSnap, layout, extras: layout === 'detailed' ? extras : null } as any,
+        company_snapshot: { ...prevSnap, layout, extras: layout !== 'classic' ? extras : null } as any,
         services: services as any,
         notes: notes.trim() || null,
         payment_terms: paymentTerms as any,
@@ -320,7 +320,7 @@ export default function AppQuoteNew() {
         client_id: selectedClientId,
         job_id: job.id,
         title: title.trim() || 'Orçamento',
-        company_snapshot: { ...company, layout, extras: layout === 'detailed' ? extras : null } as any,
+        company_snapshot: { ...company, layout, extras: layout !== 'classic' ? extras : null } as any,
         client_snapshot: selectedClient as any,
         services: services as any,
         notes: notes.trim() || null,

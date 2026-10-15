@@ -116,6 +116,12 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
     const paymentTerms = q.paymentTerms ?? DEFAULT_PAYMENT_TERMS;
     const parts = expandInstallments(paymentTerms, q.total, q.paymentAnchor ?? q.createdAt);
     const presetLabel = presetById(paymentTerms.preset).label;
+    const paymentInfoHtml = q.company.mbway || q.company.iban
+      ? `<div class="payment-info">
+        ${q.company.mbway ? `<p>MBWAY: <strong>${esc(q.company.mbway)}</strong></p>` : ''}
+        ${q.company.iban ? `<p>IBAN: <strong>${esc(q.company.iban)}</strong></p>` : ''}
+      </div>`
+      : '';
     return `<div class="payment-block">
       <div class="payment-header">
         <div class="payment-label">Formato de pagamento</div>
@@ -127,6 +133,7 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
           <span class="payment-row-amount">${euro(p.amount)}</span>
         </div>`).join('')}
       </div>
+      ${paymentInfoHtml}
     </div>`;
   })();
 
@@ -187,9 +194,10 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   .item-amount { flex-shrink: 0; white-space: nowrap; text-align: right; }
   strong { font-weight: 600; }
   .service-total { text-align: right; font-size: 12px; font-weight: 600; color: var(--brand-primary); margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px; }
-  .totals-row { margin-top: 16px; display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; page-break-inside: avoid; border-top: 1px solid var(--line); padding-top: 12px; }
-  .payment-info { font-size: 11px; color: var(--muted-ink); }
+  .totals-row { margin-top: 16px; display: flex; justify-content: flex-end; align-items: flex-end; gap: 20px; page-break-inside: avoid; border-top: 1px solid var(--line); padding-top: 12px; }
+  .payment-info { margin-top: 10px; padding-top: 8px; border-top: 1px dashed ${accent}66; font-size: 12px; color: var(--ink); }
   .payment-info p { margin: 2px 0; }
+  .payment-info strong { font-weight: 600; }
   .totals { text-align: right; page-break-inside: avoid; }
   .totals p { font-size: 12px; color: var(--muted-ink); margin: 2px 0; }
   .totals .grand { font-size: 22px; font-weight: 700; color: var(--brand-primary); margin-top: 4px; }
@@ -261,10 +269,6 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   ${servicesHtml}
 
   ${opts.hideTotals ? '' : `<div class="totals-row">
-    <div class="payment-info">
-      ${q.company.mbway ? `<p><strong>MBWAY:</strong> ${esc(q.company.mbway)}</p>` : ''}
-      ${q.company.iban ? `<p><strong>IBAN:</strong> ${esc(q.company.iban)}</p>` : ''}
-    </div>
     <div class="totals">
       <p>Subtotal: ${euro(q.subtotal)}</p>
       <p>IVA (23%): ${euro(q.iva)}</p>

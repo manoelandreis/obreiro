@@ -289,12 +289,8 @@ export default function PublicQuote() {
 
 
             {/* Totals */}
-            <div className="border-t pt-4 flex justify-between items-end gap-4 flex-wrap">
-              <div className="text-sm text-muted-foreground space-y-1">
-                {cs.mbway && <div><span className="font-semibold">MBWAY:</span> {cs.mbway}</div>}
-                {cs.iban && <div><span className="font-semibold">IBAN:</span> {cs.iban}</div>}
-              </div>
-              <div className="text-right space-y-1 ml-auto">
+            <div className="border-t pt-4 flex justify-end">
+              <div className="text-right space-y-1">
                 <div className="text-sm text-muted-foreground">Subtotal: {fmt(quote.subtotal)}</div>
                 <div className="text-sm text-muted-foreground">IVA (23%): {fmt(quote.iva)}</div>
                 <div className="text-2xl font-bold text-primary">Total: {fmt(quote.total)}</div>
@@ -305,6 +301,8 @@ export default function PublicQuote() {
               paymentTerms={quote.payment_terms ?? DEFAULT_PAYMENT_TERMS}
               total={Number(quote.total)}
               anchor={quote.responded_at ?? quote.sent_at ?? quote.created_at}
+              mbway={cs.mbway}
+              iban={cs.iban}
             />
 
             {/* Photo gallery — only shown when the quote has attachments */}

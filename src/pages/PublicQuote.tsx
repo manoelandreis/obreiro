@@ -8,7 +8,7 @@ import { CheckCircle2, XCircle, FileText, Loader2, ShieldCheck, Download } from 
 import { toast } from 'sonner';
 import { PaymentTermsCard } from '@/components/app/PaymentTermsCard';
 import { DEFAULT_PAYMENT_TERMS, type PaymentTerms } from '@/lib/paymentTerms';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { QuoteStickyNav } from '@/components/app/QuoteStickyNav';
 import { DetailedSections } from '@/components/app/DetailedQuoteSections';
 import { buildQuoteHtml, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';
 
@@ -183,8 +183,12 @@ export default function PublicQuote() {
           Orçamento partilhado por {cs.name || cs.company_name || 'a sua empresa'}
         </div>
 
+        {detailed && (quote.services?.length ?? 0) > 0 && (
+          <QuoteStickyNav serviceCount={quote.services.length} total={Number(quote.total)} paymentTerms={quote.payment_terms ?? DEFAULT_PAYMENT_TERMS} />
+        )}
+
         {/* Quote summary card */}
-        <Card>
+        <Card id="quote-summary" className="scroll-mt-28">
           <CardContent className="pt-8 space-y-6">
             <div className="flex items-start justify-between flex-wrap gap-4">
               <div>
@@ -297,24 +301,7 @@ export default function PublicQuote() {
                 );
               };
               const list = quote.services || [];
-              if (!detailed || list.length < 2) return <div className="space-y-4">{list.map(renderService)}</div>;
-              return (
-                <Tabs defaultValue="all">
-                  <TabsList className="w-full justify-start overflow-x-auto">
-                    <TabsTrigger value="all" className="flex-1">Resumo</TabsTrigger>
-                    {list.map((_: any, i: number) => (
-                      <TabsTrigger key={i} value={`s${i}`} className="flex-1">
-                        <span className="sm:hidden">Serv. {i + 1}</span>
-                        <span className="hidden sm:inline">Serviço {i + 1}</span>
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                  <TabsContent value="all" className="space-y-4">{list.map(renderService)}</TabsContent>
-                  {list.map((s: any, i: number) => (
-                    <TabsContent key={i} value={`s${i}`}>{renderService(s, i)}</TabsContent>
-                  ))}
-                </Tabs>
-              );
+              return <div className="space-y-4">{list.map(renderService)}</div>;
             })()}
 
 

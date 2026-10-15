@@ -17,11 +17,11 @@ export function DetailedSections({ services, extras, companyName }: Props) {
       {services.map((s, i) => {
         const d: ServiceDetails = s.details || {};
         const mats = (s.materials || []).filter((m: any) => m.name);
-        if (!hasDetails(d) && !mats.length) return null;
+
         const steps = lines(d.steps);
         const specs = lines(d.specs);
         return (
-          <Card key={i}>
+          <Card key={i} id={`svc-detail-${i}`} className="scroll-mt-28">
             <CardContent className="pt-6 space-y-3 text-sm">
               <h2 className="font-heading text-lg font-semibold flex items-baseline gap-3">
                 <span className="text-2xl font-bold text-accent">{String(i + 1).padStart(2, '0')}</span>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { QUOTE_FONT_CSS } from '@/lib/quotePdfFonts';
+import { buildDetailedHtml, DETAILED_PDF_CSS, type QuoteExtras, type QuoteLayout } from '@/lib/quoteLayout';
 import { DEFAULT_PAYMENT_TERMS, expandInstallments, presetById, type PaymentTerms } from '@/lib/paymentTerms';
 
 interface MaterialItem { name: string; quantity: number; unit: string; unitPrice: number }
@@ -20,6 +21,8 @@ export interface QuoteRenderData {
   status?: string;
   paymentTerms?: PaymentTerms | null;
   paymentAnchor?: string | null;
+  layout?: QuoteLayout;
+  extras?: QuoteExtras | null;
 }
 
 export interface BrandSnapshot {
@@ -231,6 +234,7 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
     .payment-block { margin-top: 16px; padding: 12px 16px; }
     .section { margin-top: 16px; padding-top: 12px; }
   }
+${q.layout === 'detailed' ? DETAILED_PDF_CSS : ''}
 </style>
 </head>
 <body>
@@ -263,8 +267,7 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
       .map((v) => esc(v))
       .join('<span class="sep">·</span>')}
   </div>` : ''}
-
-
+  ${q.layout === 'detailed' && q.extras?.estimatedDuration ? `<div class="duration-pill">Prazo estimado: ${esc(q.extras.estimatedDuration)}</div>` : ''}
 
   ${servicesHtml}
 
@@ -279,6 +282,7 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
   ${paymentTermsHtml}
   ${q.notes ? `<div class="section"><h3>Notas</h3><div class="prewrap">${esc(q.notes)}</div></div>` : ''}
   ${paymentHtml}
+  ${q.layout === 'detailed' ? buildDetailedHtml(q.services as any[], q.extras, q.company.name || '') : ''}
   ${attachmentsHtml}
   ${termsHtml}
 

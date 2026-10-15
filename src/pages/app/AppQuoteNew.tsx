@@ -434,6 +434,8 @@ export default function AppQuoteNew() {
         onAddTemplateAsMaterial={addTemplateAsMaterial}
         showDetails={layout === 'detailed'}
         onUpdateDetails={updateDetails}
+        onSetDetails={(id, d) => setServices((prev) => prev.map((s) => (s.id === id ? { ...s, details: d } : s)))}
+        userId={user?.id}
       />
 
       <PaymentSection

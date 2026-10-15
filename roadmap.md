@@ -4,3 +4,4 @@
 - [x] Verify documents visually and example links on the landing page; corrected notes-only extra page with print spacing.
 - [x] Center app content in the space beside the sidebar on large screens (all app pages use `mx-auto` containers); verified at 1920 and 1440 px.
 - [x] Move MBWAY/IBAN from the totals into the payment terms card (public link, app detail, PDF) with a dashed accent separator; verified on screen and in the PDF markup.
+- [x] Restyle the shared Tabs component to the Figma spec (bordered secondary list, bold triggers, dark active tab) and add the "Tabs (separadores)" story; verified in the component preview.

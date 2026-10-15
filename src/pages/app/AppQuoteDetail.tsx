@@ -203,6 +203,8 @@ export default function AppQuoteDetail() {
       status: quote.status,
       paymentTerms: quote.payment_terms ?? defaultPaymentTerms ?? null,
       paymentAnchor: quote.responded_at ?? quote.sent_at ?? quote.created_at,
+      layout: cs.layout === 'detailed' ? 'detailed' : 'classic',
+      extras: cs.extras ?? null,
     };
     return buildQuoteHtml(data, {
       brand,

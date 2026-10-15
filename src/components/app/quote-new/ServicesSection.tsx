@@ -3,9 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CollapsibleSection } from '@/components/app/CollapsibleSection';
+import { Textarea } from '@/components/ui/textarea';
+import type { ServiceDetails } from '@/lib/quoteLayout';
 
 interface MaterialItem { id: string; name: string; quantity: number; unit: string; unitPrice: number; }
-interface ServiceItem { id: string; name: string; description: string; pricePerHour: number; hours: number; materials: MaterialItem[]; }
+interface ServiceItem { id: string; name: string; description: string; pricePerHour: number; hours: number; materials: MaterialItem[]; details?: ServiceDetails; }
 interface QuoteTemplate { id: string; name: string; unit: string | null; default_price: number | null; }
 
 interface ServicesSectionProps {
@@ -21,6 +23,8 @@ interface ServicesSectionProps {
   onRemoveMaterial: (serviceId: string, materialId: string) => void;
   onUpdateMaterial: (serviceId: string, materialId: string, field: keyof MaterialItem, value: string | number) => void;
   onAddTemplateAsMaterial: (serviceId: string, template: QuoteTemplate) => void;
+  showDetails?: boolean;
+  onUpdateDetails?: (serviceId: string, field: keyof ServiceDetails, value: string) => void;
 }
 
 const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
@@ -38,6 +42,8 @@ export function ServicesSection({
   onRemoveMaterial,
   onUpdateMaterial,
   onAddTemplateAsMaterial,
+  showDetails,
+  onUpdateDetails,
 }: ServicesSectionProps) {
   const serviceLabor = (s: ServiceItem) => s.pricePerHour * s.hours;
   const serviceMats = (s: ServiceItem) => s.materials.reduce((a, m) => a + m.quantity * m.unitPrice, 0);
@@ -80,6 +86,22 @@ export function ServicesSection({
                 <Input id={`svc-desc-${svc.id}`} value={svc.description} onChange={(e) => onUpdateService(svc.id, 'description', e.target.value)} />
               </div>
             </div>
+            {showDetails && onUpdateDetails && (
+              <div className="grid gap-3 border-t pt-4">
+                <div className="text-sm font-medium">Detalhe técnico</div>
+                {([
+                  ['framing', 'Enquadramento', 'Ex: Remoção integral dos elementos existentes...'],
+                  ['objective', 'Objetivo', 'Ex: Libertar a divisão para a nova instalação...'],
+                  ['steps', 'Etapas do processo (uma por linha)', 'Proteção de pavimentos\nDesmontagem de móveis'],
+                  ['specs', 'Especificações (uma por linha)', 'Tampo 38 mm resistente à humidade'],
+                ] as const).map(([k, label, ph]) => (
+                  <div key={k}>
+                    <Label htmlFor={`svc-${k}-${svc.id}`}>{label}</Label>
+                    <Textarea id={`svc-${k}-${svc.id}`} rows={k === 'steps' || k === 'specs' ? 3 : 2} placeholder={ph} value={svc.details?.[k] || ''} onChange={(e) => onUpdateDetails(svc.id, k, e.target.value)} />
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="text-right text-sm text-muted-foreground">
               Mão de obra: <span className="font-medium text-foreground">{fmt(serviceLabor(svc))}</span>
             </div>

@@ -19,6 +19,8 @@ import { ServicesSection } from '@/components/app/quote-new/ServicesSection';
 import { PaymentSection } from '@/components/app/quote-new/PaymentSection';
 import { NotesSection } from '@/components/app/quote-new/NotesSection';
 import { PhotosSection, type DraftPhoto } from '@/components/app/quote-new/PhotosSection';
+import { TemplateSection } from '@/components/app/quote-new/TemplateSection';
+import type { QuoteExtras, QuoteLayout, ServiceDetails } from '@/lib/quoteLayout';
 import { uploadDraftPhotos } from '@/lib/draftPhotoUpload';
 import { saveGuestDraft, loadGuestDraft, clearGuestDraft } from '@/lib/guestDraft';
 import {
@@ -27,7 +29,7 @@ import {
 } from '@/lib/paymentTerms';
 
 interface MaterialItem { id: string; name: string; quantity: number; unit: string; unitPrice: number; }
-interface ServiceItem { id: string; name: string; description: string; pricePerHour: number; hours: number; materials: MaterialItem[]; }
+interface ServiceItem { id: string; name: string; description: string; pricePerHour: number; hours: number; materials: MaterialItem[]; details?: ServiceDetails; }
 interface ClientRow { id: string; name: string; email: string | null; phone: string | null; address: string | null; }
 interface QuoteTemplate { id: string; name: string; unit: string | null; default_price: number | null; }
 
@@ -61,6 +63,8 @@ export default function AppQuoteNew() {
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [saving, setSaving] = useState(false);
   const [photos, setPhotos] = useState<DraftPhoto[]>([]);
+  const [layout, setLayout] = useState<QuoteLayout>('classic');
+  const [extras, setExtras] = useState<QuoteExtras>({});
   const [expanded, setExpanded] = useState({ client: true, services: true, payment: false, notes: false, photos: false });
   const [companyConfigured, setCompanyConfigured] = useState(true);
   const [quotaReached, setQuotaReached] = useState(false);
@@ -128,6 +132,8 @@ export default function AppQuoteNew() {
         setNotes(draft.notes || '');
         if (draft.paymentTerms) setPaymentTerms(draft.paymentTerms as PaymentTerms);
         if (draft.selectedPaymentKey) setSelectedPaymentKey(draft.selectedPaymentKey);
+        if (draft.layout === 'detailed') setLayout('detailed');
+        if (draft.extras) setExtras(draft.extras as QuoteExtras);
         if (draft.client) {
           const { data: nc } = await supabase.from('app_clients').insert({
             user_id: user.id, ...draft.client, rgpd_consent: true, rgpd_consent_at: new Date().toISOString(),
@@ -138,7 +144,7 @@ export default function AppQuoteNew() {
       }
       setClients(clientList);
       if (editId) {
-        const { data: q } = await supabase.from('app_quotes').select('title, client_id, services, notes, payment_terms').eq('id', editId).maybeSingle();
+        const { data: q } = await supabase.from('app_quotes').select('title, client_id, services, notes, payment_terms, company_snapshot').eq('id', editId).maybeSingle();
         if (!q) { toast.error('Orçamento não encontrado.'); navigate('/app/quotes'); return; }
         setTitle(q.title || 'Orçamento');
         if (q.client_id) setSelectedClientId(q.client_id);
@@ -146,8 +152,12 @@ export default function AppQuoteNew() {
         setServices(svc.length ? svc.map((s) => ({
           id: s.id || crypto.randomUUID(), name: s.name || '', description: s.description || '',
           pricePerHour: Number(s.pricePerHour) || 0, hours: Number(s.hours) || 0,
+          details: s.details || undefined,
           materials: (s.materials || []).map((m: any) => ({ id: m.id || crypto.randomUUID(), name: m.name || '', quantity: Number(m.quantity) || 0, unit: m.unit || 'un', unitPrice: Number(m.unitPrice) || 0 })),
         })) : [emptyService()]);
+        const snap = (q.company_snapshot || {}) as any;
+        if (snap.layout === 'detailed') setLayout('detailed');
+        if (snap.extras) setExtras(snap.extras);
         setNotes(q.notes || '');
         if (q.payment_terms) {
           const pt = q.payment_terms as unknown as PaymentTerms;
@@ -163,6 +173,8 @@ export default function AppQuoteNew() {
   const removeService = (id: string) => setServices(services.filter((s) => s.id !== id));
   const updateService = (id: string, field: keyof Omit<ServiceItem, 'id' | 'materials'>, value: string | number) =>
     setServices(services.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
+  const updateDetails = (id: string, field: keyof ServiceDetails, value: string) =>
+    setServices(services.map((s) => (s.id === id ? { ...s, details: { ...(s.details || {}), [field]: value } } : s)));
   const addMaterial = (sid: string) =>
     setServices(services.map((s) => s.id === sid ? { ...s, materials: [...s.materials, emptyMaterial()] } : s));
   const removeMaterial = (sid: string, mid: string) =>
@@ -250,7 +262,7 @@ export default function AppQuoteNew() {
       if (!selectedClientId) return toast.error('Crie um cliente para o orçamento.');
       if (services.every((s) => !s.name.trim())) return toast.error('Adicione pelo menos um serviço.');
       const c = clients.find((x) => x.id === selectedClientId);
-      saveGuestDraft({ title, services, notes, paymentTerms, selectedPaymentKey, client: c ? { name: c.name, email: c.email, phone: c.phone, address: c.address } : null });
+      saveGuestDraft({ title, services, notes, paymentTerms, selectedPaymentKey, layout, extras, client: c ? { name: c.name, email: c.email, phone: c.phone, address: c.address } : null });
       toast.success('Crie a sua conta grátis para guardar o orçamento.');
       navigate('/app/signup');
       return;
@@ -261,10 +273,13 @@ export default function AppQuoteNew() {
     setSaving(true);
 
     if (isEdit) {
+      const { data: prev } = await supabase.from('app_quotes').select('company_snapshot').eq('id', editId!).maybeSingle();
+      const prevSnap = ((prev?.company_snapshot as any) || {});
       const { data: updated, error: upErr } = await supabase.from('app_quotes').update({
         client_id: selectedClientId,
         title: title.trim() || 'Orçamento',
         client_snapshot: selectedClient as any,
+        company_snapshot: { ...prevSnap, layout, extras: layout === 'detailed' ? extras : null } as any,
         services: services as any,
         notes: notes.trim() || null,
         payment_terms: paymentTerms as any,
@@ -305,7 +320,7 @@ export default function AppQuoteNew() {
         client_id: selectedClientId,
         job_id: job.id,
         title: title.trim() || 'Orçamento',
-        company_snapshot: company as any,
+        company_snapshot: { ...company, layout, extras: layout === 'detailed' ? extras : null } as any,
         client_snapshot: selectedClient as any,
         services: services as any,
         notes: notes.trim() || null,
@@ -393,6 +408,8 @@ export default function AppQuoteNew() {
         </Card>
       )}
 
+      <TemplateSection layout={layout} onLayoutChange={setLayout} extras={extras} onExtrasChange={setExtras} />
+
       <ClientSection
         clients={clients}
         selectedClientId={selectedClientId}
@@ -415,6 +432,8 @@ export default function AppQuoteNew() {
         onRemoveMaterial={removeMaterial}
         onUpdateMaterial={updateMaterial}
         onAddTemplateAsMaterial={addTemplateAsMaterial}
+        showDetails={layout === 'detailed'}
+        onUpdateDetails={updateDetails}
       />
 
       <PaymentSection

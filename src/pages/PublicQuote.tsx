@@ -8,6 +8,8 @@ import { CheckCircle2, XCircle, FileText, Loader2, ShieldCheck, Download } from 
 import { toast } from 'sonner';
 import { PaymentTermsCard } from '@/components/app/PaymentTermsCard';
 import { DEFAULT_PAYMENT_TERMS, type PaymentTerms } from '@/lib/paymentTerms';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { DetailedSections } from '@/components/app/DetailedQuoteSections';
 import { buildQuoteHtml, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';
 
 
@@ -118,6 +120,8 @@ export default function PublicQuote() {
       status: quote.status,
       paymentTerms: quote.payment_terms ?? DEFAULT_PAYMENT_TERMS,
       paymentAnchor: quote.responded_at ?? quote.sent_at ?? quote.created_at,
+      layout: cs.layout === 'detailed' ? 'detailed' : 'classic',
+      extras: cs.extras ?? null,
     };
     const html = buildQuoteHtml(data, {
       brand: {
@@ -168,6 +172,8 @@ export default function PublicQuote() {
   const cl = quote.client_snapshot || {};
   const responded = ['aceite', 'rejeitado'].includes(quote.status) || done;
   const finalStatus = done ?? quote.status;
+  const detailed = cs.layout === 'detailed';
+  const extras = cs.extras || {};
 
   return (
     <div className="min-h-screen bg-muted/30 py-8 px-4">
@@ -240,11 +246,16 @@ export default function PublicQuote() {
                   {cl.address && <span>· {cl.address}</span>}
                 </div>
               )}
+              {detailed && extras.estimatedDuration && (
+                <span className="inline-block mt-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
+                  Prazo estimado: {extras.estimatedDuration}
+                </span>
+              )}
             </div>
 
             {/* Services */}
-            <div className="space-y-4">
-              {quote.services?.map((s: any, idx: number) => {
+            {(() => {
+              const renderService = (s: any, idx: number) => {
                 const labor = (s.pricePerHour || 0) * (s.hours || 0);
                 const matsTotal = (s.materials || []).reduce(
                   (a: number, m: any) => a + (m.quantity || 0) * (m.unitPrice || 0),
@@ -284,8 +295,27 @@ export default function PublicQuote() {
                     </div>
                   </div>
                 );
-              })}
-            </div>
+              };
+              const list = quote.services || [];
+              if (!detailed || list.length < 2) return <div className="space-y-4">{list.map(renderService)}</div>;
+              return (
+                <Tabs defaultValue="all">
+                  <TabsList className="w-full justify-start overflow-x-auto">
+                    <TabsTrigger value="all" className="flex-1">Resumo</TabsTrigger>
+                    {list.map((_: any, i: number) => (
+                      <TabsTrigger key={i} value={`s${i}`} className="flex-1">
+                        <span className="sm:hidden">Serv. {i + 1}</span>
+                        <span className="hidden sm:inline">Serviço {i + 1}</span>
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                  <TabsContent value="all" className="space-y-4">{list.map(renderService)}</TabsContent>
+                  {list.map((s: any, i: number) => (
+                    <TabsContent key={i} value={`s${i}`}>{renderService(s, i)}</TabsContent>
+                  ))}
+                </Tabs>
+              );
+            })()}
 
 
             {/* Totals */}
@@ -344,6 +374,10 @@ export default function PublicQuote() {
             )}
           </CardContent>
         </Card>
+
+        {detailed && (
+          <DetailedSections services={quote.services || []} extras={extras} companyName={cs.name || cs.company_name || ''} />
+        )}
 
         <Button
           ref={downloadBtnRef}

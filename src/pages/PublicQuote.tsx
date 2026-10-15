@@ -11,6 +11,7 @@ import { PaymentTermsCard } from '@/components/app/PaymentTermsCard';
 import { DEFAULT_PAYMENT_TERMS, type PaymentTerms } from '@/lib/paymentTerms';
 import { QuoteStickyNav } from '@/components/app/QuoteStickyNav';
 import { DetailedSections } from '@/components/app/DetailedQuoteSections';
+import { ExecutiveQuoteView } from '@/components/app/ExecutiveQuoteView';
 import { buildQuoteHtml, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';
 
 
@@ -174,6 +175,7 @@ export default function PublicQuote() {
   const responded = ['aceite', 'rejeitado'].includes(quote.status) || done;
   const finalStatus = done ?? quote.status;
   const detailed = cs.layout === 'detailed';
+  const executive = cs.layout === 'executive';
   const extras = cs.extras || {};
 
   return (
@@ -188,9 +190,18 @@ export default function PublicQuote() {
           <QuoteStickyNav serviceCount={quote.services.length} total={Number(quote.total)} paymentTerms={quote.payment_terms ?? DEFAULT_PAYMENT_TERMS} />
         )}
 
+        {executive && (
+          <ExecutiveQuoteView
+            quote={quote}
+            logoUrl={`https://cprysybqjtsynxofljxc.supabase.co/functions/v1/get-quote-logo?token=${token}`}
+          />
+        )}
+
         {/* Quote summary card */}
+        {(!executive || (quote.attachments?.length ?? 0) > 0) && (
         <Card id="quote-summary" className="scroll-mt-28">
           <CardContent className="pt-8 space-y-6">
+            {!executive && (<>
             <div className="flex items-start justify-between flex-wrap gap-4">
               <div>
                 <div className={`flex gap-3 ${cs.logo_kind === 'vertical' ? 'flex-col items-start' : 'items-center'}`}>
@@ -322,6 +333,7 @@ export default function PublicQuote() {
               mbway={cs.mbway}
               iban={cs.iban}
             />
+            </>)}
 
             {/* Photo gallery — only shown when the quote has attachments */}
             {quote.attachments && quote.attachments.length > 0 && (
@@ -352,7 +364,7 @@ export default function PublicQuote() {
               </div>
             )}
 
-            {quote.notes && (
+            {quote.notes && !executive && (
               <div className="border-t pt-4">
                 <div className="text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-1">
                   Notas
@@ -362,6 +374,7 @@ export default function PublicQuote() {
             )}
           </CardContent>
         </Card>
+        )}
 
         {detailed && (
           <DetailedSections services={quote.services || []} extras={extras} companyName={cs.name || cs.company_name || ''} />

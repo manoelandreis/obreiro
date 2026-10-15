@@ -68,7 +68,7 @@ export function ExecutiveQuoteView({ quote, logoUrl }: Props) {
             ['Cliente', cl.name || '—'],
             ['Local da obra', cl.address || '—'],
           ].map(([k, v], i) => (
-            <div key={k} className={`px-4 ${i % 2 ? 'border-l' : ''} ${i >= 2 ? 'sm:border-l' : ''} ${i === 2 ? 'border-l-0' : ''}`}>
+            <div key={k} className={`px-4 ${i % 2 ? 'border-l' : ''} ${i === 2 ? 'sm:border-l' : ''}`}>
               <Label>{k}</Label>
               <div className="text-sm font-semibold break-words">{v}</div>
             </div>

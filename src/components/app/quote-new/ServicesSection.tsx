@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { CollapsibleSection } from '@/components/app/CollapsibleSection';
 import { Textarea } from '@/components/ui/textarea';
 import type { ServiceDetails } from '@/lib/quoteLayout';
+import { ServiceDetailPresetBar, useDetailPresets } from './ServiceDetailPresets';
 
 interface MaterialItem { id: string; name: string; quantity: number; unit: string; unitPrice: number; }
 interface ServiceItem { id: string; name: string; description: string; pricePerHour: number; hours: number; materials: MaterialItem[]; details?: ServiceDetails; }
@@ -25,6 +26,8 @@ interface ServicesSectionProps {
   onAddTemplateAsMaterial: (serviceId: string, template: QuoteTemplate) => void;
   showDetails?: boolean;
   onUpdateDetails?: (serviceId: string, field: keyof ServiceDetails, value: string) => void;
+  onSetDetails?: (serviceId: string, details: ServiceDetails) => void;
+  userId?: string;
 }
 
 const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
@@ -44,7 +47,10 @@ export function ServicesSection({
   onAddTemplateAsMaterial,
   showDetails,
   onUpdateDetails,
+  onSetDetails,
+  userId,
 }: ServicesSectionProps) {
+  const { presets, save, remove } = useDetailPresets(showDetails ? userId : undefined);
   const serviceLabor = (s: ServiceItem) => s.pricePerHour * s.hours;
   const serviceMats = (s: ServiceItem) => s.materials.reduce((a, m) => a + m.quantity * m.unitPrice, 0);
   const serviceTotal = (s: ServiceItem) => serviceLabor(s) + serviceMats(s);
@@ -89,6 +95,10 @@ export function ServicesSection({
             {showDetails && onUpdateDetails && (
               <div className="grid gap-3 border-t pt-4">
                 <div className="text-sm font-medium">Detalhe técnico</div>
+                {onSetDetails && (
+                  <ServiceDetailPresetBar serviceName={svc.name} details={svc.details} presets={presets}
+                    onApply={(d) => onSetDetails(svc.id, d)} onSave={save} onRemove={remove} />
+                )}
                 {([
                   ['framing', 'Enquadramento', 'Ex: Remoção integral dos elementos existentes...'],
                   ['objective', 'Objetivo', 'Ex: Libertar a divisão para a nova instalação...'],

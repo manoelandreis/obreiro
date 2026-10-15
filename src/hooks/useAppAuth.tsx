@@ -7,7 +7,7 @@ interface AppAuthContextType {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null; hasSession?: boolean }>;
   signOut: () => Promise<void>;
 }
 
@@ -42,7 +42,7 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/app`,
+        emailRedirectTo: `${window.location.origin}${localStorage.getItem('obreiro-guest-quote-draft') ? '/app/quotes/new' : '/app'}`,
         data: { display_name: fullName },
       },
     });

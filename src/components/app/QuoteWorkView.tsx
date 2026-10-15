@@ -31,6 +31,7 @@ interface Props {
   notes?: string | null;
   paymentTerms?: PaymentTerms | null;
   paymentAnchor?: string | null;
+  paymentInfo?: { mbway?: string | null; iban?: string | null };
   onClientUpdated?: () => void;
 }
 
@@ -44,7 +45,7 @@ const initialsOf = (name?: string) => {
 };
 
 export function QuoteWorkView({
-  quoteId, services, client, subtotal, iva, notes, paymentTerms, paymentAnchor, onClientUpdated,
+  quoteId, services, client, subtotal, iva, notes, paymentTerms, paymentAnchor, paymentInfo, onClientUpdated,
 }: Props) {
   const [editOpen, setEditOpen] = useState(false);
   const [form, setForm] = useState({
@@ -197,6 +198,8 @@ export function QuoteWorkView({
         paymentTerms={paymentTerms ?? null}
         total={subtotal + iva}
         anchor={paymentAnchor ?? null}
+        mbway={paymentInfo?.mbway}
+        iban={paymentInfo?.iban}
       />
 
 

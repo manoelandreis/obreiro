@@ -116,6 +116,12 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
     const paymentTerms = q.paymentTerms ?? DEFAULT_PAYMENT_TERMS;
     const parts = expandInstallments(paymentTerms, q.total, q.paymentAnchor ?? q.createdAt);
     const presetLabel = presetById(paymentTerms.preset).label;
+    const paymentInfoHtml = q.company.mbway || q.company.iban
+      ? `<div class="payment-info">
+        ${q.company.mbway ? `<p>MBWAY: <strong>${esc(q.company.mbway)}</strong></p>` : ''}
+        ${q.company.iban ? `<p>IBAN: <strong>${esc(q.company.iban)}</strong></p>` : ''}
+      </div>`
+      : '';
     return `<div class="payment-block">
       <div class="payment-header">
         <div class="payment-label">Formato de pagamento</div>
@@ -127,6 +133,7 @@ export function buildQuoteHtml(q: QuoteRenderData, opts: RenderOptions): string 
           <span class="payment-row-amount">${euro(p.amount)}</span>
         </div>`).join('')}
       </div>
+      ${paymentInfoHtml}
     </div>`;
   })();
 

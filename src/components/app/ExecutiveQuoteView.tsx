@@ -45,7 +45,7 @@ export function ExecutiveQuoteView({ quote, logoUrl }: Props) {
     <div className="space-y-5">
       {/* Header + facts */}
       <div className="rounded-xl overflow-hidden bg-card shadow-sm border">
-        <div className="bg-primary text-primary-foreground px-6 sm:px-10 pt-8 pb-16 flex flex-wrap justify-between gap-4">
+        <div className="bg-brand-dark text-brand-dark-foreground px-6 sm:px-10 pt-8 pb-16 flex flex-wrap justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">
             {logoUrl && cs.logo_path && (
               <img src={logoUrl} alt="Logo" className="h-11 max-w-[132px] object-contain"
@@ -98,10 +98,10 @@ export function ExecutiveQuoteView({ quote, logoUrl }: Props) {
                 <div className="mt-4 rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground whitespace-pre-wrap">{quote.notes}</div>
               )}
             </div>
-            <div className="rounded-xl bg-primary text-primary-foreground p-5 flex flex-col">
+            <div className="rounded-xl bg-brand-dark text-brand-dark-foreground p-5 flex flex-col">
               <div className="text-[11px] font-bold uppercase opacity-80 mb-3">Resumo financeiro</div>
               {[['Mão de obra', labor], ['Materiais', materials], ['IVA (23%)', Number(quote.iva)]].map(([k, v]) => (
-                <div key={k as string} className="flex justify-between py-1.5 text-sm border-b border-primary-foreground/25">
+                <div key={k as string} className="flex justify-between py-1.5 text-sm border-b border-brand-dark-foreground/25">
                   <span>{k}</span><span>{fmt(v as number)}</span>
                 </div>
               ))}
@@ -154,7 +154,7 @@ export function ExecutiveQuoteView({ quote, logoUrl }: Props) {
             return (
               <div key={i} className="rounded-lg border overflow-hidden">
                 <div className="flex items-center gap-3 bg-muted/50 px-4 py-2.5">
-                  <span className="h-6 w-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">{i + 1}</span>
+                  <span className="h-6 w-6 rounded-full bg-brand-dark text-brand-dark-foreground text-xs font-bold flex items-center justify-center">{i + 1}</span>
                   <span className="font-heading font-medium text-sm flex-1">{s.name || `Serviço ${i + 1}`}</span>
                   <span className="font-heading font-semibold text-sm text-accent">{fmt(total)}</span>
                 </div>

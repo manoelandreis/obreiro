@@ -787,7 +787,7 @@ export default function IndexV2() {
               Fica com 100% do que ganha. O Obreiro só lhe poupa tempo.
             </h2>
             <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-              Não cobramos comissão sobre os seus orçamentos nem ficamos com parte dos seus trabalhos. Paga um valor fixo e simples — e tem tudo o que precisa para parecer (e ser) mais profissional.
+              Não cobramos comissão sobre os seus orçamentos nem ficamos com parte dos seus trabalhos. Durante o lançamento é grátis — e tem tudo o que precisa para parecer (e ser) mais profissional.
             </p>
           </div>
 
@@ -808,26 +808,6 @@ export default function IndexV2() {
           </div>
         </div>
       </section>
-
-      {/* ─────── TESTIMONIAL ─────── */}
-      <section className="px-6 py-20">
-        <div className="mx-auto max-w-3xl">
-          <div className="rounded-3xl border border-border bg-card p-10 md:p-14 text-center shadow-soft">
-            <div className="text-accent text-4xl font-heading font-bold mb-4">"</div>
-            <blockquote className="font-heading text-xl md:text-2xl font-semibold text-foreground leading-snug text-balance">
-              Antes do Obreiro, perdia 2 horas por orçamento. Agora faço em 10 minutos, no carro, entre obras.
-            </blockquote>
-            <div className="mt-6 flex items-center justify-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-heading font-bold text-sm">JS</div>
-              <div className="text-left">
-                <p className="text-sm font-semibold text-foreground">João Silva</p>
-                <p className="text-xs text-muted-foreground">Construtor · Porto</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
 
       {/* ─────── SECTION: Segurança & Privacidade ─────── */}
       <section id="sobre" className="px-6 py-20 scroll-mt-20">

@@ -274,9 +274,18 @@ export default function AppQuoteDetail() {
       `Pode ver e responder aqui: ${publicUrl}\n\n` +
       `Obrigado.`
     );
-    await recordSent('whatsapp');
-    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
-    toast.success('WhatsApp aberto.');
+    // Portuguese numbers without country code → prefix 351
+    let digits = phone.replace(/^00/, '');
+    if (digits.length === 9) digits = `351${digits}`;
+    const url = `https://wa.me/${digits}?text=${text}`;
+    // Open synchronously within the tap, otherwise mobile browsers block it
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
+      window.location.href = url;
+    } else {
+      window.open(url, '_blank', 'noopener');
+    }
+    void recordSent('whatsapp');
   };
 
   const copyLink = async () => {

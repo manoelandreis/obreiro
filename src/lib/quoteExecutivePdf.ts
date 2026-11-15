@@ -147,7 +147,7 @@ td .m { color: var(--mut); }
         <div class="label">Resumo financeiro</div>
         <div class="row"><span>Mão de obra</span><span>${euro(labor)}</span></div>
         <div class="row"><span>Materiais</span><span>${euro(materials)}</span></div>
-        <div class="row"><span>IVA (23%)</span><span>${euro(q.iva)}</span></div>
+        <div class="row"><span>${q.vatLabel ?? 'IVA (23%)'}</span><span>${euro(q.iva)}</span></div>
         <div class="grand"><span class="label">Total com IVA</span><b>${euro(q.total)}</b></div>
       </div>
     </div>
@@ -176,7 +176,7 @@ td .m { color: var(--mut); }
       <div>${note ? `<div class="label" style="color:var(--ink)">Notas</div><p>${esc(note)}</p>` : ''}</div>
       <div class="tot">
         <div class="row"><span>Subtotal</span><span>${euro(q.subtotal)}</span></div>
-        <div class="row"><span>IVA (23%)</span><span>${euro(q.iva)}</span></div>
+        <div class="row"><span>${q.vatLabel ?? 'IVA (23%)'}</span><span>${euro(q.iva)}</span></div>
         <div class="grand"><span>Total</span><b>${euro(q.total)}</b></div>
       </div>
     </div>

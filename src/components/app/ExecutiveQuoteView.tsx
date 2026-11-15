@@ -3,6 +3,7 @@
 import { Check } from 'lucide-react';
 import { lines } from '@/lib/quoteLayout';
 import { DEFAULT_PAYMENT_TERMS, expandInstallments } from '@/lib/paymentTerms';
+import { vatLabel } from '@/lib/vat';
 
 const fmt = (v: number) => Number(v || 0).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
 const fmtDate = (d?: string | null) =>
@@ -100,7 +101,7 @@ export function ExecutiveQuoteView({ quote, logoUrl }: Props) {
             </div>
             <div className="rounded-xl bg-brand-dark text-brand-dark-foreground p-5 flex flex-col">
               <div className="text-[11px] font-bold uppercase opacity-80 mb-3">Resumo financeiro</div>
-              {[['Mão de obra', labor], ['Materiais', materials], ['IVA (23%)', Number(quote.iva)]].map(([k, v]) => (
+              {[['Mão de obra', labor], ['Materiais', materials], [vatLabel(cs), Number(quote.iva)]].map(([k, v]) => (
                 <div key={k as string} className="flex justify-between py-1.5 text-sm border-b border-brand-dark-foreground/25">
                   <span>{k}</span><span>{fmt(v as number)}</span>
                 </div>
@@ -189,7 +190,7 @@ export function ExecutiveQuoteView({ quote, logoUrl }: Props) {
         <div className="mt-6 flex justify-end">
           <div className="w-full sm:w-72 text-sm">
             <div className="flex justify-between py-0.5 text-muted-foreground"><span>Subtotal</span><span>{fmt(quote.subtotal)}</span></div>
-            <div className="flex justify-between py-0.5 text-muted-foreground"><span>IVA (23%)</span><span>{fmt(quote.iva)}</span></div>
+            <div className="flex justify-between py-0.5 text-muted-foreground"><span>{vatLabel(cs)}</span><span>{fmt(quote.iva)}</span></div>
             <div className="flex justify-between items-baseline border-t-2 border-foreground mt-1 pt-2 font-semibold">
               <span>Total</span><span className="font-heading text-lg text-accent">{fmt(quote.total)}</span>
             </div>

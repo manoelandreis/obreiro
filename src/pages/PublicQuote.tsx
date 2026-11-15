@@ -13,6 +13,7 @@ import { QuoteStickyNav } from '@/components/app/QuoteStickyNav';
 import { DetailedSections } from '@/components/app/DetailedQuoteSections';
 import { ExecutiveQuoteView } from '@/components/app/ExecutiveQuoteView';
 import { buildQuoteHtml, openPrintWindow, type QuoteRenderData } from '@/lib/quotePdf';
+import { vatLabel } from '@/lib/vat';
 
 
 interface PublicQuote {
@@ -123,6 +124,7 @@ export default function PublicQuote() {
       paymentTerms: quote.payment_terms ?? DEFAULT_PAYMENT_TERMS,
       paymentAnchor: quote.responded_at ?? quote.sent_at ?? quote.created_at,
       layout: parseLayout(cs.layout),
+      vatLabel: vatLabel(cs),
       extras: cs.extras ?? null,
     };
     const html = buildQuoteHtml(data, {
@@ -321,7 +323,7 @@ export default function PublicQuote() {
             <div className="border-t pt-4 flex justify-end">
               <div className="text-right space-y-1">
                 <div className="text-sm text-muted-foreground">Subtotal: {fmt(quote.subtotal)}</div>
-                <div className="text-sm text-muted-foreground">IVA (23%): {fmt(quote.iva)}</div>
+                <div className="text-sm text-muted-foreground">{vatLabel(quote.company_snapshot)}: {fmt(quote.iva)}</div>
                 <div className="text-2xl font-bold text-primary">Total: {fmt(quote.total)}</div>
               </div>
             </div>

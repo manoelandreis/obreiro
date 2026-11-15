@@ -10,6 +10,7 @@ export interface GuestDraft {
   selectedPaymentKey: string;
   client: GuestClient | null;
   layout?: string;
+  vatRegime?: string;
   extras?: unknown;
 }
 

@@ -31,6 +31,7 @@ interface Props {
   notes?: string | null;
   paymentTerms?: PaymentTerms | null;
   paymentAnchor?: string | null;
+  vatLabel?: string;
   paymentInfo?: { mbway?: string | null; iban?: string | null };
   onClientUpdated?: () => void;
 }
@@ -45,7 +46,7 @@ const initialsOf = (name?: string) => {
 };
 
 export function QuoteWorkView({
-  quoteId, services, client, subtotal, iva, notes, paymentTerms, paymentAnchor, paymentInfo, onClientUpdated,
+  quoteId, services, client, subtotal, iva, notes, paymentTerms, paymentAnchor, paymentInfo, vatLabel, onClientUpdated,
 }: Props) {
   const [editOpen, setEditOpen] = useState(false);
   const [form, setForm] = useState({
@@ -188,7 +189,7 @@ export function QuoteWorkView({
             <span className="font-medium">{euro(subtotal)}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">IVA (23%)</span>
+            <span className="text-muted-foreground">{vatLabel ?? 'IVA (23%)'}</span>
             <span className="font-medium">{euro(iva)}</span>
           </div>
         </CardContent>

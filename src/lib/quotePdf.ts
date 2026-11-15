@@ -24,6 +24,7 @@ export interface QuoteRenderData {
   paymentAnchor?: string | null;
   layout?: QuoteLayout;
   extras?: QuoteExtras | null;
+  vatLabel?: string;
 }
 
 export interface BrandSnapshot {
@@ -276,7 +277,7 @@ ${q.layout === 'detailed' ? DETAILED_PDF_CSS : ''}
   ${opts.hideTotals ? '' : `<div class="totals-row">
     <div class="totals">
       <p>Subtotal: ${euro(q.subtotal)}</p>
-      <p>IVA (23%): ${euro(q.iva)}</p>
+      <p>${q.vatLabel ?? 'IVA (23%)'}: ${euro(q.iva)}</p>
       <p class="grand">Total: ${euro(q.total)}</p>
     </div>
   </div>`}

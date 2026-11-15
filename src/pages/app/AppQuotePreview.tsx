@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ArrowLeft, Download, Mail, Loader2, Printer, MessageCircle, MoreHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
+import { vatLabel } from '@/lib/vat';
 import {
   buildQuoteHtml,
   loadBrand,
@@ -108,6 +109,7 @@ export default function AppQuotePreview() {
         paymentTerms: (q as any).payment_terms ?? defaultTerms,
         paymentAnchor: (q as any).responded_at ?? (q as any).sent_at ?? q.created_at,
         layout: parseLayout(cs.layout),
+      vatLabel: vatLabel(cs),
         extras: cs.extras ?? null,
       };
 

@@ -22,6 +22,7 @@ import { NotesSection } from '@/components/app/quote-new/NotesSection';
 import { PhotosSection, type DraftPhoto } from '@/components/app/quote-new/PhotosSection';
 import { TemplateSection } from '@/components/app/quote-new/TemplateSection';
 import { parseLayout, type QuoteExtras, type QuoteLayout, type ServiceDetails } from '@/lib/quoteLayout';
+import { VAT_OPTIONS, parseVatRegime, vatRate, type VatRegime } from '@/lib/vat';
 import { uploadDraftPhotos } from '@/lib/draftPhotoUpload';
 import { saveGuestDraft, loadGuestDraft, clearGuestDraft } from '@/lib/guestDraft';
 import {
@@ -58,6 +59,7 @@ export default function AppQuoteNew() {
   const [title, setTitle] = useState('Orçamento');
   const [services, setServices] = useState<ServiceItem[]>([emptyService()]);
   const [notes, setNotes] = useState('');
+  const [vatRegime, setVatRegime] = useState<VatRegime>('normal');
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>(DEFAULT_PAYMENT_TERMS);
   const [paymentTemplates, setPaymentTemplates] = useState<CustomPaymentTemplate[]>([]);
   const [selectedPaymentKey, setSelectedPaymentKey] = useState<string>('100_end');
@@ -134,6 +136,7 @@ export default function AppQuoteNew() {
         if (draft.paymentTerms) setPaymentTerms(draft.paymentTerms as PaymentTerms);
         if (draft.selectedPaymentKey) setSelectedPaymentKey(draft.selectedPaymentKey);
         setLayout(parseLayout(draft.layout));
+        setVatRegime(parseVatRegime((draft as any).vatRegime));
         if (draft.extras) setExtras(draft.extras as QuoteExtras);
         if (draft.client) {
           const { data: nc } = await supabase.from('app_clients').insert({
@@ -158,6 +161,7 @@ export default function AppQuoteNew() {
         })) : [emptyService()]);
         const snap = (q.company_snapshot || {}) as any;
         setLayout(parseLayout(snap.layout));
+        setVatRegime(parseVatRegime(snap.vat_regime));
         if (snap.extras) setExtras(snap.extras);
         setNotes(q.notes || '');
         if (q.payment_terms) {
@@ -213,7 +217,7 @@ export default function AppQuoteNew() {
   // Totals
   const serviceTotal = (s: ServiceItem) => s.pricePerHour * s.hours + s.materials.reduce((a, m) => a + m.quantity * m.unitPrice, 0);
   const subtotal = services.reduce((a, s) => a + serviceTotal(s), 0);
-  const iva = subtotal * 0.23;
+  const iva = Math.round(subtotal * vatRate(vatRegime)) / 100;
   const total = subtotal + iva;
 
   const toggle = (k: keyof typeof expanded) => setExpanded((p) => ({ ...p, [k]: !p[k] }));
@@ -284,7 +288,7 @@ export default function AppQuoteNew() {
       if (!selectedClientId) return toast.error('Crie um cliente para o orçamento.');
       if (services.every((s) => !s.name.trim())) return toast.error('Adicione pelo menos um serviço.');
       const c = clients.find((x) => x.id === selectedClientId);
-      saveGuestDraft({ title, services, notes, paymentTerms, selectedPaymentKey, layout, extras, client: c ? { name: c.name, email: c.email, phone: c.phone, address: c.address } : null });
+      saveGuestDraft({ vatRegime, title, services, notes, paymentTerms, selectedPaymentKey, layout, extras, client: c ? { name: c.name, email: c.email, phone: c.phone, address: c.address } : null });
       toast.success('Crie a sua conta grátis para guardar o orçamento.');
       navigate('/app/signup');
       return;
@@ -301,7 +305,7 @@ export default function AppQuoteNew() {
         client_id: selectedClientId,
         title: title.trim() || 'Orçamento',
         client_snapshot: selectedClient as any,
-        company_snapshot: { ...prevSnap, layout, extras: layout !== 'classic' ? extras : null } as any,
+        company_snapshot: { ...prevSnap, layout, extras: layout !== 'classic' ? extras : null, vat_regime: vatRegime } as any,
         services: services as any,
         notes: notes.trim() || null,
         payment_terms: paymentTerms as any,
@@ -342,7 +346,7 @@ export default function AppQuoteNew() {
         client_id: selectedClientId,
         job_id: job.id,
         title: title.trim() || 'Orçamento',
-        company_snapshot: { ...company, layout, extras: layout !== 'classic' ? extras : null } as any,
+        company_snapshot: { ...company, layout, extras: layout !== 'classic' ? extras : null, vat_regime: vatRegime } as any,
         client_snapshot: selectedClient as any,
         services: services as any,
         notes: notes.trim() || null,
@@ -507,7 +511,17 @@ export default function AppQuoteNew() {
       <Card>
         <CardContent className="pt-6 space-y-2 text-right">
           <div className="text-sm text-muted-foreground">Subtotal: <span className="font-medium text-foreground">{fmt(subtotal)}</span></div>
-          <div className="text-sm text-muted-foreground">IVA (23%): <span className="font-medium text-foreground">{fmt(iva)}</span></div>
+          <div className="flex items-center justify-end gap-2 text-sm text-muted-foreground">
+            <label htmlFor="vat-regime">Taxa de IVA</label>
+            <select id="vat-regime" value={vatRegime} onChange={(e) => setVatRegime(e.target.value as VatRegime)} disabled={saving}
+              className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground">
+              {VAT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </div>
+          {VAT_OPTIONS.find((o) => o.value === vatRegime)?.note && (
+            <p className="text-xs text-muted-foreground">{VAT_OPTIONS.find((o) => o.value === vatRegime)?.note}</p>
+          )}
+          <div className="text-sm text-muted-foreground">IVA ({vatRate(vatRegime)}%): <span className="font-medium text-foreground">{fmt(iva)}</span></div>
           <div className="text-2xl font-bold text-primary border-t pt-2">Total: {fmt(total)}</div>
           <div className="pt-3">
             <Button size="lg" className="gap-2 w-full" disabled={saving} onClick={handleSave}>

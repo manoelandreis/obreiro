@@ -36,6 +36,7 @@ import { buildQuoteHtml, loadBrand, openPrintWindow, type QuoteRenderData } from
 import { duplicateQuote } from '@/lib/duplicateQuote';
 
 import { type PaymentTerms, DEFAULT_PAYMENT_TERMS } from '@/lib/paymentTerms';
+import { vatLabel } from '@/lib/vat';
 
 type Status = 'rascunho' | 'enviado' | 'visto' | 'aceite' | 'rejeitado' | 'expirado';
 
@@ -205,6 +206,7 @@ export default function AppQuoteDetail() {
       paymentTerms: quote.payment_terms ?? defaultPaymentTerms ?? null,
       paymentAnchor: quote.responded_at ?? quote.sent_at ?? quote.created_at,
       layout: parseLayout(cs.layout),
+      vatLabel: vatLabel(cs),
       extras: cs.extras ?? null,
     };
     return buildQuoteHtml(data, {
@@ -408,6 +410,7 @@ export default function AppQuoteDetail() {
         client={{ name: cl.name, email: cl.email, phone: cl.phone }}
         subtotal={Number(quote.subtotal)}
         iva={Number(quote.iva)}
+        vatLabel={vatLabel(quote.company_snapshot)}
         notes={quote.notes}
         paymentTerms={quote.payment_terms ?? defaultPaymentTerms}
         paymentAnchor={quote.responded_at ?? quote.sent_at ?? quote.created_at}

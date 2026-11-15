@@ -7,6 +7,7 @@ interface CollapsibleSectionProps {
   icon: LucideIcon;
   title: string;
   summary?: React.ReactNode;
+  inlineSummary?: boolean;
   open?: boolean;
   onToggle?: () => void;
   defaultOpen?: boolean;
@@ -17,6 +18,7 @@ export function CollapsibleSection({
   icon: Icon,
   title,
   summary,
+  inlineSummary = false,
   open: controlledOpen,
   onToggle,
   defaultOpen = false,
@@ -37,7 +39,7 @@ export function CollapsibleSection({
     <Card>
       <button type="button" onClick={handleToggle} className="w-full text-left">
         <CardHeader className="flex flex-row items-start sm:items-center justify-between cursor-pointer gap-3">
-          <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-base min-w-0">
+          <CardTitle className={`flex ${inlineSummary ? 'flex-row items-center flex-wrap' : 'flex-col sm:flex-row sm:items-center'} gap-1 sm:gap-2 text-base min-w-0`}>
             <span className="flex items-center gap-2">
               <Icon className="h-5 w-5 shrink-0" />
               <span>{title}</span>

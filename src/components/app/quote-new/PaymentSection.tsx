@@ -5,9 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from '@/components/ui/dialog';
-import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { CollapsibleSection } from '@/components/app/CollapsibleSection';
@@ -54,9 +51,7 @@ export function PaymentSection({
   const [paymentDraft, setPaymentDraft] = useState<CustomPaymentTemplate | null>(null);
   const [savingPayment, setSavingPayment] = useState(false);
 
-  const summaryLabel = selectedPaymentKey.startsWith('tpl:')
-    ? (paymentTemplates.find((t) => t.id === selectedPaymentKey.slice(4))?.name ?? 'Personalizado')
-    : presetById(paymentTerms.preset).label;
+  const summaryLabel = paymentTerms.installments.map((i) => `${i.percent}%`).join(' + ');
 
   const handleValueChange = (v: string) => {
     if (v === '__new') {
@@ -64,6 +59,8 @@ export function PaymentSection({
       setOpenNewPayment(true);
       return;
     }
+    setOpenNewPayment(false);
+    setPaymentDraft(null);
     if (v.startsWith('tpl:')) {
       const tpl = paymentTemplates.find((t) => t.id === v.slice(4));
       if (tpl) {
@@ -78,7 +75,7 @@ export function PaymentSection({
   };
 
   const handleSaveTemplate = async () => {
-    if (!userId || !paymentDraft) return;
+    if (!paymentDraft) return;
     const name = paymentDraft.name.trim();
     if (paymentTemplates.some((t) => t.name.trim().toLowerCase() === name.toLowerCase())) {
       toast.error('Já existe um modelo com esse nome.');
@@ -87,9 +84,9 @@ export function PaymentSection({
     const cleaned: CustomPaymentTemplate = { ...paymentDraft, name };
     const nextTpls = [...paymentTemplates, cleaned];
     setSavingPayment(true);
-    const { error } = await supabase
+    const { error } = userId ? await supabase
       .from('app_user_settings')
-      .upsert({ user_id: userId, payment_term_templates: nextTpls } as any, { onConflict: 'user_id' });
+      .upsert({ user_id: userId, payment_term_templates: nextTpls } as any, { onConflict: 'user_id' }) : { error: null };
     setSavingPayment(false);
     if (error) {
       toast.error('Erro a guardar modelo.');
@@ -107,7 +104,8 @@ export function PaymentSection({
       <CollapsibleSection
         icon={Wallet}
         title="Pagamento"
-        summary={<span className="truncate">— {summaryLabel}</span>}
+        summary={<span>({summaryLabel})</span>}
+        inlineSummary
         open={expanded}
         onToggle={onToggle}
       >
@@ -115,7 +113,7 @@ export function PaymentSection({
           <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <Label>Modelo</Label>
-            <Select value={selectedPaymentKey} onValueChange={handleValueChange}>
+            <Select value={openNewPayment ? '__new' : selectedPaymentKey} onValueChange={handleValueChange}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {paymentTemplates.map((t) => (
@@ -144,7 +142,7 @@ export function PaymentSection({
           </div>
           </div>
 
-          <div className="rounded-lg border bg-muted/30 p-3">
+          {!openNewPayment && <div className="rounded-lg border bg-muted/30 p-3">
             <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Pré-visualização</div>
             <div className="space-y-1">
               {expandInstallments(paymentTerms, total, new Date()).map((p, idx) => (
@@ -154,21 +152,13 @@ export function PaymentSection({
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-      </CollapsibleSection>
-
-      <Dialog open={openNewPayment} onOpenChange={(o) => { setOpenNewPayment(o); if (!o) setPaymentDraft(null); }}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Novo método de pagamento personalizado</DialogTitle>
-            <DialogDescription>Será guardado nos teus modelos e selecionado neste orçamento.</DialogDescription>
-          </DialogHeader>
-          {paymentDraft && (
+          </div>}
+          {openNewPayment && paymentDraft && (
             <div className="space-y-4">
               <div>
-                <Label className="text-xs">Nome do modelo</Label>
+                <Label htmlFor="payment-model-name" className="text-xs">Nome do modelo</Label>
                 <Input
+                  id="payment-model-name"
                   value={paymentDraft.name}
                   placeholder="Ex.: 30% adiantamento + 70% à entrega"
                   onChange={(e) => setPaymentDraft({ ...paymentDraft, name: e.target.value })}
@@ -176,26 +166,26 @@ export function PaymentSection({
               </div>
               <div className="space-y-2">
                 {paymentDraft.installments.map((i, idx) => (
-                  <div key={idx} className="grid grid-cols-[1fr_5rem_7rem_2rem] gap-2 items-end">
-                    <div>
-                      {idx === 0 && <Label className="text-xs">Descrição</Label>}
-                      <Input value={i.label} onChange={(e) => {
+                  <div key={idx} className="grid grid-cols-[1fr_1fr_2rem] sm:grid-cols-[minmax(0,1fr)_5rem_7rem_2rem] gap-2 items-end">
+                    <div className="col-span-3 sm:col-span-1">
+                      <Label htmlFor={`payment-label-${idx}`} className="text-xs">Descrição</Label>
+                      <Input id={`payment-label-${idx}`} value={i.label} onChange={(e) => {
                         const next = [...paymentDraft.installments];
                         next[idx] = { ...next[idx], label: e.target.value };
                         setPaymentDraft({ ...paymentDraft, installments: next });
                       }} />
                     </div>
                     <div>
-                      {idx === 0 && <Label className="text-xs">%</Label>}
-                      <Input type="number" min={0} max={100} value={i.percent} onChange={(e) => {
+                      <Label htmlFor={`payment-percent-${idx}`} className="text-xs">%</Label>
+                      <Input id={`payment-percent-${idx}`} type="number" min={0} max={100} value={i.percent} onChange={(e) => {
                         const next = [...paymentDraft.installments];
                         next[idx] = { ...next[idx], percent: Number(e.target.value) };
                         setPaymentDraft({ ...paymentDraft, installments: next });
                       }} />
                     </div>
                     <div>
-                      {idx === 0 && <Label className="text-xs">Dias após aceitação</Label>}
-                      <Input type="number" min={0} value={i.due_offset_days} onChange={(e) => {
+                      <Label htmlFor={`payment-days-${idx}`} className="text-xs">Dias após aceitação</Label>
+                      <Input id={`payment-days-${idx}`} type="number" min={0} value={i.due_offset_days} onChange={(e) => {
                         const next = [...paymentDraft.installments];
                         next[idx] = { ...next[idx], due_offset_days: Number(e.target.value) };
                         setPaymentDraft({ ...paymentDraft, installments: next });
@@ -203,7 +193,7 @@ export function PaymentSection({
                     </div>
                     <div className="flex justify-end">
                       {paymentDraft.installments.length > 1 && (
-                        <Button variant="ghost" size="icon" onClick={() => {
+                        <Button variant="ghost" size="icon" aria-label={`Remover parcela ${idx + 1}`} onClick={() => {
                           const next = paymentDraft.installments.filter((_, n) => n !== idx);
                           setPaymentDraft({ ...paymentDraft, installments: next });
                         }}>
@@ -227,9 +217,7 @@ export function PaymentSection({
                   </p>
                 )}
               </div>
-            </div>
-          )}
-          <DialogFooter>
+          <div className="flex flex-wrap justify-end gap-2">
             <Button variant="ghost" onClick={() => { setOpenNewPayment(false); setPaymentDraft(null); }} disabled={savingPayment}>
               Cancelar
             </Button>
@@ -239,9 +227,11 @@ export function PaymentSection({
             >
               {savingPayment ? 'A guardar...' : 'Adicionar e selecionar'}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+            </div>
+          )}
+        </div>
+      </CollapsibleSection>
     </>
   );
 }

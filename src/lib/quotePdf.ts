@@ -270,7 +270,6 @@ ${q.layout === 'detailed' ? DETAILED_PDF_CSS : ''}
       .map((v) => esc(v))
       .join('<span class="sep">·</span>')}
   </div>` : ''}
-  ${q.layout === 'detailed' && q.extras?.estimatedDuration ? `<div class="duration-pill">Prazo estimado: ${esc(q.extras.estimatedDuration)}</div>` : ''}
 
   ${servicesHtml}
 
@@ -285,7 +284,7 @@ ${q.layout === 'detailed' ? DETAILED_PDF_CSS : ''}
   ${paymentTermsHtml}
   ${q.notes ? `<div class="section"><h3>Notas</h3><div class="prewrap">${esc(q.notes)}</div></div>` : ''}
   ${paymentHtml}
-  ${q.layout === 'detailed' ? buildDetailedHtml(q.services as any[], q.extras, q.company.name || '') : ''}
+  ${q.layout === 'detailed' ? buildDetailedHtml(q.services as any[]) : ''}
   ${attachmentsHtml}
   ${termsHtml}
 

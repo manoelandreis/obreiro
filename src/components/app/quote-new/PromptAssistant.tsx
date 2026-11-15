@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import type { QuoteLayout } from '@/lib/quoteLayout';
 
 export interface PromptQuoteResult {
-  title: string; estimatedDuration: string; importantNotes: string; scope: string;
+  title: string; importantNotes: string;
   services: { name: string; description: string; pricePerHour: number; hours: number; framing: string; objective: string; steps: string; specs: string;
     materials: { name: string; quantity: number; unit: string; unitPrice: number }[] }[];
 }

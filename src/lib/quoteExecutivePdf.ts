@@ -25,8 +25,7 @@ export function buildExecutiveHtml(q: QuoteRenderData, opts: RenderOptions): str
   const materials = q.services.reduce(
     (a, s) => a + (s.materials || []).reduce((b, m) => b + (m.quantity || 0) * (m.unitPrice || 0), 0), 0);
 
-  const scope = lines(q.extras?.scope);
-  const scopeItems = scope.length ? scope : q.services.map((s) => s.name).filter(Boolean);
+  const scopeItems = q.services.map((s) => s.name).filter(Boolean);
   const note = q.notes || opts.brand?.paymentConditions || '';
   const description = q.services.length === 1 ? q.services[0].description : opts.brand?.description;
 
@@ -40,7 +39,6 @@ export function buildExecutiveHtml(q: QuoteRenderData, opts: RenderOptions): str
   const meta = [q.company.nif ? `NIF ${esc(q.company.nif)}` : '', esc(q.company.email || ''), esc(q.company.phone || '')]
     .filter(Boolean).join(' · ');
 
-  const [signerName, ...signerRest] = (q.extras?.signer || '').split('·').map((x) => x.trim());
   const footer = (page: string) => `<div class="footer"><span>${esc(company)}${q.company.nif ? ` · NIF ${esc(q.company.nif)}` : ''}</span><span>${page}Powered by <b>Obreiro</b></span></div>`;
 
   const servicesHtml = q.services.map((s, i) => {
@@ -158,7 +156,7 @@ td .m { color: var(--mut); }
     </div>
   </div>
   <div class="sign">
-    <div class="sig-co"><b>${esc(signerName || company)}</b><small>${esc([...signerRest, signerName ? company : ''].filter(Boolean).join(' · '))}</small></div>
+    <div class="sig-co"><b>${esc(company)}</b><small>${esc(q.company.nif ? `NIF ${q.company.nif}` : '')}</small></div>
     <div class="accept"><div class="label">Aceitação do cliente</div>
       <div class="two"><div class="field">Nome</div><div class="field">Data</div></div>
       <div class="field big">Assinatura</div>

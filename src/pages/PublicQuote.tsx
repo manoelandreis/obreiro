@@ -264,11 +264,6 @@ export default function PublicQuote() {
                   {cl.address && <span>· {cl.address}</span>}
                 </div>
               )}
-              {detailed && extras.estimatedDuration && (
-                <span className="inline-block mt-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
-                  Prazo estimado: {extras.estimatedDuration}
-                </span>
-              )}
             </div>
 
             {/* Services */}
@@ -379,7 +374,7 @@ export default function PublicQuote() {
         )}
 
         {detailed && (
-          <DetailedSections services={quote.services || []} extras={extras} companyName={cs.name || cs.company_name || ''} />
+          <DetailedSections services={quote.services || []} about={cs.description || cs.company_description || null} companyName={cs.name || cs.company_name || ''} />
         )}
 
         <Button

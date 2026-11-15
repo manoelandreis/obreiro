@@ -1,17 +1,16 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { hasDetails, lines, type QuoteExtras, type ServiceDetails } from '@/lib/quoteLayout';
+import { hasDetails, lines, type ServiceDetails } from '@/lib/quoteLayout';
 
 const fmt = (v: number) => Number(v || 0).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
 
 interface Props {
   services: any[];
-  extras: QuoteExtras;
+  about?: string | null;
   companyName: string;
 }
 
 /** Technical detail cards, company card and important notes for the detailed quote template. */
-export function DetailedSections({ services, extras, companyName }: Props) {
-  const notes = lines(extras.importantNotes);
+export function DetailedSections({ services, about, companyName }: Props) {
   return (
     <>
       {services.map((s, i) => {
@@ -73,22 +72,13 @@ export function DetailedSections({ services, extras, companyName }: Props) {
         );
       })}
 
-      {extras.about && (
+      {about && (
         <Card className="border-l-4 border-l-accent">
           <CardContent className="pt-6 space-y-1 text-sm">
             <div className="font-heading font-semibold text-primary">{companyName}</div>
-            <p className="text-muted-foreground whitespace-pre-wrap">{extras.about}</p>
+            <p className="text-muted-foreground whitespace-pre-wrap">{about}</p>
           </CardContent>
         </Card>
-      )}
-
-      {notes.length > 0 && (
-        <div className="rounded-lg bg-muted/60 p-4 text-xs">
-          <div className="font-semibold uppercase tracking-wide text-muted-foreground mb-1">Notas importantes</div>
-          <ul className="list-disc pl-5 space-y-0.5">
-            {notes.map((l, k) => <li key={k}>{l}</li>)}
-          </ul>
-        </div>
       )}
     </>
   );

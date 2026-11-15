@@ -31,8 +31,7 @@ export function ExecutiveQuoteView({ quote, logoUrl }: Props) {
   const labor = services.reduce((a, s) => a + (s.pricePerHour || 0) * (s.hours || 0), 0);
   const materials = services.reduce(
     (a, s) => a + (s.materials || []).reduce((b: number, m: any) => b + (m.quantity || 0) * (m.unitPrice || 0), 0), 0);
-  const scope = lines(extras.scope);
-  const scopeItems = scope.length ? scope : services.map((s) => s.name).filter(Boolean);
+  const scopeItems = services.map((s) => s.name).filter(Boolean);
   const description = services.length === 1 ? services[0].description : null;
   const parts = expandInstallments(
     quote.payment_terms ?? DEFAULT_PAYMENT_TERMS,
@@ -40,7 +39,6 @@ export function ExecutiveQuoteView({ quote, logoUrl }: Props) {
     quote.responded_at ?? quote.sent_at ?? quote.created_at,
   );
   const meta = [cs.nif ? `NIF ${cs.nif}` : '', cs.email, cs.phone].filter(Boolean).join(' · ');
-  const [signerName, ...signerRest] = String(extras.signer || '').split('·').map((x) => x.trim());
 
   return (
     <div className="space-y-5">
@@ -196,12 +194,6 @@ export function ExecutiveQuoteView({ quote, logoUrl }: Props) {
             </div>
           </div>
         </div>
-        {(extras.signer || company) && (
-          <div className="mt-8 max-w-xs border-t border-foreground pt-2">
-            <div className="font-semibold text-sm">{signerName || company}</div>
-            <div className="text-xs text-muted-foreground">{[...signerRest, signerName ? company : ''].filter(Boolean).join(' · ')}</div>
-          </div>
-        )}
       </div>
     </div>
   );

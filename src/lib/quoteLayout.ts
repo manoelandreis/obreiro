@@ -40,8 +40,6 @@ const euro = (v: number) => Number(v || 0).toLocaleString('pt-PT', { style: 'cur
 /** Extra HTML blocks for the PDF when the detailed layout is used. */
 export function buildDetailedHtml(
   services: any[],
-  extras: QuoteExtras | null | undefined,
-  companyName: string,
 ): string {
   const blocks = services.map((s, i) => {
     const d: ServiceDetails = s.details || {};
@@ -58,10 +56,7 @@ export function buildDetailedHtml(
       ${mats.length ? `<h4>Materiais aplicados</h4><table class="detail-table"><thead><tr><th>Material / Item</th><th>Qtd.</th><th>Preço/Un.</th></tr></thead><tbody>${mats.map((m: any) => `<tr><td>${esc(m.name)}</td><td>${esc(m.quantity)} ${esc(m.unit)}</td><td>${euro(m.unitPrice)}</td></tr>`).join('')}</tbody></table>` : ''}
     </div>`;
   }).join('');
-  const notes = lines(extras?.importantNotes);
-  return `${blocks}
-  ${extras?.about ? `<div class="about-card"><div class="about-title">${esc(companyName)}</div><p>${esc(extras.about)}</p></div>` : ''}
-  ${notes.length ? `<div class="notes-card"><h4>Notas importantes</h4><ul>${notes.map((l) => `<li>${esc(l)}</li>`).join('')}</ul></div>` : ''}`;
+  return blocks;
 }
 
 export const DETAILED_PDF_CSS = `

@@ -10,9 +10,9 @@ const str = { type: 'string' };
 const num = { type: 'number' };
 const schema = {
   type: 'object', additionalProperties: false,
-  required: ['title', 'estimatedDuration', 'importantNotes', 'scope', 'services'],
+  required: ['title', 'importantNotes', 'services'],
   properties: {
-    title: str, estimatedDuration: str, importantNotes: str, scope: str,
+    title: str, importantNotes: str,
     services: { type: 'array', items: {
       type: 'object', additionalProperties: false,
       required: ['name', 'description', 'pricePerHour', 'hours', 'framing', 'objective', 'steps', 'specs', 'materials'],
@@ -33,7 +33,7 @@ Regras:
 - Lista todos os materiais mencionados e os necessários óbvios, com quantidade, unidade (un, m², m, L, kg, saco, rolo, balde) e preço unitário estimado sem IVA em euros.
 - Não incluas IVA nos preços.
 - framing (enquadramento), objective, steps (uma etapa por linha) e specs (uma por linha) por serviço.
-- estimatedDuration ex: "3 dias úteis". importantNotes: notas contratuais, uma por linha. scope: pontos do âmbito, um por linha.
+- importantNotes: notas e condições para o cliente, uma por linha.
 - title: título curto do orçamento.`;
 
 Deno.serve(async (req) => {

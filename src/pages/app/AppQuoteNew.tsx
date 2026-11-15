@@ -48,7 +48,7 @@ export default function AppQuoteNew() {
   const [photoCount, setPhotoCount] = useState(0);
 
   // Company snapshot (from settings)
-  const [company, setCompany] = useState({ name: '', email: '', phone: '', address: '', nif: '', iban: '', mbway: '' });
+  const [company, setCompany] = useState({ name: '', email: '', phone: '', address: '', nif: '', iban: '', mbway: '', description: '' });
 
   // Clients
   const [clients, setClients] = useState<ClientRow[]>([]);
@@ -94,7 +94,7 @@ export default function AppQuoteNew() {
     if (!user) return;
     void (async () => {
       const [{ data: settings }, { data: cs }, { data: tpl }] = await Promise.all([
-        supabase.from('app_user_settings').select('full_name, company_name, company_nif, company_email, company_phone, company_address, payment_iban, payment_mbway, default_payment_terms, payment_term_templates' as any).eq('user_id', user.id).maybeSingle(),
+        supabase.from('app_user_settings').select('full_name, company_name, company_nif, company_email, company_phone, company_address, payment_iban, payment_mbway, company_description, default_payment_terms, payment_term_templates' as any).eq('user_id', user.id).maybeSingle(),
         supabase.from('app_clients').select('id, name, email, phone, address').order('name'),
         supabase.from('quote_templates').select('id, name, unit, default_price').eq('is_active', true),
       ]);
@@ -108,6 +108,7 @@ export default function AppQuoteNew() {
           address: s.company_address || '',
           iban: s.payment_iban || '',
           mbway: s.payment_mbway || '',
+          description: s.company_description || '',
         });
         setCompanyConfigured(!!(s.company_name || s.company_nif || s.company_email));
         const tpls: CustomPaymentTemplate[] = Array.isArray(s.payment_term_templates) ? s.payment_term_templates : [];
@@ -186,12 +187,7 @@ export default function AppQuoteNew() {
       return [...kept, ...newSvcs];
     });
     if (r.title && (!title || title === 'Orçamento')) setTitle(r.title);
-    setExtras((prev) => ({
-      ...prev,
-      estimatedDuration: prev.estimatedDuration || r.estimatedDuration,
-      importantNotes: prev.importantNotes || r.importantNotes,
-      scope: prev.scope || r.scope,
-    }));
+    if (r.importantNotes) setNotes((prev) => prev.trim() ? prev : r.importantNotes);
     setExpanded((e) => ({ ...e, services: true }));
   };
 
@@ -305,7 +301,7 @@ export default function AppQuoteNew() {
         client_id: selectedClientId,
         title: title.trim() || 'Orçamento',
         client_snapshot: selectedClient as any,
-        company_snapshot: { ...prevSnap, layout, extras: layout !== 'classic' ? extras : null, vat_regime: vatRegime } as any,
+        company_snapshot: { ...prevSnap, ...(company.description ? { description: company.description } : {}), layout, extras: null, vat_regime: vatRegime } as any,
         services: services as any,
         notes: notes.trim() || null,
         payment_terms: paymentTerms as any,
@@ -346,7 +342,7 @@ export default function AppQuoteNew() {
         client_id: selectedClientId,
         job_id: job.id,
         title: title.trim() || 'Orçamento',
-        company_snapshot: { ...company, layout, extras: layout !== 'classic' ? extras : null, vat_regime: vatRegime } as any,
+        company_snapshot: { ...company, layout, extras: null, vat_regime: vatRegime } as any,
         client_snapshot: selectedClient as any,
         services: services as any,
         notes: notes.trim() || null,
@@ -434,7 +430,7 @@ export default function AppQuoteNew() {
         </Card>
       )}
 
-      <TemplateSection layout={layout} onLayoutChange={setLayout} extras={extras} onExtrasChange={setExtras} />
+      <TemplateSection layout={layout} onLayoutChange={setLayout} />
 
       <ClientSection
         clients={clients}

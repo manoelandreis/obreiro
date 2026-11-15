@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { PromptAssistant, type PromptQuoteResult } from '@/components/app/quote-new/PromptAssistant';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CollapsibleSection } from '@/components/app/CollapsibleSection';
 import { QuoteAttachments } from '@/components/app/QuoteAttachments';
@@ -169,6 +170,27 @@ export default function AppQuoteNew() {
   }, [user, editId]);
 
   // Service helpers
+  const applyPrompt = (r: PromptQuoteResult) => {
+    const newSvcs: ServiceItem[] = r.services.map((s) => ({
+      id: crypto.randomUUID(), name: s.name, description: s.description,
+      pricePerHour: Number(s.pricePerHour) || 0, hours: Number(s.hours) || 1,
+      materials: s.materials.map((m) => ({ id: crypto.randomUUID(), name: m.name, quantity: Number(m.quantity) || 1, unit: m.unit || 'un', unitPrice: Number(m.unitPrice) || 0 })),
+      details: { framing: s.framing, objective: s.objective, steps: s.steps, specs: s.specs },
+    }));
+    setServices((prev) => {
+      const kept = prev.filter((s) => s.name.trim() || s.materials.length);
+      return [...kept, ...newSvcs];
+    });
+    if (r.title && (!title || title === 'Orçamento')) setTitle(r.title);
+    setExtras((prev) => ({
+      ...prev,
+      estimatedDuration: prev.estimatedDuration || r.estimatedDuration,
+      importantNotes: prev.importantNotes || r.importantNotes,
+      scope: prev.scope || r.scope,
+    }));
+    setExpanded((e) => ({ ...e, services: true }));
+  };
+
   const addService = () => setServices([...services, emptyService()]);
   const removeService = (id: string) => setServices(services.filter((s) => s.id !== id));
   const updateService = (id: string, field: keyof Omit<ServiceItem, 'id' | 'materials'>, value: string | number) =>
@@ -418,6 +440,8 @@ export default function AppQuoteNew() {
         expanded={expanded.client}
         onToggle={() => toggle('client')}
       />
+
+      <PromptAssistant layout={layout} signedIn={!!user} onApply={applyPrompt} />
 
       <ServicesSection
         services={services}

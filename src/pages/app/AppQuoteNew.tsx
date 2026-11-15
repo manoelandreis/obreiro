@@ -415,6 +415,15 @@ export default function AppQuoteNew() {
         </CardContent>
       </Card>
 
+      <ClientSection
+        clients={clients}
+        selectedClientId={selectedClientId}
+        onSelectClient={setSelectedClientId}
+        onNewClient={() => setOpenNewClient(true)}
+        expanded={expanded.client}
+        onToggle={() => toggle('client')}
+      />
+
       {user && !companyConfigured && (
         <Card className="border-warning/30 bg-warning-soft/60">
           <CardContent className="pt-6 flex items-start gap-3">
@@ -431,15 +440,6 @@ export default function AppQuoteNew() {
       )}
 
       <TemplateSection layout={layout} onLayoutChange={setLayout} />
-
-      <ClientSection
-        clients={clients}
-        selectedClientId={selectedClientId}
-        onSelectClient={setSelectedClientId}
-        onNewClient={() => setOpenNewClient(true)}
-        expanded={expanded.client}
-        onToggle={() => toggle('client')}
-      />
 
       <PromptAssistant layout={layout} signedIn={!!user} onApply={applyPrompt} />
 

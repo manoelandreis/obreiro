@@ -22,7 +22,7 @@ import { NotesSection } from '@/components/app/quote-new/NotesSection';
 import { PhotosSection, type DraftPhoto } from '@/components/app/quote-new/PhotosSection';
 import { TemplateSection } from '@/components/app/quote-new/TemplateSection';
 import { parseLayout, type QuoteExtras, type QuoteLayout, type ServiceDetails } from '@/lib/quoteLayout';
-import { VAT_OPTIONS, parseVatRegime, vatRate, type VatRegime } from '@/lib/vat';
+import { parseVatRegime, vatRate, type VatRegime } from '@/lib/vat';
 import { uploadDraftPhotos } from '@/lib/draftPhotoUpload';
 import { saveGuestDraft, loadGuestDraft, clearGuestDraft } from '@/lib/guestDraft';
 import {
@@ -473,6 +473,8 @@ export default function AppQuoteNew() {
         expanded={expanded.payment}
         onToggle={() => toggle('payment')}
         userId={user?.id}
+        vatRegime={vatRegime}
+        onVatRegimeChange={setVatRegime}
       />
 
       <NotesSection
@@ -504,28 +506,19 @@ export default function AppQuoteNew() {
         </CollapsibleSection>
       )}
 
-      <Card>
-        <CardContent className="pt-6 space-y-2 text-right">
-          <div className="text-sm text-muted-foreground">Subtotal: <span className="font-medium text-foreground">{fmt(subtotal)}</span></div>
-          <div className="flex items-center justify-end gap-2 text-sm text-muted-foreground">
-            <label htmlFor="vat-regime">Taxa de IVA</label>
-            <select id="vat-regime" value={vatRegime} onChange={(e) => setVatRegime(e.target.value as VatRegime)} disabled={saving}
-              className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground">
-              {VAT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-          </div>
-          {VAT_OPTIONS.find((o) => o.value === vatRegime)?.note && (
-            <p className="text-xs text-muted-foreground">{VAT_OPTIONS.find((o) => o.value === vatRegime)?.note}</p>
-          )}
-          <div className="text-sm text-muted-foreground">IVA ({vatRate(vatRegime)}%): <span className="font-medium text-foreground">{fmt(iva)}</span></div>
-          <div className="text-2xl font-bold text-primary border-t pt-2">Total: {fmt(total)}</div>
-          <div className="pt-3">
-            <Button size="lg" className="gap-2 w-full" disabled={saving} onClick={handleSave}>
-              <Save className="h-4 w-4" /> {saving ? 'A guardar...' : isEdit ? 'Guardar Alterações' : 'Guardar Orçamento'}
+      <div className="sticky bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] md:bottom-4 z-20">
+        <Card className="shadow-lg">
+          <CardContent className="py-3 flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <div className="text-xs text-muted-foreground">Subtotal {fmt(subtotal)} · IVA ({vatRate(vatRegime)}%) {fmt(iva)}</div>
+              <div className="text-xl font-bold text-primary">Total: {fmt(total)}</div>
+            </div>
+            <Button className="gap-2 shrink-0" disabled={saving} onClick={handleSave}>
+              <Save className="h-4 w-4" /> {saving ? 'A guardar...' : 'Guardar'}
             </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
 
       <ClientFormSheet
         open={openNewClient}

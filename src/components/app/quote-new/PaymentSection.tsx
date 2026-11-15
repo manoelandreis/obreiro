@@ -17,6 +17,7 @@ import {
   createEmptyTemplate,
   type PaymentPreset, type PaymentTerms, type CustomPaymentTemplate,
 } from '@/lib/paymentTerms';
+import { VAT_OPTIONS, type VatRegime } from '@/lib/vat';
 
 interface PaymentSectionProps {
   total: number;
@@ -29,6 +30,8 @@ interface PaymentSectionProps {
   expanded: boolean;
   onToggle: () => void;
   userId?: string;
+  vatRegime: VatRegime;
+  onVatRegimeChange: (v: VatRegime) => void;
 }
 
 const fmt = (v: number) => v.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
@@ -44,6 +47,8 @@ export function PaymentSection({
   expanded,
   onToggle,
   userId,
+  vatRegime,
+  onVatRegimeChange,
 }: PaymentSectionProps) {
   const [openNewPayment, setOpenNewPayment] = useState(false);
   const [paymentDraft, setPaymentDraft] = useState<CustomPaymentTemplate | null>(null);
@@ -107,6 +112,7 @@ export function PaymentSection({
         onToggle={onToggle}
       >
         <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <Label>Modelo</Label>
             <Select value={selectedPaymentKey} onValueChange={handleValueChange}>
@@ -123,6 +129,19 @@ export function PaymentSection({
                 <SelectItem value="__new" className="text-primary font-medium">+ Novo modelo personalizado</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div>
+            <Label>Taxa de IVA</Label>
+            <Select value={vatRegime} onValueChange={(v) => onVatRegimeChange(v as VatRegime)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {VAT_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            {VAT_OPTIONS.find((o) => o.value === vatRegime)?.note && (
+              <p className="text-xs text-muted-foreground mt-1">{VAT_OPTIONS.find((o) => o.value === vatRegime)?.note}</p>
+            )}
+          </div>
           </div>
 
           <div className="rounded-lg border bg-muted/30 p-3">
